@@ -1,0 +1,51 @@
+<div class="row">{{error}}</div>
+
+<div class="row">
+	<table class="col-md-12 table">
+		<thead>
+			<tr>
+				<th>
+					Party Type
+				</th>
+				<th>
+					Unit
+				</th>
+				<th>
+					User
+				</th>
+				<th>
+					Create Time
+				</th>
+				<th>
+					Reservation Time
+				</th>
+				<th>
+					Operation
+				</th>
+			</tr>
+		</thead>
+		<tbody ng-repeat='(seq, units) in waitingList'>
+			<tr ng-repeat='unit in units'>
+				<td>
+					{{seq}}
+				</td>
+				<td>
+					{{unit.unitId}}
+				</td>
+				<td>
+					{{unit.userId}}
+				</td>
+				<td>
+					{{unit.createTime}}
+				</td>
+				<td>
+					{{unit.reservationTime}}
+				</td>
+				<td>
+					<button class="btn btn-primary">Call</button>
+					<button class="btn btn-primary">Remove</button>
+				</td>
+			</tr>
+		</tbody>
+	</table>
+</div>

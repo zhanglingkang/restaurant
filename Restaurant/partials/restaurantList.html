@@ -1,1 +1,20 @@
-<div>Restaurant List</div>
+<h1>
+	Restaurant List
+</h1>
+<div class="list-group">
+	<a ng-repeat='restaurant in restaurantList' class="list-group-item" href='#/waitinglist/{{restaurant.restaurantId}}'>
+		<div class="row">
+			<p class="list-group-item-heading col-sm-12">
+				{{restaurant.name}}
+			</p>
+			<p class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+				<img ng-src='{{restaurant.imageLinkThumbnail}}' />
+			</p>
+			<div class="col-lg-8 col-md-8 col-sm-6 col-xs-12">
+				<p>{{restaurant.restaurantDescription}}</p>
+				<p>电话:&nbsp;&nbsp;{{restaurant.phone.phone}}&nbsp;&nbsp;&nbsp;&nbsp;    邮件:&nbsp;&nbsp;{{restaurant.email}} </p>
+				<p>地址:&nbsp;&nbsp;{{restaurant.address.state}}{{restaurant.city}}{{restaurant.address.street}}{{restaurant.zipcode}}&nbsp;&nbsp;&nbsp;&nbsp;    网址:&nbsp;&nbsp;{{restaurant.website}}</p>
+			</div>
+		</div>
+	</a>
+</div>

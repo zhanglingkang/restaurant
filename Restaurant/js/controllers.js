@@ -18,7 +18,7 @@ ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$win
                 {
                    console.log("login result " + result);
                     console.log("token " + $window.sessionStorage.token);
-                    $location.redirectTo("/myRestaurants");
+                    $location.path("/myRestaurants");
                 }, function(result)
                 {
                     console.log("login failed " + result);
@@ -26,19 +26,31 @@ ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$win
 
             );
         };
-    }]);
+    }
+]);
 
-ppzRestaurantControllers.controller('restaurantListController', ['$scope',
-    function($scope)
+ppzRestaurantControllers.controller('restaurantListController', ['$scope', 'RestaurantService',
+    function($scope, RestaurantService)
     {
-        $scope.username = "none";
-        $scope.password = "nah";
-    }]);
+        $scope.loading = true;
+        RestaurantService.getMyRestaurantList(function(error, restaurantList){
+            $scope.loading = false;
+            $scope.error = error;
+            $scope.restaurantList = restaurantList;
+        });
+    }
+]);
 
-ppzRestaurantControllers.controller('restaurantDetailController', ['$scope',
-    function($scope)
+ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeParams', 'RestaurantService',
+    function($scope, $routeParams, RestaurantService)
     {
-        $scope.username = "none";
-        $scope.password = "nah";
-    }]);
+        $scope.restaurantId = $routeParams.restaurantId;
+        $scope.loading = true;
+        RestaurantService.getWaitingList($scope.restaurantId, function(error, allList){
+            $scope.loading = false;
+            $scope.error = error;
+            $scope.waitingList = allList.waitingList;
+        });
+    }
+]);
 

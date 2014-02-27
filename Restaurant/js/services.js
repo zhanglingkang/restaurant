@@ -48,3 +48,60 @@ ppzServices.factory('Login', ['$http','$q', "$window",
         return loginService;
     }
 ]);
+
+ppzServices.factory('RestaurantService', ['$http', '$window',
+    function($http, $window) {
+        return {
+            getMyRestaurantList: function(callback) {
+                var reqData = createRequest('getManagingRestaurants', {sessionId : $window.sessionStorage.token});
+                $http.post(SERVER_URL, reqData).
+                    success(
+                        function(data) {
+                            var jsonData = JSON.parse(data.data);
+                            if(jsonData.code != PPZ_ERROR.None)
+                                callback(jsonData.message);
+                            else
+                                callback(null, jsonData.results);
+                        }
+                    ).
+                    error(
+                        function(error) {
+                        console.log('encounted error in getMyRestaurantList: ' + error);
+                        callback(error);
+                    }
+                );
+            },
+
+            getWaitingList: function(restaurantId, callback) {
+                var reqData = createRequest('allUnitInfo', {sessionId : $window.sessionStorage.token, restaurantId : restaurantId});
+                $http.post(SERVER_URL, reqData).
+                    success(
+                        function(data) {
+                            var jsonData = JSON.parse(data.data);
+                            if(jsonData.code != PPZ_ERROR.None)
+                                callback(jsonData.message);
+                            else
+                                callback(null, jsonData.results[0]);
+                        }
+                    ).
+                    error(
+                        function(error) {
+                        console.log('encounted error in queryRestaurantQueue: ' + error);
+                        callback(error);
+                    }
+                );
+            }
+        }
+    }
+]);
+
+ppzServices.factory('WaitingListService', ['$http', '$window', function($http, $window){
+    return {
+        callUser: function() {
+
+        },
+        removeUser: function() {
+
+        }
+    };
+}]);
