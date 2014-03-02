@@ -49,10 +49,13 @@ ppzServices.factory('Login', ['$http','$q', "$window",
     }
 ]);
 
-ppzServices.factory('RestaurantService', ['$http', '$window',
-    function($http, $window) {
+ppzServices.factory('RestaurantService', ['$http', '$window', '$q',
+    function($http, $window, $q) {
         return {
+            _restaurantList : null,
+
             getMyRestaurantList: function(callback) {
+                var _this = this
                 var reqData = createRequest('getManagingRestaurants', {sessionId : $window.sessionStorage.token});
                 $http.post(SERVER_URL, reqData).
                     success(
@@ -60,8 +63,10 @@ ppzServices.factory('RestaurantService', ['$http', '$window',
                             var jsonData = JSON.parse(data.data);
                             if(jsonData.code != PPZ_ERROR.None)
                                 callback(jsonData.message);
-                            else
-                                callback(null, jsonData.results);
+                            else {
+                                _this._restaurantList = jsonData.results
+                                callback(null, _this._restaurantList);
+                            }
                         }
                     ).
                     error(
@@ -70,6 +75,30 @@ ppzServices.factory('RestaurantService', ['$http', '$window',
                         callback(error);
                     }
                 );
+            },
+
+            getRestaurant: function(restaurantId, callback) {
+                var _this = this;
+                var defer = $q.defer();
+                if(!this._restaurantList){
+                    this.getMyRestaurantList(function(error, list) {
+                        if(error) 
+                            defer.reject(error);
+                        else
+                            defer.resolve();
+                    });
+                }
+                else
+                    defer.resolve();
+                defer.promise.then(function() {
+                    for(var i = 0; i < _this._restaurantList.length; ++i) {
+                        if(_this._restaurantList[i].restaurantId === restaurantId) 
+                            return callback(null, _this._restaurantList[i]);
+                    }
+                }, function(error) {
+                    callback(error);
+                });
+
             },
 
             getWaitingList: function(restaurantId, callback) {
@@ -97,11 +126,67 @@ ppzServices.factory('RestaurantService', ['$http', '$window',
 
 ppzServices.factory('WaitingListService', ['$http', '$window', function($http, $window){
     return {
-        callUser: function() {
-
+        callUser: function(restaurantId, unitId, callback) {
+            var reqData = createRequest('callUser', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, unitId: unitId});
+            $http.post(SERVER_URL, reqData).
+            success(function(data) {
+                var jsonData = JSON.parse(data.data);
+                if(jsonData.code != PPZ_ERROR.None)
+                    callback(jsonData.message);
+                else
+                    callback(null, jsonData.results[0]);
+            }).error(function(error) {
+                console.log('encounted error in callUser: ' + error);
+                callback(error);
+            });
         },
-        removeUser: function() {
-
+        removeUser: function(restaurantId, unitId, callback) {
+            var reqData = createRequest('waitingToComplete', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, unitId: unitId});
+            $http.post(SERVER_URL, reqData).
+            success(function(data) {
+                var jsonData = JSON.parse(data.data);
+                if(jsonData.code != PPZ_ERROR.None)
+                    callback(jsonData.message);
+                else
+                    callback(null, jsonData.results[0]);
+            }).error(function(error) {
+                console.log('encounted error in removeUser: ' + error);
+                callback(error);
+            });
+        },
+        addUser: function(restaurantId, userId, partyTypeId, callback) {
+            var reqData = createRequest('addUserToQueue', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, userId: userId, partyTypeId: partyTypeId});
+            $http.post(SERVER_URL, reqData).
+            success(function(data) {
+                var jsonData = JSON.parse(data.data);
+                if(jsonData.code != PPZ_ERROR.None)
+                    callback(jsonData.message);
+                else
+                    callback(null, jsonData.results[0]);
+            }).error(function(error) {
+                console.log('encounted error in addUser: ' + error);
+                callback(error);
+            });
         }
     };
 }]);
+
+ppzServices.factory('MenuService', ['$http', '$window', function($http, $window){
+    return {
+        getMenu: function(restaurantId, callback) {
+            var reqData = createRequest('getRestaurantMenu', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId});
+            $http.post(SERVER_URL, reqData).
+            success(function(data) {
+                var jsonData = JSON.parse(data.data);
+                if(jsonData.code != PPZ_ERROR.None)
+                    callback(jsonData.message);
+                else
+                    callback(null, jsonData.results[0]);
+            }).error(function(error) {
+                console.log('encounted error in getRestaurantMenu: ' + error);
+                callback(error);
+            });
+        },
+    };
+}]);
+

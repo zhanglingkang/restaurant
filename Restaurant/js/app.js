@@ -2,7 +2,7 @@
  * Created by Chris on 2/2/14.
  */
 
-var ppzRestaurant = angular.module("ppzRestaurant", ["ngRoute", "ppzControllers", 'ppzServices']);
+var ppzRestaurant = angular.module("ppzRestaurant", ["ngRoute", "ppzControllers", 'ppzServices', 'ui.bootstrap']);
 
 ppzRestaurant.config(["$routeProvider", function($routeProvider)
 {

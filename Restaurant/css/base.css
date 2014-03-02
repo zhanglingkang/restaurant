@@ -1,0 +1,13 @@
+/* utility*/
+
+hr.space {
+	background: transparent;
+	border: none;
+}
+/* utility*/
+
+/* patch to bootstrap*/
+.nav.nav-tabs:hover {
+	cursor: pointer;
+}
+/* patch to bootstrap*/

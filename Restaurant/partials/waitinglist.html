@@ -1,51 +1,42 @@
 <div class="row">{{error}}</div>
 
-<div class="row">
-	<table class="col-md-12 table">
-		<thead>
-			<tr>
-				<th>
-					Party Type
-				</th>
-				<th>
-					Unit
-				</th>
-				<th>
-					User
-				</th>
-				<th>
-					Create Time
-				</th>
-				<th>
-					Reservation Time
-				</th>
-				<th>
-					Operation
-				</th>
-			</tr>
-		</thead>
-		<tbody ng-repeat='(seq, units) in waitingList'>
-			<tr ng-repeat='unit in units'>
-				<td>
-					{{seq}}
-				</td>
-				<td>
-					{{unit.unitId}}
-				</td>
-				<td>
-					{{unit.userId}}
-				</td>
-				<td>
-					{{unit.createTime}}
-				</td>
-				<td>
-					{{unit.reservationTime}}
-				</td>
-				<td>
-					<button class="btn btn-primary">Call</button>
-					<button class="btn btn-primary">Remove</button>
-				</td>
-			</tr>
-		</tbody>
-	</table>
+<div class='row'>
+	<tabset class='col-lg-7'>
+		<tab ng-repeat='(seg, units) in waitingList' heading='{{seg}} ({{units.length}}人等候)'>
+			<hr class='space' />
+			<div class="list-group">
+				<div ng-repeat='unit in units' class="list-group-item">
+					<div class="row">
+						<div class="col-lg-1">
+							{{unit.unitId}} 
+						</div>
+						<div class="col-lg-2">
+							{{unit.userId}}
+						</div>
+						<div class="col-lg-4">
+							{{unit.createTime * 1000 | date:'medium'}}
+						</div>
+						<div class="col-lg-1">
+							{{unit.callCount}}
+						</div>
+						<div class='col-lg-3'>
+							<button class="btn btn-primary" ng-click="remove(units, $index)">移除</button>
+							<button class="btn btn-primary" ng-click="call(unit)">叫号</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</tab>
+	</tabset>
+	<form id="reserve-panel" class="col-lg-5 form-inline">
+		<hr class='space' />
+		<div>
+			<input placeholder="用户名" class="form-control" ng-model="newReserve.userId"/>
+			<select class="form-control" ng-model="newReserve.typeId">
+				<option ng-repeat='(seg, units) in waitingList' value="{{seg}}">{{seg}}</option>
+			</select>
+		</div>
+		<hr class='space' />
+		<button ng-click="addUser()" class="btn btn-primary">添加</button>
+	</form>
 </div>
