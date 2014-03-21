@@ -1,10 +1,29 @@
 <div class="row">{{error}}</div>
 
 <div class='row'>
-	<tabset class='col-lg-7'>
+	<tabset class='col-lg-8'>
 		<tab ng-repeat='(seg, units) in waitingList' heading='{{seg}} ({{units.length}}人等候)'>
 			<hr class='space' />
 			<div class="list-group">
+				<div class="list-group-item list-group-item-info">
+					<div class="row">
+						<div class="col-lg-1">
+							座号
+						</div>
+						<div class="col-lg-2">
+							用户ID
+						</div>
+						<div class="col-lg-4">
+							排队时间
+						</div>
+						<div class="col-lg-2">
+							叫号次数
+						</div>
+						<div class='col-lg-3'>
+							操作
+						</div>
+					</div>
+				</div>
 				<div ng-repeat='unit in units' class="list-group-item">
 					<div class="row">
 						<div class="col-lg-1">
@@ -16,7 +35,7 @@
 						<div class="col-lg-4">
 							{{unit.createTime * 1000 | date:'medium'}}
 						</div>
-						<div class="col-lg-1">
+						<div class="col-lg-2">
 							{{unit.callCount}}
 						</div>
 						<div class='col-lg-3'>
@@ -27,16 +46,79 @@
 				</div>
 			</div>
 		</tab>
+		<tab heading='预定 ({{reservationList.length}}人等候)'>
+			<hr class='space' />
+			<div class="list-group">
+				<div class="list-group-item list-group-item-info">
+					<div class="row">
+						<div class="col-lg-1">
+							座号
+						</div>
+						<div class="col-lg-2">
+							客人
+						</div>
+						<div class="col-lg-4">
+							排队时间
+						</div>
+						<div class="col-lg-2">
+							叫号次数
+						</div>
+						<div class='col-lg-3'>
+							操作
+						</div>
+					</div>
+				</div>
+				<div ng-repeat='unit in reservationList' class="list-group-item">
+					<div class="row">
+						<div class="col-lg-1">
+							{{unit.unitId}} 
+						</div>
+						<div class="col-lg-2">
+							{{unit.name}}
+						</div>
+						<div class="col-lg-4">
+							{{unit.createTime * 1000 | date:'medium'}}
+						</div>
+						<div class="col-lg-2">
+							{{unit.callCount}}
+						</div>
+						<div class='col-lg-3'>
+							<button class="btn btn-primary" ng-click="remove(reservationList, $index, 'reservation')">移除</button>
+							<button class="btn btn-primary" ng-click="call(unit)">叫号</button>
+						</div>
+					</div>
+				</div>
+			</div>
+		</tab>
 	</tabset>
-	<form id="reserve-panel" class="col-lg-5 form-inline">
+	<form id="reserve-panel" class="col-lg-4 form-inline" name="reserveForm" novalidate>
 		<hr class='space' />
 		<div>
-			<input placeholder="用户名" class="form-control" ng-model="newReserve.userId"/>
-			<select class="form-control" ng-model="newReserve.typeId">
+			<input placeholder="用户名" class="form-control" ng-model="newReserve.name" required name="fUser"/>
+			<alert type="'danger'" ng-show="reserveForm.fUser.$dirty && !reserveForm.fUser.$valid">
+				请输入用户名
+			</alert>
+			<select class="form-control" ng-model="newReserve.typeId" required name="fType">
 				<option ng-repeat='(seg, units) in waitingList' value="{{seg}}">{{seg}}</option>
 			</select>
 		</div>
+		<hr class="space" />
+		<div>
+			<input type="number" class="form-control" ng-model="newReserve.phone" placeholder="电话号码" required name="fPhone"/>
+			<alert type="'danger'" ng-show="reserveForm.fPhone.$dirty && !reserveForm.fPhone.$valid">
+				请输入有效的电话号码
+			</alert>
+		</div>
+		<div>
+			<p class="input-group">
+			<input type="text" class="form-control" datepicker-popup ng-model="time" placeholder="日期" show-weeks="false" current-text="今天" toggle-weeks-text="显示周序" clear-text="清除" close-text="关闭" />
+			<span class="input-group-btn">
+				<button class="btn btn-default"><i class="glyphicon glyphicon-calendar"></i></button>
+			</span>
+			</p>
+			<timepicker ng-model="newReserve.time" meridians="['上午','下午']"></timepicker>
+		</div>
 		<hr class='space' />
-		<button ng-click="addUser()" class="btn btn-primary">添加</button>
+		<button ng-click="addUser()" class="btn btn-primary" ng-disabled="!reserveForm.$valid">添加</button>
 	</form>
 </div>

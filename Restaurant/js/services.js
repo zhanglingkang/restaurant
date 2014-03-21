@@ -140,8 +140,11 @@ ppzServices.factory('WaitingListService', ['$http', '$window', function($http, $
                 callback(error);
             });
         },
-        removeUser: function(restaurantId, unitId, callback) {
-            var reqData = createRequest('waitingToComplete', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, unitId: unitId});
+        removeUser: function(restaurantId, unitId, type, callback) {
+            var command = 'waitingToComplete';
+            if(type === 'reservation')
+                command = 'reservationToComplete';
+            var reqData = createRequest(command, {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, unitId: unitId});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);
@@ -154,8 +157,8 @@ ppzServices.factory('WaitingListService', ['$http', '$window', function($http, $
                 callback(error);
             });
         },
-        addUser: function(restaurantId, userId, partyTypeId, callback) {
-            var reqData = createRequest('addUserToQueue', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, userId: userId, partyTypeId: partyTypeId});
+        addUser: function(restaurantId, name, partyTypeId, phone, reservationTime, callback) {
+            var reqData = createRequest('addAdhocUserToQueue', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, name: name, partyTypeId: parseInt(partyTypeId), 'phone.number': phone, "reservationTime": (reservationTime.getTime() / 1000) | 0,});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);
@@ -173,8 +176,26 @@ ppzServices.factory('WaitingListService', ['$http', '$window', function($http, $
 
 ppzServices.factory('MenuService', ['$http', '$window', function($http, $window){
     return {
+        _menu: null,
         getMenu: function(restaurantId, callback) {
+            var _this = this;
             var reqData = createRequest('getRestaurantMenu', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId});
+            $http.post(SERVER_URL, reqData).
+            success(function(data) {
+                var jsonData = JSON.parse(data.data);
+                if(jsonData.code != PPZ_ERROR.None)
+                    callback(jsonData.message);
+                else {
+                    _this._menu = jsonData.results[0];
+                    callback(null, _this._menu);
+                }
+            }).error(function(error) {
+                console.log('encounted error in getRestaurantMenu: ' + error);
+                callback(error);
+            });
+        },
+        updateMenu: function(menu, callback) {
+            var reqData = createRequest('upsertRestaurantMenu', {sessionId: $window.sessionStorage.token, restaurantId: menu.restaurantId, menuCategories: menu.menuCategories});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);
@@ -184,6 +205,26 @@ ppzServices.factory('MenuService', ['$http', '$window', function($http, $window)
                     callback(null, jsonData.results[0]);
             }).error(function(error) {
                 console.log('encounted error in getRestaurantMenu: ' + error);
+                callback(error);
+            });
+        },
+    };
+}]);
+
+ppzServices.factory('ReviewService', ['$http', '$window', function($http, $window){
+    return {
+        getReviewList: function(restaurantId, callback) {
+            var reqData = createRequest('getRestaurantReviewList', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, startIndex: 1, size: 100});
+            $http.post(SERVER_URL, reqData).
+            success(function(data) {
+                var jsonData = JSON.parse(data.data);
+                if(jsonData.code != PPZ_ERROR.None)
+                    callback(jsonData.message);
+                else {
+                    callback(null, jsonData.results);
+                }
+            }).error(function(error) {
+                console.log('encounted error in getReviews: ' + error);
                 callback(error);
             });
         },
