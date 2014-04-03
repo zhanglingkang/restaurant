@@ -98,7 +98,22 @@ ppzServices.factory('RestaurantService', ['$http', '$window', '$q',
                 }, function(error) {
                     callback(error);
                 });
+            },
 
+            updateRestaurantInfo: function(restaurantId, info, callback) {
+                var phone = {number: info.phone.phone}
+                var reqData = createRequest('createRestaurant', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, phone: phone, email: info.email, website: info.website,restaurantDescription: info.restaurantDescription, address: info.address});
+                $http.post(SERVER_URL, reqData).
+                success(function(data) {
+                    var jsonData = JSON.parse(data.data);
+                    if(jsonData.code != PPZ_ERROR.None)
+                        callback(jsonData.message);
+                    else
+                        callback(null, jsonData.results[0]);
+                }).error(function(error) {
+                    console.log('encounted error in updateRestaurantInfo: ' + error);
+                    callback(error);
+                });
             },
 
             getWaitingList: function(restaurantId, callback) {
@@ -213,8 +228,8 @@ ppzServices.factory('MenuService', ['$http', '$window', function($http, $window)
 
 ppzServices.factory('ReviewService', ['$http', '$window', function($http, $window){
     return {
-        getReviewList: function(restaurantId, callback) {
-            var reqData = createRequest('getRestaurantReviewList', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, startIndex: 1, size: 100});
+        getReviewList: function(restaurantId, pageNum, callback) {
+            var reqData = createRequest('getRestaurantReviewList', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, startIndex: pageNum, size: 10});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);

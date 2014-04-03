@@ -3,11 +3,17 @@
 hr.space {
 	background: transparent;
 	border: none;
+	clear:both;
 }
 /* utility*/
 
 /* patch to bootstrap*/
 .nav.nav-tabs:hover {
 	cursor: pointer;
+}
+
+.alert {
+	margin-top: 10px;
+	margin-bottom: 5px;
 }
 /* patch to bootstrap*/

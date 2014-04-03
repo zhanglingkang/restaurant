@@ -48,12 +48,31 @@ ppzRestaurantControllers.controller('restaurantDetailController', ['$scope', '$r
         RestaurantService.getRestaurant($scope.restaurantId, function(error, restaurant){
             $scope.error = error;
             $scope.restaurant = restaurant;
+            $scope.newInfo = angular.copy($scope.restaurant);
         });
         MenuService.getMenu($scope.restaurantId, function(error, menu){
             $scope.error = error;
             $scope.menu = menu;
         });
+        $scope.editing = false;
+        $scope.edit = function() {
+            $scope.editing = true;
+        };
+        $scope.cancel = function() {
+            $scope.newInfo = angular.copy($scope.restaurant);
+            $scope.editing = false;
+        }
+        $scope.confirm = function() {
+            $scope.editing = false;
+            RestaurantService.updateRestaurantInfo($scope.restaurantId, $scope.newInfo, function(error, result) {
+                if(error)
+                    $scope.saved = false;
+                else
+                    $scope.saved = true;
+            });
+        }
 
+        /*TODO move to menu controller*/        
         $scope.addingNewItem = false;
         $scope.addNewItem = function() {
             if($scope.addingNewItem)
@@ -185,6 +204,10 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
     {
         var UPDATE_INTERVAL = 10000;
         $scope.restaurantId = $routeParams.restaurantId;
+        RestaurantService.getRestaurant($scope.restaurantId, function(error, restaurant){
+            $scope.error = error;
+            $scope.partyTypeList = restaurant.partyTypeInfos;
+        });
         $scope.waitingList = [];
         $scope.newReserve = {time: new Date()};
         var _updateData = function() {
@@ -235,11 +258,15 @@ ppzRestaurantControllers.controller('reviewListController', ['$scope', '$routePa
     function($scope, $routeParams, $timeout, ReviewService)
     {
         $scope.loading = true;
-        ReviewService.getReviewList($scope.restaurantId, function(error, reviewList){
-            $scope.loading = false;
-            $scope.error = error;
-            $scope.reviewList = reviewList;
-        });   
+        $scope.currentPage = 1;
+        $scope.selectPage = function(pageNum) {
+            ReviewService.getReviewList($scope.restaurantId, pageNum, function(error, reviewList) {
+                $scope.loading = false;
+                $scope.error = error;
+                $scope.reviewList = reviewList;
+            });  
+        };
+        $scope.selectPage(1);
     }
 ]);
 

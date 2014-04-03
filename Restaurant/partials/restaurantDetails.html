@@ -7,9 +7,49 @@
 			<hr class="space" />
 			<div class="panel panel-default">
 				<div class="panel-body">
-					<p>{{restaurant.restaurantDescription}}</p>
-					<p>电话:&nbsp;&nbsp;{{restaurant.phone.phone}}&nbsp;&nbsp;&nbsp;&nbsp;    邮件:&nbsp;&nbsp;{{restaurant.email}} </p>
-					<p>地址:&nbsp;&nbsp;{{restaurant.address.state}}{{restaurant.city}}{{restaurant.address.street}}{{restaurant.zipcode}}&nbsp;&nbsp;&nbsp;&nbsp;    网址:&nbsp;&nbsp;{{restaurant.website}}</p>
+					<form name="basicInforForm" novalidation class="row">
+						<div class="col-xs-12">
+							<label class="control-label">描述</label>
+							<input class="form-control" placeholder="描述" ng-model="newInfo.restaurantDescription" ng-disabled="!editing"/>
+						</div>
+						<hr class="space"/>
+						<div class="col-xs-4">
+							<label class="control-label">电话</label>
+							<input class="form-control" placeholder="电话" ng-model="newInfo.phone.phone" ng-disabled="!editing"/>
+						</div>
+						<div class="col-xs-4">
+							<label class="control-label">邮件</label>
+							<input class="form-control" placeholder="邮件" ng-model="newInfo.email" ng-disabled="!editing"/>
+						</div>
+						<div class="col-xs-4">
+							<label class="control-label">网址</label>
+							<input class="form-control" placeholder="网址" ng-model="newInfo.website" ng-disabled="!editing"/>
+						</div>
+						<hr class="space" />
+						<div class="col-xs-8">
+							<label class="control-label">地址</label>
+							<input class="form-control" placeholder="地址" ng-model="newInfo.address.street" ng-disabled="!editing"/>
+						</div>
+						<div class="col-xs-1">
+							<label class="control-label">市</label>
+							<input class="form-control" placeholder="地址" ng-model="newInfo.address.city" ng-disabled="!editing"/>
+						</div>
+						<div class="col-xs-1">
+							<label class="control-label">省</label>
+							<input class="form-control" placeholder="地址" ng-model="newInfo.address.state" ng-disabled="!editing"/>
+						</div>
+						<div class="col-xs-2">
+							<label class="control-label">邮编</label>
+							<input class="form-control" placeholder="地址" ng-model="newInfo.address.zipcode" ng-disabled="!editing"/>
+						</div>
+					</form>
+				</div>
+				<div class="panel-footer">
+					<button class="btn btn-primary btn-sm" ng-hide="editing" ng-click="edit()">编辑</button>
+					<span ng-show="editing">
+						<button class="btn btn-primary btn-sm" ng-click="confirm()">确定</button>
+						<button class="btn btn-primary btn-sm" ng-click="cancel()">取消</button>
+					</span>
 				</div>
 			</div>
 		</tab>
@@ -27,7 +67,7 @@
 							<div class="row" ng-show="addingNewItem">
 								<div class="col-xs-4">
 									<input class="form-control" ng-model="newModel.category.categoryName" ng-show="addingNewItem" placeholder="类别名" required name="fCategoryName"/>
-									<div ng-show="newCategoryForm.fCategoryName.$dirty && newCategoryForm.fCategoryName.$error.required">
+									<div class="alert alert-danger" ng-show="newCategoryForm.fCategoryName.$dirty && newCategoryForm.fCategoryName.$error.required" >
 										请输入类别名
 									</div>
 								</div>
@@ -41,7 +81,7 @@
 								<div class="row">
 									<div class="col-xs-3">
 										<input class="form-control" ng-model="newModel.item.itemName" placeholder="菜名" required name="fItemName"/>
-										<div ng-show="newCategoryForm.fItemName.$dirty && newCategoryForm.fItemName.$error.required">
+										<div class="alert alert-danger" ng-show="newCategoryForm.fItemName.$dirty && newCategoryForm.fItemName.$error.required">
 											请输入菜名
 										</div>
 									</div>
@@ -50,7 +90,7 @@
 									</div>
 									<div class="col-xs-2">
 										<input class="form-control" ng-model="newModel.item.price" placeholder="价格" name="fPrice" required smart-float/>
-										<div ng-show="newCategoryForm.fPrice.$dirty && !newCategoryForm.fPrice.$valid">
+										<div class="alert alert-danger" ng-show="newCategoryForm.fPrice.$dirty && !newCategoryForm.fPrice.$valid">
 											请输入正确的价格
 										</div>
 									</div>
@@ -76,7 +116,7 @@
 								<div class="col-xs-3">
 									<span ng-hide="editing">{{category.categoryName}}</span>
 									<input class="form-control" ng-show="editing" ng-model="nameModified" name="fName" required/>
-									<div ng-show="categoryEditForm.fName.$dirty && categoryEditForm.fName.$error.required">
+									<div class="alert alert-danger" ng-show="categoryEditForm.fName.$dirty && categoryEditForm.fName.$error.required">
 										请输入类别名
 									</div>
 								</div>
@@ -179,14 +219,19 @@
 						<div class="col-xs-5">
 							{{review.reviewMessage}}
 						</div>
-						<div class="col-xs-3">
+						<div class="col-xs-2">
 							{{review.reviewTime * 1000 | date:'medium'}}
 						</div>
 						<div class="col-xs-2">
 							<rating value="review.rating" readonly="true"></rating>
 						</div>
+						<div class="col-xs-1">
+							<button class="btn btn-primary btn-sm">回复</button>
+						</div>
+
 					</div>
 				</div>
+				<pagination total-items="restaurant.reviewCount" boundary-links="true" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" page="currentPage" on-select-page="selectPage(page)"></pagination>
 			</div>
 		</tab>
 	</tabset>
