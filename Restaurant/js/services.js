@@ -101,8 +101,7 @@ ppzServices.factory('RestaurantService', ['$http', '$window', '$q',
             },
 
             updateRestaurantInfo: function(restaurantId, info, callback) {
-                var phone = {number: info.phone.phone}
-                var reqData = createRequest('createRestaurant', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, phone: phone, email: info.email, website: info.website,restaurantDescription: info.restaurantDescription, address: info.address});
+                var reqData = createRequest('modifyRestaurantInfo', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, "phone.number": info.phone.phone, email: info.email, website: info.website,restaurantDescription: info.restaurantDescription, "address.city": info.address.city, "address.location": info.address.location, "address.state": info.address.state, "address.street": info.address.street, "address.zipcode": info.address.zipcode});
                 $http.post(SERVER_URL, reqData).
                 success(function(data) {
                     var jsonData = JSON.parse(data.data);
@@ -229,7 +228,22 @@ ppzServices.factory('MenuService', ['$http', '$window', function($http, $window)
 ppzServices.factory('ReviewService', ['$http', '$window', function($http, $window){
     return {
         getReviewList: function(restaurantId, pageNum, callback) {
-            var reqData = createRequest('getRestaurantReviewList', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, startIndex: pageNum, size: 10});
+            var reqData = createRequest('getRestaurantReviewList', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, startIndex: pageNum * 3, size: 3});
+            $http.post(SERVER_URL, reqData).
+            success(function(data) {
+                var jsonData = JSON.parse(data.data);
+                if(jsonData.code != PPZ_ERROR.None)
+                    callback(jsonData.message);
+                else {
+                    callback(null, jsonData.results);
+                }
+            }).error(function(error) {
+                console.log('encounted error in getReviews: ' + error);
+                callback(error);
+            });
+        },
+        replyReview: function(restaurantId, reviewId, message, callback) {
+            var reqData = createRequest('replyRestaurantReview', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, reviewId: reviewId, replyMessage: message});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);

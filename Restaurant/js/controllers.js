@@ -50,10 +50,6 @@ ppzRestaurantControllers.controller('restaurantDetailController', ['$scope', '$r
             $scope.restaurant = restaurant;
             $scope.newInfo = angular.copy($scope.restaurant);
         });
-        MenuService.getMenu($scope.restaurantId, function(error, menu){
-            $scope.error = error;
-            $scope.menu = menu;
-        });
         $scope.editing = false;
         $scope.edit = function() {
             $scope.editing = true;
@@ -71,17 +67,25 @@ ppzRestaurantControllers.controller('restaurantDetailController', ['$scope', '$r
                     $scope.saved = true;
             });
         }
+    }
+]);
 
-        /*TODO move to menu controller*/        
+ppzRestaurantControllers.controller('menuController', ['$scope', 'MenuService',
+    function($scope, MenuService)
+    {        
         $scope.addingNewItem = false;
+        MenuService.getMenu($scope.restaurantId, function(error, menu){
+            $scope.error = error;
+            $scope.menu = menu;
+        });
         $scope.addNewItem = function() {
             if($scope.addingNewItem)
                 return;
             $scope.addingNewItem = true;
         };
         $scope.confirmAddItem = function() {
-            var newCategory = $scope.newModel.category;
-            newCategory.items = [$scope.newModel.item];
+            var newCategory = $scope.newCategoryCategory;
+            newCategory.items = [$scope.newCategoryItem];
             $scope.menu.menuCategories.push(newCategory);
             $scope.newModel = null;
             $scope.addingNewItem = false;
@@ -260,13 +264,39 @@ ppzRestaurantControllers.controller('reviewListController', ['$scope', '$routePa
         $scope.loading = true;
         $scope.currentPage = 1;
         $scope.selectPage = function(pageNum) {
-            ReviewService.getReviewList($scope.restaurantId, pageNum, function(error, reviewList) {
+            ReviewService.getReviewList($scope.restaurantId, pageNum - 1, function(error, reviewList) {
                 $scope.loading = false;
                 $scope.error = error;
                 $scope.reviewList = reviewList;
             });  
         };
         $scope.selectPage(1);
+    }
+]);
+
+ppzRestaurantControllers.controller('reviewItemController', ['$scope', 'ReviewService',
+    function($scope, ReviewService)
+    {
+        $scope.replying = false;
+        $scope.reply = function() {
+            if($scope.replying)
+                return;
+            $scope.replying = true;
+        };
+        $scope.confirmReply = function() {
+            $scope.review.replyMessage = $scope.message;
+            $scope.replying = false;
+            ReviewService.replyReview($scope.restaurantId, $scope.review.reviewId, $scope.message, function(error, result) {
+                if(error)
+                    $scope.saved = false;
+                else
+                    $scope.saved = true;
+            });
+        };
+        $scope.cancelReply = function() {
+            $scope.review.replyMessage = null;
+            $scope.replying = false;
+        };
     }
 ]);
 

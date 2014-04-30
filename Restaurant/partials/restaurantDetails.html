@@ -1,6 +1,7 @@
-<h1 class="row">
-	{{restaurant.name}}
-</h1>
+<h4>
+	<span class="glyphicon glyphicon-home">&nbsp;{{restaurant.name}}
+</h4>
+<hr />
 <div class="row">
 	<tabset class="col-xs-12">
 		<tab heading="基本信息">
@@ -53,7 +54,8 @@
 				</div>
 			</div>
 		</tab>
-		<tab heading="菜单">
+
+		<tab heading="菜单" ng-controller="menuController">
 			<h2>
 				<span ng-show="saved === true">所有改动已同步<span>
 				<span ng-show="saved === false">同步失败，刚才的改动尚未保存，请尝试手动同步<span>
@@ -66,13 +68,13 @@
 							<span class="glyphicon glyphicon-plus" ng-hide="addingNewItem" ng-click="addNewItem()"></span>
 							<div class="row" ng-show="addingNewItem">
 								<div class="col-xs-4">
-									<input class="form-control" ng-model="newModel.category.categoryName" ng-show="addingNewItem" placeholder="类别名" required name="fCategoryName"/>
+									<input class="form-control" ng-model="newCategoryCategory.categoryName" ng-show="addingNewItem" placeholder="类别名" required name="fCategoryName"/>
 									<div class="alert alert-danger" ng-show="newCategoryForm.fCategoryName.$dirty && newCategoryForm.fCategoryName.$error.required" >
 										请输入类别名
 									</div>
 								</div>
 								<div class="col-xs-8">
-									<input class="form-control" ng-model="newModel.category.categoryDescription" ng-show="addingNewItem" placeholder="类别描述"/>
+									<input class="form-control" ng-model="newCategoryCategory.categoryDescription" ng-show="addingNewItem" placeholder="类别描述"/>
 								</div>
 							</div>
 						</div>
@@ -80,16 +82,16 @@
 							<li class="list-group-item">
 								<div class="row">
 									<div class="col-xs-3">
-										<input class="form-control" ng-model="newModel.item.itemName" placeholder="菜名" required name="fItemName"/>
+										<input class="form-control" ng-model="newCategoryItem.itemName" placeholder="菜名" required name="fItemName"/>
 										<div class="alert alert-danger" ng-show="newCategoryForm.fItemName.$dirty && newCategoryForm.fItemName.$error.required">
 											请输入菜名
 										</div>
 									</div>
 									<div class="col-xs-5">
-										<input class="form-control" ng-model="newModel.item.itemDescription" placeholder="描述"/>
+										<input class="form-control" ng-model="newCategoryItem.itemDescription" placeholder="描述"/>
 									</div>
 									<div class="col-xs-2">
-										<input class="form-control" ng-model="newModel.item.price" placeholder="价格" name="fPrice" required smart-float/>
+										<input class="form-control" ng-model="newCategoryItem.price" placeholder="价格" name="fPrice" required smart-float/>
 										<div class="alert alert-danger" ng-show="newCategoryForm.fPrice.$dirty && !newCategoryForm.fPrice.$valid">
 											请输入正确的价格
 										</div>
@@ -109,6 +111,7 @@
 						</ul>
 					</form>
 				</div>
+
 				<div ng-repeat="category in menu.menuCategories" class="panel panel-default" ng-controller="menuCategoryController">
 					<div class="panel-heading">
 						<div class="row">
@@ -211,7 +214,7 @@
 		<tab heading="评论">
 			<hr class="space" />
 			<div ng-controller="reviewListController" class="list-group">
-				<div ng-repeat="review in reviewList" class="list-group-item">
+				<div ng-repeat="review in reviewList" class="list-group-item" ng-controller="reviewItemController">
 					<div class="row">
 						<div class="col-xs-2">
 							{{review.userId}}
@@ -226,12 +229,36 @@
 							<rating value="review.rating" readonly="true"></rating>
 						</div>
 						<div class="col-xs-1">
-							<button class="btn btn-primary btn-sm">回复</button>
+							<button class="btn btn-primary btn-sm" ng-click="reply()" ng-show="!review.replyMessage">回复</button>
 						</div>
-
+						<div class="col-xs-12" ng-show="review.replyMessage">
+							<hr />
+							回复信息: {{review.replyMessage}}
+						</div>
+						<div class="col-xs-12" ng-show="replying">
+							<hr />
+							<form name="replyReviewForm" novalidate>
+								<div class="col-xs-10">
+									<input class="form-control" ng-model="message" name="fMessage" required/>
+									<div class="alert alert-danger" ng-show="replyReviewForm.fMessage.$dirty && replyReviewForm.fMessage.$error.required">
+										请输入评论
+									</div>
+								</div>
+								<div class="col-xs-2">
+									<div class="pull-right">
+										<button class="btn btn-primary" ng-click="cancelReply()">
+											<span class="glyphicon glyphicon-remove pull-right"></span>
+										</button>
+										<button class="btn btn-primary" ng-click="confirmReply()" ng-disabled="!replyReviewForm.$valid">
+											<span class="glyphicon glyphicon-ok pull-right"></span>
+										</button>
+									</div>
+								</div>
+							</form>
+						</div>
 					</div>
 				</div>
-				<pagination total-items="restaurant.reviewCount" boundary-links="true" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" page="currentPage" on-select-page="selectPage(page)"></pagination>
+				<pagination total-items="restaurant.reviewCount" boundary-links="true" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" page="currentPage" on-select-page="selectPage(page)" items-per-page="3"></pagination>
 			</div>
 		</tab>
 	</tabset>
