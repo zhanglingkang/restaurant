@@ -78,37 +78,35 @@
 								</div>
 							</div>
 						</div>
-						<ul class="list-group" ng-show="addingNewItem">
-							<li class="list-group-item">
-								<div class="row">
-									<div class="col-xs-3">
-										<input class="form-control" ng-model="newCategoryItem.itemName" placeholder="菜名" required name="fItemName"/>
-										<div class="alert alert-danger" ng-show="newCategoryForm.fItemName.$dirty && newCategoryForm.fItemName.$error.required">
-											请输入菜名
-										</div>
-									</div>
-									<div class="col-xs-5">
-										<input class="form-control" ng-model="newCategoryItem.itemDescription" placeholder="描述"/>
-									</div>
-									<div class="col-xs-2">
-										<input class="form-control" ng-model="newCategoryItem.price" placeholder="价格" name="fPrice" required smart-float/>
-										<div class="alert alert-danger" ng-show="newCategoryForm.fPrice.$dirty && !newCategoryForm.fPrice.$valid">
-											请输入正确的价格
-										</div>
-									</div>
-									<div class="col-xs-2">
-										<div class="pull-right">
-											<button class="btn btn-primary" ng-click="cancelAddItem()">
-												<span class="glyphicon glyphicon-remove pull-right"></span>
-											</button>
-											<button class="btn btn-primary" ng-click="confirmAddItem()" ng-disabled="!newCategoryForm.$valid">
-												<span class="glyphicon glyphicon-ok pull-right"></span>
-											</button>
-										</div>
+						<div class="panel-body" ng-show="addingNewItem">
+							<div class="row">
+								<div class="col-xs-3">
+									<input class="form-control" ng-model="newCategoryItem.itemName" placeholder="菜名" required name="fItemName"/>
+									<div class="alert alert-danger" ng-show="newCategoryForm.fItemName.$dirty && newCategoryForm.fItemName.$error.required">
+										请输入菜名
 									</div>
 								</div>
-							</li>
-						</ul>
+								<div class="col-xs-5">
+									<input class="form-control" ng-model="newCategoryItem.itemDescription" placeholder="描述"/>
+								</div>
+								<div class="col-xs-2">
+									<input class="form-control" ng-model="newCategoryItem.price" placeholder="价格" name="fPrice" required smart-float/>
+									<div class="alert alert-danger" ng-show="newCategoryForm.fPrice.$dirty && !newCategoryForm.fPrice.$valid">
+										请输入正确的价格
+									</div>
+								</div>
+								<div class="col-xs-2">
+									<div class="pull-right">
+										<button class="btn btn-primary" ng-click="cancelAddItem()">
+											<span class="glyphicon glyphicon-remove pull-right"></span>
+										</button>
+										<button class="btn btn-primary" ng-click="confirmAddItem()" ng-disabled="!newCategoryForm.$valid">
+											<span class="glyphicon glyphicon-ok pull-right"></span>
+										</button>
+									</div>
+								</div>
+							</div>
+						</div>
 					</form>
 				</div>
 

@@ -24,6 +24,6 @@ ppzRestaurant.config(['$routeProvider', function($routeProvider)
             controller: 'waitingListController'
         }).
         otherwise({
-            redirectTo : '/login'
+            redirectTo : '/myRestaurants'
         });
 }]);

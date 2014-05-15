@@ -33,6 +33,7 @@ ppzServices.factory('Login', ['$http','$q', "$window",
                         console.log($window.sessionStorage.token);
                         var token = jsonData.results[0].sessionId;
                         $window.sessionStorage.token = token;
+                        $window.sessionStorage.username = username;
                         response.resolve("OK");
                     }).
                     error(
@@ -42,7 +43,28 @@ ppzServices.factory('Login', ['$http','$q', "$window",
                         response.reject(error);
                     });
                 return response.promise;
-            }
+            },
+            logout: function(callback) {
+                var reqData = createRequest('logout', {sessionId : $window.sessionStorage.token});
+                $http.post(SERVER_URL, reqData).
+                    success(
+                        function(data) {
+                            var jsonData = JSON.parse(data.data);
+                            if(jsonData.code != PPZ_ERROR.None)
+                                callback(jsonData.message);
+                            else {
+                                $window.sessionStorage.token = null;
+                                callback(null, null);
+                            }
+                        }
+                    ).
+                    error(
+                        function(error) {
+                        console.log('encounted error in getMyRestaurantList: ' + error);
+                        callback(error);
+                    }
+                );
+            },
         };
 
         return loginService;
@@ -55,7 +77,7 @@ ppzServices.factory('RestaurantService', ['$http', '$window', '$q',
             _restaurantList : null,
 
             getMyRestaurantList: function(callback) {
-                var _this = this
+                var _this = this;
                 var reqData = createRequest('getManagingRestaurants', {sessionId : $window.sessionStorage.token});
                 $http.post(SERVER_URL, reqData).
                     success(
@@ -228,7 +250,7 @@ ppzServices.factory('MenuService', ['$http', '$window', function($http, $window)
 ppzServices.factory('ReviewService', ['$http', '$window', function($http, $window){
     return {
         getReviewList: function(restaurantId, pageNum, callback) {
-            var reqData = createRequest('getRestaurantReviewList', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, startIndex: pageNum * 3, size: 3});
+            var reqData = createRequest('getRestaurantReviewList', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, startIndex: pageNum * 3 + 1, size: 3});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);

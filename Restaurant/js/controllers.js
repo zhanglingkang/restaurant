@@ -7,8 +7,13 @@ var ppzRestaurantControllers = angular.module("ppzControllers", []);
 ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$window', '$location',
     function($scope, Login, $window, $location)
     {
-        $scope.username = "admin";
-        $scope.password = "admin";
+        $scope.getUserName = function() {
+            return $window.sessionStorage.username;
+        };
+
+        $scope.active = function() {
+            return $window.sessionStorage.token !== 'null';
+        };
 
         $scope.performLogin = function()
         {
@@ -16,7 +21,7 @@ ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$win
             loginService.login($scope.username, $scope.password).then(
                 function(result)
                 {
-                   console.log("login result " + result);
+                    console.log("login result " + result);
                     console.log("token " + $window.sessionStorage.token);
                     $location.path("/myRestaurants");
                 }, function(result)
@@ -26,6 +31,12 @@ ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$win
 
             );
         };
+
+        $scope.logout = function() {
+            Login.logout(function(error){
+                $location.path("/login")
+            });
+        }
     }
 ]);
 

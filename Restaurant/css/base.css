@@ -8,9 +8,9 @@ hr.space {
 /* utility*/
 
 /* main */
-/*h4 {
+h4 {
 	color: #2f7300;
-}*/
+}
 /* main */
 
 /* patch to bootstrap*/
@@ -22,4 +22,19 @@ hr.space {
 	margin-top: 10px;
 	margin-bottom: 5px;
 }
+.btn-primary {
+	color: #ffffff;
+	background-color: #009900;
+	border-color: #009900;
+	background-image: linear-gradient(#00ff00, #009900 6%, #00cc00);
+}
 /* patch to bootstrap*/
+
+#reserve-panel {
+	border: 1px #dddddd solid;
+	margin: 0 15px 20px;
+	background: #d9edf7;
+}
+#reserve-panel.form-inline .form-control {
+	width:100%;
+}
