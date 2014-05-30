@@ -256,11 +256,16 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
                 }
             });
         };
-        $scope.addUser = function() {
-            WaitingListService.addUser($scope.restaurantId, $scope.newReserve.name, $scope.newReserve.typeId, $scope.newReserve.phone, $scope.newReserve.time, function(error, newUnit) {
+        $scope.addUser = function(reserve) {
+            var reserveTime = reserve ? $scope.newReserve.time : null;
+            var typeId = $scope.newReserve.typeId;
+            WaitingListService.addUser($scope.restaurantId, $scope.newReserve.name, $scope.newReserve.typeId, $scope.newReserve.phone, reserveTime, function(error, newUnit) {
                 $scope.error = error;
                 if(!error) {
-                    $scope.reservationList.push(newUnit);
+                    if(reserve)
+                        $scope.reservationList.push(newUnit);
+                    else
+                        $scope.waitingList[typeId].push(newUnit);
                 }
             });
         }
@@ -297,7 +302,7 @@ ppzRestaurantControllers.controller('reviewItemController', ['$scope', 'ReviewSe
         $scope.confirmReply = function() {
             $scope.review.replyMessage = $scope.message;
             $scope.replying = false;
-            ReviewService.replyReview($scope.restaurantId, $scope.review.reviewId, $scope.message, function(error, result) {
+            ReviewService.replyReview($scope.restaurantId, $scope.review.reviewIndex, $scope.message, function(error, result) {
                 if(error)
                     $scope.saved = false;
                 else

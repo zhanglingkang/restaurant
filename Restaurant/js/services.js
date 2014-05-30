@@ -194,7 +194,9 @@ ppzServices.factory('WaitingListService', ['$http', '$window', function($http, $
             });
         },
         addUser: function(restaurantId, name, partyTypeId, phone, reservationTime, callback) {
-            var reqData = createRequest('addAdhocUserToQueue', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, name: name, partyTypeId: parseInt(partyTypeId), 'phone.number': phone, "reservationTime": (reservationTime.getTime() / 1000) | 0,});
+            if(reservationTime !== null)
+                reservationTime = Math.round(reservationTime.getTime() / 1000);
+            var reqData = createRequest('addAdhocUserToQueue', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, name: name, partyTypeId: parseInt(partyTypeId), 'phone.number': phone, "reservationTime": reservationTime});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);
@@ -250,7 +252,7 @@ ppzServices.factory('MenuService', ['$http', '$window', function($http, $window)
 ppzServices.factory('ReviewService', ['$http', '$window', function($http, $window){
     return {
         getReviewList: function(restaurantId, pageNum, callback) {
-            var reqData = createRequest('getRestaurantReviewList', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, startIndex: pageNum * 3 + 1, size: 3});
+            var reqData = createRequest('getRestaurantReviewList', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, startIndex: pageNum * 10 + 1, size: 10});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);
@@ -265,7 +267,7 @@ ppzServices.factory('ReviewService', ['$http', '$window', function($http, $windo
             });
         },
         replyReview: function(restaurantId, reviewId, message, callback) {
-            var reqData = createRequest('replyRestaurantReview', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, reviewId: reviewId, replyMessage: message});
+            var reqData = createRequest('replyRestaurantReview', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, reviewId: Number(reviewId), replyMessage: message});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);

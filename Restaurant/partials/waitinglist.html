@@ -19,13 +19,16 @@
 			</alert>
 		</div>
 		<div class="form-group">
-			<input type="text" class="form-control" datepicker-popup ng-model="time" placeholder="日期" show-weeks="false" current-text="今天" toggle-weeks-text="显示周序" clear-text="清除" close-text="关闭" />
+			<button ng-click="addUser(false)" class="btn btn-primary" ng-disabled="!reserveForm.$valid">排队</button>
+		</div>
+		<div class="form-group">
+			<input type="text" class="form-control" datepicker-popup ng-model="newReserve.time" placeholder="日期" show-weeks="false" current-text="今天" toggle-weeks-text="显示周序" clear-text="清除" close-text="关闭" />
 		</div>
 		<div class="form-group">
 			<timepicker ng-model="newReserve.time" meridians="['上午','下午']"></timepicker>
 		</div>
 		<div class="form-group">
-			<button ng-click="addUser()" class="btn btn-primary" ng-disabled="!reserveForm.$valid">添加</button>
+			<button ng-click="addUser(true)" class="btn btn-primary" ng-disabled="!reserveForm.$valid">预约</button>
 		</div>
 		<hr class='space' />
 	</form>
