@@ -214,8 +214,8 @@ ppzRestaurantControllers.controller('menuItemController', ['$scope', 'MenuServic
     }
 ]);
 
-ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeParams', '$timeout', 'RestaurantService', 'WaitingListService',
-    function($scope, $routeParams, $timeout, RestaurantService, WaitingListService)
+ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeParams', '$timeout', '$window', 'RestaurantService', 'WaitingListService',
+    function($scope, $routeParams, $timeout, $window, RestaurantService, WaitingListService)
     {
         var UPDATE_INTERVAL = 10000;
         $scope.restaurantId = $routeParams.restaurantId;
@@ -240,12 +240,16 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
             }, UPDATE_INTERVAL);
         };
         $scope.call = function(unit) {
+            console.log(WaitingListService);
             WaitingListService.callUser($scope.restaurantId, unit.unitId, function(error, updatedUnit) {
                 // TODO show error
                 if(!error) {
                     unit.callCount = updatedUnit.callCount;
                 }
             });
+        };
+        $scope.openPublicWaitListWindow = function(){
+            $window.open('#/publicWaitList/' + $scope.restaurantId);
         };
         $scope.remove = function(units, idx, type) {
             var unit = units[idx];
@@ -271,6 +275,13 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
         }
         _updateData();
         _nextUpdate();
+    }
+]);
+
+ppzRestaurantControllers.controller('publicWaitListController', ['$scope', '$routeParams', 'WaitingListService',
+    function($scope, $routeParams, WaitingListService) {
+        console.log(WaitingListService);
+        $scope.currentCallNumber = WaitingListService.lastCalledNumber;
     }
 ]);
 

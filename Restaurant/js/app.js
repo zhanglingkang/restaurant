@@ -23,6 +23,10 @@ ppzRestaurant.config(['$routeProvider', function($routeProvider)
             templateUrl: 'partials/waitinglist.html',
             controller: 'waitingListController'
         }).
+        when('/publicWaitList/:restaurantId', {
+            templateUrl: 'partials/publicWaitList.html',
+            controller: 'publicWaitListController'
+        }).
         otherwise({
             redirectTo : '/myRestaurants'
         });

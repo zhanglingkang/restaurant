@@ -162,7 +162,9 @@ ppzServices.factory('RestaurantService', ['$http', '$window', '$q',
 
 ppzServices.factory('WaitingListService', ['$http', '$window', function($http, $window){
     return {
+        lastCalledNumber : 0,
         callUser: function(restaurantId, unitId, callback) {
+            this.lastCalledNumber = unitId;
             var reqData = createRequest('callUser', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, unitId: unitId});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
