@@ -218,6 +218,7 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
     function($scope, $routeParams, $timeout, $window, RestaurantService, WaitingListService)
     {
         var UPDATE_INTERVAL = 10000;
+        var publicWindow = null;
         $scope.restaurantId = $routeParams.restaurantId;
         RestaurantService.getRestaurant($scope.restaurantId, function(error, restaurant){
             $scope.error = error;
@@ -240,7 +241,10 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
             }, UPDATE_INTERVAL);
         };
         $scope.call = function(unit) {
-            console.log(WaitingListService);
+            if(publicWindow)
+            {
+                publicWindow.lastCalledNumber = unit.unitId;
+            }
             WaitingListService.callUser($scope.restaurantId, unit.unitId, function(error, updatedUnit) {
                 // TODO show error
                 if(!error) {
@@ -249,7 +253,8 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
             });
         };
         $scope.openPublicWaitListWindow = function(){
-            $window.open('#/publicWaitList/' + $scope.restaurantId);
+            publicWindow = $window.open('#/publicWaitList/' + $scope.restaurantId);
+            publicWindow.lastCalledNumber = "abc";
         };
         $scope.remove = function(units, idx, type) {
             var unit = units[idx];
@@ -278,10 +283,21 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
     }
 ]);
 
-ppzRestaurantControllers.controller('publicWaitListController', ['$scope', '$routeParams', 'WaitingListService',
-    function($scope, $routeParams, WaitingListService) {
-        console.log(WaitingListService);
-        $scope.currentCallNumber = WaitingListService.lastCalledNumber;
+ppzRestaurantControllers.controller('publicWaitListController', ['$scope', '$timeout',  '$window',
+    function($scope, $timeout, $window) {
+        var UPDATE_INTERVAL = 1000;
+        var _updateData = function() {
+            $scope.currentCallNumber = $window.lastCalledNumber;
+        };
+        var _nextUpdate = function() {
+            $timeout(function() {
+                _updateData();
+                _nextUpdate();
+            }, UPDATE_INTERVAL);
+        };
+
+        _updateData();
+        _nextUpdate();
     }
 ]);
 
