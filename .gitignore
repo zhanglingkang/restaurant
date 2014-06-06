@@ -3,3 +3,5 @@ Restaurant.iml
 requirement.txt
 node_modules
 *.zip
+.idea
+ppzapp_website.iml
