@@ -12,8 +12,8 @@ function createRequest(commandName, payload)
 
 var ppzServices = angular.module("ppzServices", ['ngResource']);
 
-ppzServices.factory('Login', ['$http','$q', "$window",
-    function($http, $q, $window){
+ppzServices.factory('Login', ['$http','$q', "$window", "$cookies",
+    function($http, $q, $window, $cookies){
         var loginService = {
             login: function(username, password)
             {
@@ -26,26 +26,26 @@ ppzServices.factory('Login', ['$http','$q', "$window",
                         var jsonData = JSON.parse(data.data);
                         if(status >= 400 || data.data == null || jsonData.code != PPZ_ERROR.None)
                         {
-                            $window.sessionStorage.token = null;
+                            $cookies.token = null;
                             response.reject("Login Failed");
                             return;
                         }
-                        console.log($window.sessionStorage.token);
+                        console.log($cookies.token);
                         var token = jsonData.results[0].sessionId;
-                        $window.sessionStorage.token = token;
-                        $window.sessionStorage.username = username;
+                        $cookies.token = token;
+                        $cookies.username = username;
                         response.resolve("OK");
                     }).
                     error(
                     function(error){
                         console.log("login failed " + error);
-                        $window.sessionStorage.token = null;
+                        $cookies.token = null;
                         response.reject(error);
                     });
                 return response.promise;
             },
             logout: function(callback) {
-                var reqData = createRequest('logout', {sessionId : $window.sessionStorage.token});
+                var reqData = createRequest('logout', {sessionId : $cookies.token});
                 $http.post(SERVER_URL, reqData).
                     success(
                         function(data) {
@@ -53,7 +53,8 @@ ppzServices.factory('Login', ['$http','$q', "$window",
                             if(jsonData.code != PPZ_ERROR.None)
                                 callback(jsonData.message);
                             else {
-                                $window.sessionStorage.token = null;
+                                $cookies.token = null;
+                                console.log($cookies.token);
                                 callback(null, null);
                             }
                         }
@@ -71,14 +72,14 @@ ppzServices.factory('Login', ['$http','$q', "$window",
     }
 ]);
 
-ppzServices.factory('RestaurantService', ['$http', '$window', '$q',
-    function($http, $window, $q) {
+ppzServices.factory('RestaurantService', ['$http', '$window', '$q', '$cookies',
+    function($http, $window, $q, $cookies) {
         return {
             _restaurantList : null,
 
             getMyRestaurantList: function(callback) {
                 var _this = this;
-                var reqData = createRequest('getManagingRestaurants', {sessionId : $window.sessionStorage.token});
+                var reqData = createRequest('getManagingRestaurants', {sessionId : $cookies.token});
                 $http.post(SERVER_URL, reqData).
                     success(
                         function(data) {
@@ -123,7 +124,7 @@ ppzServices.factory('RestaurantService', ['$http', '$window', '$q',
             },
 
             updateRestaurantInfo: function(restaurantId, info, callback) {
-                var reqData = createRequest('modifyRestaurantInfo', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, "phone.number": info.phone.phone, email: info.email, website: info.website,restaurantDescription: info.restaurantDescription, "address.city": info.address.city, "address.location": info.address.location, "address.state": info.address.state, "address.street": info.address.street, "address.zipcode": info.address.zipcode});
+                var reqData = createRequest('modifyRestaurantInfo', {sessionId: $cookies.token, restaurantId: restaurantId, "phone.number": info.phone.phone, email: info.email, website: info.website,restaurantDescription: info.restaurantDescription, "address.city": info.address.city, "address.location": info.address.location, "address.state": info.address.state, "address.street": info.address.street, "address.zipcode": info.address.zipcode});
                 $http.post(SERVER_URL, reqData).
                 success(function(data) {
                     var jsonData = JSON.parse(data.data);
@@ -138,7 +139,7 @@ ppzServices.factory('RestaurantService', ['$http', '$window', '$q',
             },
 
             getWaitingList: function(restaurantId, callback) {
-                var reqData = createRequest('allUnitInfo', {sessionId : $window.sessionStorage.token, restaurantId : restaurantId});
+                var reqData = createRequest('allUnitInfo', {sessionId : $cookies.token, restaurantId : restaurantId});
                 $http.post(SERVER_URL, reqData).
                     success(
                         function(data) {
@@ -160,12 +161,12 @@ ppzServices.factory('RestaurantService', ['$http', '$window', '$q',
     }
 ]);
 
-ppzServices.factory('WaitingListService', ['$http', '$window', function($http, $window){
+ppzServices.factory('WaitingListService', ['$http', '$window', '$cookies', function($http, $window, $cookies){
     return {
         lastCalledNumber : 0,
         callUser: function(restaurantId, unitId, callback) {
             this.lastCalledNumber = unitId;
-            var reqData = createRequest('callUser', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, unitId: unitId});
+            var reqData = createRequest('callUser', {sessionId: $cookies.token, restaurantId: restaurantId, unitId: unitId});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);
@@ -182,7 +183,7 @@ ppzServices.factory('WaitingListService', ['$http', '$window', function($http, $
             var command = 'waitingToComplete';
             if(type === 'reservation')
                 command = 'reservationToComplete';
-            var reqData = createRequest(command, {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, unitId: unitId});
+            var reqData = createRequest(command, {sessionId: $cookies.token, restaurantId: restaurantId, unitId: unitId});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);
@@ -198,7 +199,7 @@ ppzServices.factory('WaitingListService', ['$http', '$window', function($http, $
         addUser: function(restaurantId, name, partyTypeId, phone, reservationTime, callback) {
             if(reservationTime !== null)
                 reservationTime = Math.round(reservationTime.getTime() / 1000);
-            var reqData = createRequest('addAdhocUserToQueue', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, name: name, partyTypeId: parseInt(partyTypeId), 'phone.number': phone, "reservationTime": reservationTime});
+            var reqData = createRequest('addAdhocUserToQueue', {sessionId: $cookies.token, restaurantId: restaurantId, name: name, partyTypeId: parseInt(partyTypeId), 'phone.number': phone, "reservationTime": reservationTime});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);
@@ -214,12 +215,12 @@ ppzServices.factory('WaitingListService', ['$http', '$window', function($http, $
     };
 }]);
 
-ppzServices.factory('MenuService', ['$http', '$window', function($http, $window){
+ppzServices.factory('MenuService', ['$http', '$window', '$cookies', function($http, $window, $cookies){
     return {
         _menu: null,
         getMenu: function(restaurantId, callback) {
             var _this = this;
-            var reqData = createRequest('getRestaurantMenu', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId});
+            var reqData = createRequest('getRestaurantMenu', {sessionId: $cookies.token, restaurantId: restaurantId});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);
@@ -235,7 +236,7 @@ ppzServices.factory('MenuService', ['$http', '$window', function($http, $window)
             });
         },
         updateMenu: function(menu, callback) {
-            var reqData = createRequest('upsertRestaurantMenu', {sessionId: $window.sessionStorage.token, restaurantId: menu.restaurantId, menuCategories: menu.menuCategories});
+            var reqData = createRequest('upsertRestaurantMenu', {sessionId: $cookies.token, restaurantId: menu.restaurantId, menuCategories: menu.menuCategories});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);
@@ -251,10 +252,10 @@ ppzServices.factory('MenuService', ['$http', '$window', function($http, $window)
     };
 }]);
 
-ppzServices.factory('ReviewService', ['$http', '$window', function($http, $window){
+ppzServices.factory('ReviewService', ['$http', '$window', '$cookies', function($http, $window, $cookies){
     return {
         getReviewList: function(restaurantId, pageNum, callback) {
-            var reqData = createRequest('getRestaurantReviewList', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, startIndex: pageNum * 10 + 1, size: 10});
+            var reqData = createRequest('getRestaurantReviewList', {sessionId: $cookies.token, restaurantId: restaurantId, startIndex: pageNum * 10 + 1, size: 10});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);
@@ -269,7 +270,7 @@ ppzServices.factory('ReviewService', ['$http', '$window', function($http, $windo
             });
         },
         replyReview: function(restaurantId, reviewId, message, callback) {
-            var reqData = createRequest('replyRestaurantReview', {sessionId: $window.sessionStorage.token, restaurantId: restaurantId, reviewId: Number(reviewId), replyMessage: message});
+            var reqData = createRequest('replyRestaurantReview', {sessionId: $cookies.token, restaurantId: restaurantId, reviewId: Number(reviewId), replyMessage: message});
             $http.post(SERVER_URL, reqData).
             success(function(data) {
                 var jsonData = JSON.parse(data.data);
