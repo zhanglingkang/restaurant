@@ -232,6 +232,7 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
                 //TODO only update new ones
                 $scope.waitingList = allList.waitingList;
                 $scope.reservationList = allList.reservationList;
+                $scope.completeList = allList.completeList;
             });
         };
         var _nextUpdate = function() {

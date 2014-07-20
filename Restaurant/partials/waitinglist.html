@@ -132,7 +132,7 @@
 						<div class="col-lg-3">
 							{{unit.reservationInfo.reservationTime * 1000 | date:'medium'}}
 						</div>
-						<div class="col-lg-1">
+						<div class="col-lg-2">
 							{{unit.callCount}}
 						</div>
 						<div class='col-lg-2'>
@@ -143,5 +143,48 @@
 				</div>
 			</div>
 		</tab>
+        <tab heading='历史记录 ({{completeList.length}}人)'>
+            <hr class='space' />
+            <div class="list-group">
+                <div class="list-group-item list-group-item-info">
+                    <div class="row">
+                        <div class="col-lg-1">
+                            座号
+                        </div>
+                        <div class="col-lg-2">
+                            用户名
+                        </div>
+                        <div class="col-lg-2">
+                            电话
+                        </div>
+                        <div class="col-lg-3">
+                            完成时间
+                        </div>
+                        <div class="col-lg-4">
+                            叫号次数
+                        </div>
+                    </div>
+                </div>
+                <div ng-repeat='unit in completeList' class="list-group-item">
+                    <div class="row">
+                        <div class="col-lg-1">
+                            {{unit.unitId}}
+                        </div>
+                        <div class="col-lg-2">
+                            {{unit.userName}}
+                        </div>
+                        <div class="col-lg-2">
+                            {{unit.phone}}
+                        </div>
+                        <div class="col-lg-3">
+                            {{unit.completeTime * 1000 | date:'medium'}}
+                        </div>
+                        <div class="col-lg-4">
+                            {{unit.callCount}}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </tab>
 	</tabset>
 </div>
