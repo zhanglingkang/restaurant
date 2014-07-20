@@ -51,16 +51,19 @@
 						<div class="col-lg-1">
 							座号
 						</div>
-						<div class="col-lg-3">
+						<div class="col-lg-2">
 							用户名
 						</div>
+                        <div class="col-lg-2">
+                            电话
+                        </div>
 						<div class="col-lg-3">
 							排队时间
 						</div>
 						<div class="col-lg-2">
 							叫号次数
 						</div>
-						<div class='col-lg-3'>
+						<div class='col-lg-2'>
 							操作
 						</div>
 					</div>
@@ -70,16 +73,19 @@
 						<div class="col-lg-1">
 							{{unit.unitId}} 
 						</div>
-						<div class="col-lg-3">
+						<div class="col-lg-2">
 							{{unit.userName}}
 						</div>
+                        <div class="col-lg-2">
+                            {{unit.phone}}
+                        </div>
 						<div class="col-lg-3">
 							{{unit.createTime * 1000 | date:'medium'}}
 						</div>
 						<div class="col-lg-2">
 							{{unit.callCount}}
 						</div>
-						<div class='col-lg-3'>
+						<div class='col-lg-2'>
 							<button class="btn btn-primary" ng-click="remove(units, $index)">移除</button>
 							<button class="btn btn-primary" ng-click="call(unit)">叫号</button>
 						</div>
@@ -92,37 +98,37 @@
 			<div class="list-group">
 				<div class="list-group-item list-group-item-info">
 					<div class="row">
-						<div class="col-lg-1">
-							座号
-						</div>
-						<div class="col-lg-2">
-							用户名
-						</div>
-						<div class="col-lg-3">
-							排队时间
-						</div>
-						<div class="col-lg-3">
-							预约时间
-						</div>
-						<div class="col-lg-1">
-							叫号次数
-						</div>
-						<div class='col-lg-2'>
-							操作
-						</div>
+                        <div class="col-lg-1">
+                            座号
+                        </div>
+                        <div class="col-lg-2">
+                            用户名
+                        </div>
+                        <div class="col-lg-2">
+                            电话
+                        </div>
+                        <div class="col-lg-3">
+                            预约时间
+                        </div>
+                        <div class="col-lg-2">
+                            叫号次数
+                        </div>
+                        <div class='col-lg-2'>
+                            操作
+                        </div>
 					</div>
 				</div>
 				<div ng-repeat='unit in reservationList' class="list-group-item">
 					<div class="row">
-						<div class="col-lg-1">
-							{{unit.unitId}} 
-						</div>
-						<div class="col-lg-2">
-							{{unit.userName}}
-						</div>
-						<div class="col-lg-3">
-							{{unit.createTime * 1000 | date:'medium'}}
-						</div>
+                        <div class="col-lg-1">
+                            {{unit.unitId}}
+                        </div>
+                        <div class="col-lg-2">
+                            {{unit.userName}}
+                        </div>
+                        <div class="col-lg-2">
+                            {{unit.phone}}
+                        </div>
 						<div class="col-lg-3">
 							{{unit.reservationInfo.reservationTime * 1000 | date:'medium'}}
 						</div>
