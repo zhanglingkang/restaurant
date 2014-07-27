@@ -10,7 +10,6 @@ ppzRestaurant.config(['$routeProvider', '$httpProvider', '$interpolateProvider',
         $httpProvider.interceptors.push(['$q', '$location', '$cookies', function($q, $location, $cookies) {
             return {
                 'response': function(response) {
-                    console.log($cookies.token);
                     if($location.path() !== '/login' && $cookies.token == 'null') {
                         $location.path('/login');
                     }
