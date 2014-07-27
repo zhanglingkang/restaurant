@@ -1,7 +1,7 @@
 <div class="row">{{error}}</div>
 
         <div class="row">
-
+            <button class="btn btn-info" ng-click="goBack()"><span class="glyphicon glyphicon-chevron-left"></span></button>
             <button class="btn btn-primary" ng-click="openPublicWaitListWindow()">打开大荧幕</button>
 
             <hr class='space' />
@@ -87,7 +87,7 @@
 						</div>
 						<div class='col-lg-2'>
 							<button class="btn btn-primary" ng-click="remove(units, $index)">移除</button>
-							<button class="btn btn-primary" ng-click="call(unit)">叫号</button>
+							<button class="btn btn-primary" ng-click="call(unit,partyTypeList[seg - 1].unitIdPrefix)">叫号</button>
 						</div>
 					</div>
 				</div>

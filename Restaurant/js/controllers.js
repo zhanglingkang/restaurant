@@ -44,6 +44,7 @@ ppzRestaurantControllers.controller('restaurantListController', ['$scope', 'Rest
     function($scope, RestaurantService)
     {
         $scope.loading = true;
+        $scope.includeHeader = true;
         RestaurantService.getMyRestaurantList(function(error, restaurantList){
             $scope.loading = false;
             $scope.error = error;
@@ -55,6 +56,10 @@ ppzRestaurantControllers.controller('restaurantListController', ['$scope', 'Rest
 ppzRestaurantControllers.controller('restaurantDetailController', ['$scope', '$routeParams', 'RestaurantService', 'MenuService',
     function($scope, $routeParams, RestaurantService, MenuService)
     {
+        $scope.goBack = function()
+        {
+            window.history.back();
+        }
         $scope.restaurantId = $routeParams.restaurantId;
         RestaurantService.getRestaurant($scope.restaurantId, function(error, restaurant){
             $scope.error = error;
@@ -219,6 +224,10 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
     {
         var UPDATE_INTERVAL = 10000;
         var publicWindow = null;
+        $scope.goBack = function()
+        {
+            window.history.back();
+        }
         $scope.restaurantId = $routeParams.restaurantId;
         RestaurantService.getRestaurant($scope.restaurantId, function(error, restaurant){
             $scope.error = error;
@@ -241,21 +250,30 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
                 _nextUpdate();
             }, UPDATE_INTERVAL);
         };
-        $scope.call = function(unit) {
+        $scope.call = function(unit, unitIdPrefix) {
             if(publicWindow)
             {
-                publicWindow.lastCalledNumber = unit.unitId;
+                publicWindow.lastCalledUnit = unit;
+                publicWindow.lastCalledUnitPrefix = unitIdPrefix;
             }
             WaitingListService.callUser($scope.restaurantId, unit.unitId, function(error, updatedUnit) {
                 // TODO show error
                 if(!error) {
                     unit.callCount = updatedUnit.callCount;
                 }
+
+
             });
         };
         $scope.openPublicWaitListWindow = function(){
             publicWindow = $window.open('#/publicWaitList/' + $scope.restaurantId);
-            publicWindow.lastCalledNumber = "abc";
+            publicWindow.partyTypes = $scope.partyTypeList;
+            publicWindow.lastCalledNumbers = {};
+            for(var i=0; i < publicWindow.partyTypes.length; i++)
+            {
+                var party = publicWindow.partyTypes[i];
+                publicWindow.lastCalledNumbers[party.unitIdPrefix] = "--";
+            }
         };
         $scope.remove = function(units, idx, type) {
             var unit = units[idx];
@@ -284,11 +302,64 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
     }
 ]);
 
-ppzRestaurantControllers.controller('publicWaitListController', ['$scope', '$timeout',  '$window',
-    function($scope, $timeout, $window) {
+ppzRestaurantControllers.controller('publicWaitListController', ['$rootScope', '$scope', '$timeout',  '$window',
+    function($rootScope, $scope, $timeout, $window) {
+        $scope.partyTypes = $window.partyTypes;
+        $rootScope.excludeHeader = true;
+        $scope.lastCalledNumbers = $window.lastCalledNumbers;
+        $scope.panelTypes = {};
+        for(var i=0; i < $scope.partyTypes.length; i++)
+        {
+            var party = $scope.partyTypes[i];
+            $scope.panelTypes[party.unitIdPrefix] = "panel-info";
+        }
+        console.log(JSON.stringify($scope.lastCalledNumbers));
         var UPDATE_INTERVAL = 1000;
         var _updateData = function() {
-            $scope.currentCallNumber = $window.lastCalledNumber;
+            var lastCalledUnit = $window.lastCalledUnit;
+            var currentPrefix = $scope.currentPrefix;
+            var prefix = $window.lastCalledUnitPrefix;
+            if(!prefix)
+            {
+                return;
+            }
+            var units = $scope.units;
+            var currentCallCount = 0;
+            if(!units)
+            {
+                $scope.units = {};
+                units = $scope.units;
+            }
+            if(units[prefix])
+            {
+                currentCallCount = units[prefix].callCount;
+            }
+
+            //announce call sign
+            if(currentCallCount != lastCalledUnit.callCount)
+            {
+                var str = "现在叫号, " + lastCalledUnit.unitId;
+                var msg = new SpeechSynthesisUtterance(str);
+                msg.lang="zh-CN";
+                window.speechSynthesis.speak(msg);
+            }
+
+            //display call sign
+            if(currentPrefix && currentPrefix != prefix)
+            {
+                $scope.panelTypes[currentPrefix] = "panel-info";
+            }
+
+            if(currentCallCount != lastCalledUnit.callCount)
+            {
+                $scope.lastCalledNumbers[prefix] = lastCalledUnit.unitId;
+                $scope.panelTypes[prefix] = "panel-primary animate-flicker";
+
+            }
+
+            $scope.currentPrefix = prefix;
+            units[prefix] = lastCalledUnit;
+
         };
         var _nextUpdate = function() {
             $timeout(function() {

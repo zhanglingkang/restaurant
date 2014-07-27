@@ -44,3 +44,30 @@ h4 , h1 {
 #reserve-panel.form-inline .form-control {
 	width:100%;
 }
+
+@keyframes flickerAnimation {
+    0%   { opacity:1; }
+    50%  { opacity:0.1; }
+    100% { opacity:1; }
+}
+@-o-keyframes flickerAnimation{
+    0%   { opacity:1; }
+    50%  { opacity:0.1; }
+    100% { opacity:1; }
+}
+@-moz-keyframes flickerAnimation{
+    0%   { opacity:1; }
+    50%  { opacity:0.1; }
+    100% { opacity:1; }
+}
+@-webkit-keyframes flickerAnimation{
+    0%   { opacity:1; }
+    50%  { opacity:0.1; }
+    100% { opacity:1; }
+}
+.animate-flicker {
+    -webkit-animation: flickerAnimation 2s 5;
+    -moz-animation: flickerAnimation 2s 5;
+    -o-animation: flickerAnimation 2s 5;
+    animation: flickerAnimation 2s 5;
+}
