@@ -43,7 +43,7 @@
 </div>
 <div class='row'>
 	<tabset class='col-lg-12'>
-		<tab ng-repeat='(seg, units) in waitingList' heading='{{partyTypeList[seg - 1].partyTypeDescription}} ({{units.length}}人等候)'>
+		<tab ng-repeat='(seg, units) in waitingList' heading='{{partyTypeList[seg - 1].partyTypeDescription}} ({{units.length}}人等候)' typeId='{{partyTypeList[seg-1].partyTypeId}}'>
 			<hr class='space' />
 			<div class="list-group">
 				<div class="list-group-item list-group-item-info">

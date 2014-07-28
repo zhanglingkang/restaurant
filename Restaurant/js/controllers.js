@@ -291,9 +291,18 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
                 $scope.error = error;
                 if(!error) {
                     if(reserve)
+                    {
                         $scope.reservationList.push(newUnit);
+                    }
                     else
+                    {
                         $scope.waitingList[typeId].push(newUnit);
+                    }
+
+                    $scope.newReserve = {time: new Date()};
+                    $scope.reserveForm.$setPristine();
+                    $("li[typeId=" + typeId + "]").hide();
+                    $("li[typeId=" + typeId + "]").slideDown();
                 }
             });
         }
