@@ -86,7 +86,8 @@
 							{{unit.callCount}}
 						</div>
 						<div class='col-lg-2'>
-							<button class="btn btn-primary" ng-click="remove(units, $index)">移除</button>
+							<!--<button class="btn btn-primary"  ng-click="remove(units, $index)">移除</button>-->
+                            <button class="btn btn-danger"  ng-click="openConfirmation(units, $index)">移除</button>
 							<button class="btn btn-primary" ng-click="call(unit,partyTypeList[seg - 1].unitIdPrefix)">叫号</button>
 						</div>
 					</div>
@@ -136,7 +137,7 @@
 							{{unit.callCount}}
 						</div>
 						<div class='col-lg-2'>
-							<button class="btn btn-primary" ng-click="remove(reservationList, $index, 'reservation')">移除</button>
+							<button class="btn btn-danger" ng-click="openConfirmation(reservationList, $index, 'reservation')">移除</button>
 							<button class="btn btn-primary" ng-click="call(unit)">叫号</button>
 						</div>
 					</div>
@@ -188,3 +189,16 @@
         </tab>
 	</tabset>
 </div>
+
+<script type="text/ng-template" id="confirmationModal.html">
+    <div class="modal-header">
+        <h3 class="modal-title">确定</h3>
+    </div>
+    <div class="modal-body">
+        <h3>确定移除 {{unit.unitId}} - {{unit.userName}}?</h3>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-primary" ng-click="ok()">OK</button>
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>

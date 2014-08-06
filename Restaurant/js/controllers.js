@@ -219,8 +219,8 @@ ppzRestaurantControllers.controller('menuItemController', ['$scope', 'MenuServic
     }
 ]);
 
-ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeParams', '$timeout', '$window', 'RestaurantService', 'WaitingListService',
-    function($scope, $routeParams, $timeout, $window, RestaurantService, WaitingListService)
+ppzRestaurantControllers.controller('waitingListController', ['$modal', '$scope', '$routeParams', '$timeout', '$window', 'RestaurantService', 'WaitingListService',
+    function($modal, $scope, $routeParams, $timeout, $window, RestaurantService, WaitingListService)
     {
         var UPDATE_INTERVAL = 10000;
         var publicWindow = null;
@@ -305,11 +305,49 @@ ppzRestaurantControllers.controller('waitingListController', ['$scope', '$routeP
                     $("li[typeId=" + typeId + "]").slideDown();
                 }
             });
+        };
+
+        $scope.confirmationClosed = function($scope, $modal, queueUnit)
+        {
+
+        };
+
+        $scope.openConfirmation = function(units, idx, type)
+        {
+            var modal = $modal.open({
+                templateUrl : 'confirmationModal.html',
+                size: 'sm',
+                controller: confirmationModalController,
+                resolve: {
+                    queueUnit: function()
+                    {
+                        return units[idx];
+                    }
+                }
+            });
+
+            modal.result.then(function(){
+               $scope.remove(units, idx, type);
+            }, function()
+            {
+
+            });
         }
         _updateData();
         _nextUpdate();
     }
 ]);
+
+var confirmationModalController = function($scope, $modalInstance, queueUnit) {
+    $scope.unit = queueUnit;
+    $scope.ok = function () {
+        $modalInstance.close();
+    }
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    }
+};
 
 ppzRestaurantControllers.controller('publicWaitListController', ['$rootScope', '$scope', '$timeout',  '$window',
     function($rootScope, $scope, $timeout, $window) {
