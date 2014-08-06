@@ -269,18 +269,35 @@ ppzRestaurantControllers.controller('waitingListController', ['$modal', '$scope'
             publicWindow = $window.open('#/publicWaitList/' + $scope.restaurantId);
             publicWindow.partyTypes = $scope.partyTypeList;
             publicWindow.lastCalledNumbers = {};
+
             for(var i=0; i < publicWindow.partyTypes.length; i++)
             {
                 var party = publicWindow.partyTypes[i];
-                publicWindow.lastCalledNumbers[party.unitIdPrefix] = "--";
+                var frontUnit = "--";
+                if($scope.waitingList[i+1].length > 0)
+                {
+                    frontUnit = $scope.waitingList[i+1][0].unitId;
+                }
+                publicWindow.lastCalledNumbers[party.unitIdPrefix] = frontUnit;
             }
         };
         $scope.remove = function(units, idx, type) {
             var unit = units[idx];
+            var unitIdPrefix = unit.unitId.charAt(0);
+            var nextUnit = null;
+            if(units[idx+1])
+            {
+                nextUnit = units[idx+1];
+            }
             WaitingListService.removeUser($scope.restaurantId, unit.unitId, type, function(error, updatedUnit) {
-                // TODO show error
-                if(!error) {
+                if(error != null) {
+                    alert(error);
                     units.splice(idx, 1);
+                }else if(publicWindow && idx == 0)
+                {
+                    //update public window if unit is removed from the front
+                    publicWindow.lastReplacedUnit = nextUnit;
+                    publicWindow.lastReplacedUnitPrefix = unitIdPrefix;
                 }
             });
         };
@@ -296,6 +313,13 @@ ppzRestaurantControllers.controller('waitingListController', ['$modal', '$scope'
                     }
                     else
                     {
+                        //update public window if new unit is inserted into an empty list
+                        if($scope.waitingList[typeId].length == 0 && publicWindow)
+                        {
+                            publicWindow.lastReplacedUnit = newUnit;
+                            publicWindow.lastReplacedUnitPrefix = newUnit.unitId.charAt(0);
+                        }
+
                         $scope.waitingList[typeId].push(newUnit);
                     }
 
@@ -305,11 +329,6 @@ ppzRestaurantControllers.controller('waitingListController', ['$modal', '$scope'
                     $("li[typeId=" + typeId + "]").slideDown();
                 }
             });
-        };
-
-        $scope.confirmationClosed = function($scope, $modal, queueUnit)
-        {
-
         };
 
         $scope.openConfirmation = function(units, idx, type)
@@ -363,6 +382,14 @@ ppzRestaurantControllers.controller('publicWaitListController', ['$rootScope', '
         console.log(JSON.stringify($scope.lastCalledNumbers));
         var UPDATE_INTERVAL = 1000;
         var _updateData = function() {
+
+            //handle removal first
+            if($window.lastReplacedUnitPrefix)
+            {
+                $scope.lastCalledNumbers[$window.lastReplacedUnitPrefix] = $window.lastReplacedUnit ? $window.lastReplacedUnit.unitId : "--";
+                $window.lastReplacedUnitPrefix = null;
+            }
+
             var lastCalledUnit = $window.lastCalledUnit;
             var currentPrefix = $scope.currentPrefix;
             var prefix = $window.lastCalledUnitPrefix;
