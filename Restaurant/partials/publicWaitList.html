@@ -1,10 +1,8 @@
-    <h2 style="font-size: 100px;text-align: center" class="jumbotron">现在叫到号数</h2>
-    <hr class="space" />
     <div class="container-fluid">
         <div class="row">
-            <div ng-repeat="partyType in partyTypes" class="panel col-md-3" ng-class="panelTypes[partyType.unitIdPrefix]" style="padding: 0px; margin:0px 20px 20px 0px">
-                <div class="panel-heading"><h3 class="panel-title">{{partyType.partyTypeDescription}}</h3></div>
-                <div class="panel-body" ng-animate="'animate'"><h1 style="font-size: 100px;text-align: center">{{lastCalledNumbers[partyType.unitIdPrefix]}}</h1></div>
+            <div ng-repeat="partyType in partyTypes" class="panel col-lg-5" ng-class="panelTypes[partyType.unitIdPrefix]" style="padding: 0px; margin:0px 20px 20px 0px">
+                <div class="panel-heading"><h1 class="panel-title">{{partyType.partyTypeDescription}}</h1></div>
+                <div class="panel-body" ng-animate="'animate'"><h1 style="font-size: 150px;text-align: center">{{lastCalledNumbers[partyType.unitIdPrefix]}}</h1></div>
 
             </div>
         </div>

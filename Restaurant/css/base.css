@@ -71,3 +71,7 @@ h4 , h1 {
     -o-animation: flickerAnimation 2s 5;
     animation: flickerAnimation 2s 5;
 }
+
+.panel-title {
+    font-size: 40px;
+}

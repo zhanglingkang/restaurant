@@ -22,7 +22,7 @@
 <body>
 <div ng-include="'partials/header.html'" ng-if="!excludeHeader"></div>
 
-<div ng-view class="container"></div>
+<div ng-view ng-class="{true : 'container', false : 'container-fluid'}[!excludeHeader]"></div>
 
 </body>
 </html>
