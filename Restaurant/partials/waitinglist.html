@@ -60,10 +60,10 @@
 						<div class="col-lg-3">
 							排队时间
 						</div>
-						<div class="col-lg-2">
+						<div class="col-lg-1">
 							叫号次数
 						</div>
-						<div class='col-lg-2'>
+						<div class='col-lg-3'>
 							操作
 						</div>
 					</div>
@@ -82,13 +82,14 @@
 						<div class="col-lg-3">
 							{{unit.createTime * 1000 | date:'medium'}}
 						</div>
-						<div class="col-lg-2">
+						<div class="col-lg-1">
 							{{unit.callCount}}
 						</div>
-						<div class='col-lg-2'>
+						<div class='col-lg-3 '>
 							<!--<button class="btn btn-primary"  ng-click="remove(units, $index)">移除</button>-->
                             <button class="btn btn-danger"  ng-click="openConfirmation(units, $index)">移除</button>
 							<button class="btn btn-primary" ng-click="call(unit,partyTypeList[seg - 1].unitIdPrefix)">叫号</button>
+                            <button class="btn btn-info" ng-click="openPrintView(unit, partyTypeList[seg - 1])">出票</button>
 						</div>
 					</div>
 				</div>
@@ -111,10 +112,10 @@
                         <div class="col-lg-3">
                             预约时间
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-lg-1">
                             叫号次数
                         </div>
-                        <div class='col-lg-2'>
+                        <div class='col-lg-3'>
                             操作
                         </div>
 					</div>
@@ -133,12 +134,13 @@
 						<div class="col-lg-3">
 							{{unit.reservationInfo.reservationTime * 1000 | date:'medium'}}
 						</div>
-						<div class="col-lg-2">
+						<div class="col-lg-1">
 							{{unit.callCount}}
 						</div>
-						<div class='col-lg-2'>
+						<div class='col-lg-3'>
 							<button class="btn btn-danger" ng-click="openConfirmation(reservationList, $index, 'reservation')">移除</button>
 							<button class="btn btn-primary" ng-click="call(unit)">叫号</button>
+                            <button class="btn btn-info" ng-click="openPrintView(unit)">出票</button>
 						</div>
 					</div>
 				</div>

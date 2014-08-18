@@ -39,6 +39,10 @@ ppzRestaurant.config(['$routeProvider', '$httpProvider', '$interpolateProvider',
                 templateUrl: 'partials/publicWaitList.html',
                 controller: 'publicWaitListController'
             }).
+            when('/printNumber/:unitId',{
+                templateUrl: 'partials/printNumber.html',
+                controller: 'printNumberController'
+            }).
             otherwise({
                 redirectTo : '/myRestaurants'
             });}

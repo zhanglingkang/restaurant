@@ -351,7 +351,29 @@ ppzRestaurantControllers.controller('waitingListController', ['$modal', '$scope'
             {
 
             });
-        }
+        };
+
+        $scope.openPrintView = function(unit, partyType)
+        {
+            var printWindow = $window.open('#/printNumber/' + unit.unitId);
+            if(partyType)
+            {
+                printWindow.printPartyTypeDescription = partyType.partyTypeDescription;
+            }else
+            {
+                var prefix = unit.unitId.charAt(0);
+                for(var i=0; i < $scope.partyTypeList.length; i++)
+                {
+                    var partyType = $scope.partyTypeList[i];
+                    if(prefix == partyType.unitIdPrefix)
+                    {
+                        printWindow.printPartyTypeDescription = "(预约)" + partyType.partyTypeDescription;
+                        break;
+                    }
+                }
+            }
+            printWindow.printUnitId = unit.unitId;
+        };
         _updateData();
         _nextUpdate();
     }
@@ -489,3 +511,14 @@ ppzRestaurantControllers.controller('reviewItemController', ['$scope', 'ReviewSe
     }
 ]);
 
+
+ppzRestaurantControllers.controller('printNumberController', ['$scope', '$window', "$rootScope", "$timeout",
+    function($scope, $window, $rootScope, $timeout) {
+        $rootScope.excludeHeader = true;
+        $scope.partyTypeDescription = $window.printPartyTypeDescription;
+        $scope.unitId = $window.printUnitId;
+        $timeout(function() {
+            window.print();
+        }, 0.5);
+    }
+]);
