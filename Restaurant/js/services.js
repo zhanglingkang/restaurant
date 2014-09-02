@@ -2,7 +2,7 @@
  * Created by Chris on 2/2/14.
  */
 
-var SERVER_URL = "http://aws.ppzapp.com:34952/BBQueue/API";
+var SERVER_URL = "http://awsjp.ppzapp.com:34952/BBQueue/API";
 var PPZ_ERROR = {None:0, UserNotFound:14};
 
 function createRequest(commandName, payload)

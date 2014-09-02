@@ -7,7 +7,7 @@
 	<tabset class="col-xs-12">
 		<tab heading="基本信息">
 			<hr class="space" />
-			<div class="panel panel-default">
+            <div class="panel panel-default">
 				<div class="panel-body">
 					<form name="basicInforForm" novalidation class="row">
 						<div class="col-xs-12">
@@ -58,8 +58,8 @@
 
 		<tab heading="菜单" ng-controller="menuController">
 			<h2>
-				<span ng-show="saved === true">所有改动已同步<span>
-				<span ng-show="saved === false">同步失败，刚才的改动尚未保存，请尝试手动同步<span>
+				<span ng-show="saved === true">所有改动已同步</span>
+				<span ng-show="saved === false">同步失败，刚才的改动尚未保存，请尝试手动同步</span>
 				<span ng-show="saved === 'saving'">同步中</span>
 			</h2>
 			<div class="col-xs-12">
@@ -116,7 +116,10 @@
 						<div class="row">
 							<form name="categoryEditForm" novalidate>
 								<div class="col-xs-3">
-									<span ng-hide="editing">{{category.categoryName}}</span>
+                                    <a data-toggle="collapse" data-target="#{{category.categoryId}}"
+                                       href="" class="collapse" ng-click="toggleMenuCategory(category.categoryId)" data-parent="menu">
+                                        <span ng-hide="editing">{{category.categoryName}}</span>
+                                    </a>
 									<input class="form-control" ng-show="editing" ng-model="nameModified" name="fName" required/>
 									<div class="alert alert-danger" ng-show="categoryEditForm.fName.$dirty && categoryEditForm.fName.$error.required">
 										请输入类别名
@@ -143,7 +146,7 @@
 							</form>
 						</div>
 					</div>
-					<ul class="list-group">
+					<ul class="list-group collapse" id="{{category.categoryId}}">
 						<li class="list-group-item" ng-repeat="item in category.items" ng-controller="menuItemController" ng-hide="item.deleted === true">
 							<div class="row">
 								<div class="col-xs-3">

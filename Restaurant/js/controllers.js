@@ -124,6 +124,7 @@ ppzRestaurantControllers.controller('menuController', ['$scope', 'MenuService',
 ppzRestaurantControllers.controller('menuCategoryController', ['$scope', 'MenuService',
     function($scope, MenuService)
     {
+        $(".collapse").collapse();
         $scope.addingNewItem = false;
         $scope.editing = false;
         $scope.nameModified = $scope.category.categoryName;
@@ -175,6 +176,12 @@ ppzRestaurantControllers.controller('menuCategoryController', ['$scope', 'MenuSe
             $scope.newForm.$setPristine();
             $scope.addingNewItem = false;
         };
+
+        $scope.toggleMenuCategory = function(categoryId)
+        {
+            $("#" + categoryId).collapse("toggle");
+        }
+
     }
 ]);
 
