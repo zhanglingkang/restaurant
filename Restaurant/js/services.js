@@ -2,7 +2,8 @@
  * Created by Chris on 2/2/14.
  */
 
-var SERVER_URL = "http://aws.ppzapp.com:34952/BBQueue/API";
+var SERVER_URL = "http://awsjp.ppzapp.com:34952/BBQueue/API";
+var FILE_SERVER_URL = "http://awsjp.ppzapp.com:34952/FileUploader/upload";
 var PPZ_ERROR = {None:0, UserNotFound:14};
 
 function createRequest(commandName, payload)
@@ -284,6 +285,26 @@ ppzServices.factory('ReviewService', ['$http', '$window', '$cookies', function($
                 callback(error);
             });
         },
+    };
+}]);
+
+ppzServices.factory('FileUploadService', ['$http', '$window', '$cookies', function($http, $window, $cookies){
+    return {
+        upload: function(files, restaurantId) {
+            var fd = new FormData()
+            angular.forEach(files, function(file) {
+                fd.append('file', file)
+            })
+            fd.append('sessionId', $cookies.token);
+            fd.append('restaurantId',restaurantId);
+            $http.post(FILE_SERVER_URL, fd, {
+                transformRequest:angular.identity,
+                headers:{'Content-Type':undefined}
+            }).
+            success(function(data){
+                var jsonData = JSON.parse(data.data);
+            });
+        }
     };
 }]);
 

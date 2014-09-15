@@ -260,5 +260,13 @@
 				<pagination total-items="restaurant.reviewCount" boundary-links="true" previous-text="&lsaquo;" next-text="&rsaquo;" first-text="&laquo;" last-text="&raquo;" page="currentPage" on-select-page="selectPage(page)" items-per-page="10"></pagination>
 			</div>
 		</tab>
-	</tabset>
+
+        <tab heading="照片上传">
+            <hr class="space" />
+            <form ng-controller="fileUploader">
+                <input type="file" ng-model="files" multiple/>
+                <button ng-click="upload()">上传</button>
+            </form>
+        </tab>
+    	</tabset>
 </div>

@@ -522,3 +522,16 @@ ppzRestaurantControllers.controller('printNumberController', ['$scope', '$window
         }, 0.5);
     }
 ]);
+
+
+ppzRestaurantControllers.controller('fileUploader', ['$scope', 'FileUploadService',
+        function($scope, FileUploadService){
+            $scope.fileChanged = function(elm) {
+                $scope.files=elm.files
+                $scope.$apply();
+            }
+            $scope.upload = function() {
+                FileUploadService.upload($scope.files, $scope.restaurantId);
+            }
+        }
+]);
