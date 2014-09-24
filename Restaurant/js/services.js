@@ -280,12 +280,13 @@ ppzServices.factory('ReviewService', ['$http', '$window', '$cookies', function (
                     console.log('encounted error in getReviews: ' + error);
                     callback(error);
                 });
-        },
+        }
     };
 }]);
 
 ppzServices.factory('FileUploadService', ['$http', '$window', '$cookies', function ($http, $window, $cookies) {
     return {
+        FILE_SERVER_URL: FILE_SERVER_URL,
         upload: function (files, restaurantId) {
             var fd = new FormData()
             angular.forEach(files, function (file) {

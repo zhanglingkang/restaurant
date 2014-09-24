@@ -2,15 +2,14 @@
  * Created by Chris on 2/2/14.
  */
 
-var ppzRestaurant = angular.module('ppzRestaurant', ['ngRoute', 'ngCookies', 'ppzControllers', 'ppzDirectives', 'ppzServices', 'ui.bootstrap']);
+var ppzRestaurant = angular.module('ppzRestaurant', ['ngRoute', 'ngCookies', 'ppzControllers', 'ppzDirectives', 'ppzServices', 'ui.bootstrap', 'angularFileUpload']);
 
 ppzRestaurant.config(['$routeProvider', '$httpProvider', '$interpolateProvider',
-    function($routeProvider, $httpProvider, $interpolateProvider)
-    {
-        $httpProvider.interceptors.push(['$q', '$location', '$cookies', function($q, $location, $cookies) {
+    function ($routeProvider, $httpProvider, $interpolateProvider) {
+        $httpProvider.interceptors.push(['$q', '$location', '$cookies', function ($q, $location, $cookies) {
             return {
-                'response': function(response) {
-                    if($location.path() !== '/login' && $cookies.token == 'null') {
+                'response': function (response) {
+                    if ($location.path() !== '/login' && $cookies.token == 'null') {
                         $location.path('/login');
                     }
                     return response;
@@ -19,12 +18,12 @@ ppzRestaurant.config(['$routeProvider', '$httpProvider', '$interpolateProvider',
         }]);
 
         $routeProvider.
-            when('/login',{
-                templateUrl : 'partials/login.html',
-                controller : 'loginController'
+            when('/login', {
+                templateUrl: 'partials/login.html',
+                controller: 'loginController'
             }).
             when('/myRestaurants', {
-                templateUrl : 'partials/restaurantList.html',
+                templateUrl: 'partials/restaurantList.html',
                 controller: 'restaurantListController'
             }).
             when('/restaurant/:restaurantId', {
@@ -39,11 +38,12 @@ ppzRestaurant.config(['$routeProvider', '$httpProvider', '$interpolateProvider',
                 templateUrl: 'partials/publicWaitList.html',
                 controller: 'publicWaitListController'
             }).
-            when('/printNumber/:unitId',{
+            when('/printNumber/:unitId', {
                 templateUrl: 'partials/printNumber.html',
                 controller: 'printNumberController'
             }).
             otherwise({
-                redirectTo : '/myRestaurants'
-            });}
+                redirectTo: '/myRestaurants'
+            });
+    }
 ]);
