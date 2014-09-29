@@ -1,6 +1,9 @@
 <h4>
     <button class="btn btn-info" ng-click="goBack()"><span class="glyphicon glyphicon-chevron-left"></span></button>
-    <span class="glyphicon glyphicon-home">&nbsp;{{restaurant.name}}</span>
+    <img src="http://www.hcgweightdropsblog.com/wp-content/uploads/2012/09/steak.jpg"
+         style="max-width:60px;max-height: 40px; "><span
+        class="glyphicon glyphicon-home">&nbsp;{{restaurant.name}}</span>
+
 </h4>
 <hr/>
 <div class="row">
@@ -10,6 +13,12 @@
     <div class="panel panel-default">
         <div class="panel-body">
             <form name="basicInforForm" novalidation class="row">
+                <div class="col-xs-12">
+                    <label class="control-label">餐厅图片</label><br/>
+                    <img src="http://www.hcgweightdropsblog.com/wp-content/uploads/2012/09/steak.jpg"
+                         style="max-width:400px;max-height: 100px; ">
+                </div>
+                <hr class="space"/>
                 <div class="col-xs-12">
                     <label class="control-label">描述</label>
                     <input class="form-control" placeholder="描述" ng-model="newInfo.restaurantDescription"
@@ -68,6 +77,12 @@
         <span ng-show="saved === 'saving'">同步中</span>
     </h2>
 
+    <div class="col-xs-12">
+        <a ng-click="collapseAll(false);" class="btn btn-primary">全部展开</a>
+        <a ng-click="collapseAll(true);" class="btn btn-primary">全部折叠</a>
+        <a ng-click="importMenu();" class="btn btn-primary">导入菜单</a>
+    </div>
+    <hr class="space"/>
     <div class="col-xs-12">
         <div class="panel panel-default">
             <form name="newCategoryForm" novalidate>
@@ -131,7 +146,7 @@
 
         <div ng-repeat="category in menu.menuCategories" class="panel panel-default"
              ng-controller="menuCategoryController">
-            <div class="panel-heading">
+            <div class="panel-heading" ng-click="collapse=!collapse;" ng-init="collapse=false;">
                 <div class="row">
                     <form name="categoryEditForm" novalidate>
                         <div class="col-xs-3">
@@ -170,7 +185,8 @@
                     </form>
                 </div>
             </div>
-            <ul class="list-group collapse" id="{{category.categoryId}}">
+            <ul class="list-group" id="{{category.categoryId}}" ng-show="!collapse"
+                    >
                 <li class="list-group-item" ng-repeat="item in category.items" ng-controller="menuItemController"
                     ng-hide="item.deleted === true">
                     <div class="row">
@@ -189,7 +205,8 @@
                         <div class="col-xs-2">
                             <div class="pull-right" ng-hide="editing">
                                 <span class="glyphicon glyphicon-edit" ng-click="editItem()"></span>
-                                <span class="glyphicon glyphicon-minus" ng-click="removeItem($index)"></span>
+                                <span class="glyphicon glyphicon-minus" ng-click="removeItem($index)" x-confirm-hint
+                                      x-modal-title="溫馨提示" x-modal-content="确认删除&nbsp;<strong>“{{item.itemName}}”</strong>&nbsp;吗？"></span>
                             </div>
                             <div class="pull-right" ng-show="editing">
                                 <button class="btn btn-primary" ng-click="cancelEditItem()">
@@ -303,8 +320,8 @@
 <tab heading="照片上传" ng-controller="fileUploader">
     <hr class="space"/>
     <!--<form>-->
-        <!--<input type="file" x-file-model="files" multiple/>-->
-        <!--<button ng-click="upload()">上传</button>-->
+    <!--<input type="file" x-file-model="files" multiple/>-->
+    <!--<button ng-click="upload()">上传</button>-->
     <!--</form>-->
     <div class="row">
 

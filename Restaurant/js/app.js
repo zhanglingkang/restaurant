@@ -42,6 +42,10 @@ ppzRestaurant.config(['$routeProvider', '$httpProvider', '$interpolateProvider',
                 templateUrl: 'partials/printNumber.html',
                 controller: 'printNumberController'
             }).
+            when('/manageAccount', {
+                templateUrl: 'partials/manageAccount.html',
+                controller: 'manageAccountController'
+            }).
             otherwise({
                 redirectTo: '/myRestaurants'
             });

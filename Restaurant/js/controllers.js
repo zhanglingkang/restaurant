@@ -13,6 +13,14 @@ ppzRestaurantControllers.controller('appController', ["$rootScope", function ($r
         REQUEST_SUCCESSED: 2,
         REQUEST_FAILED: 3
     };
+    $rootScope.KEY_CODE = {
+        ENTER: 13,
+        BACKSPACE: 8,
+        TOP: 38,
+        RIGHT: 39,
+        BOTTOM: 40,
+        LEFT: 37
+    };
 }]);
 ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$window', '$location', '$cookies',
     function ($scope, Login, $window, $location, $cookies) {
@@ -101,6 +109,13 @@ ppzRestaurantControllers.controller('menuController', ['$scope', 'MenuService',
                 $scope.menu = menu;
             });
         };
+        /**
+         *
+         * @param {Boolean} collapse
+         */
+        $scope.collapseAll = function (collapse) {
+            $scope.$broadcast("collapse", collapse);
+        };
         $scope.refreshMenu();
         $scope.addNewItem = function () {
             if ($scope.addingNewItem)
@@ -160,6 +175,9 @@ ppzRestaurantControllers.controller('menuCategoryController', ['$scope', 'MenuSe
                 }
             });
         };
+        $scope.$on("collapse", function ($event, collapse) {
+            $scope.collapse = collapse;
+        });
         $scope.cancelEditCategory = function () {
             $scope.nameModified = $scope.category.categoryName;
             $scope.descriptionModified = $scope.category.categoryDescription;
@@ -542,5 +560,12 @@ ppzRestaurantControllers.controller('fileUploader', ['$cookies', '$scope', 'File
         $scope.upload = function () {
             FileUploadService.upload($scope.files, $scope.restaurantId);
         }
+    }
+]);
+ppzRestaurantControllers.controller('manageAccountController', ['$cookies', '$scope',
+    function ($cookies, $scope) {
+        $scope.modifyPassword = function () {
+
+        };
     }
 ]);
