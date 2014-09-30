@@ -555,10 +555,28 @@ ppzRestaurantControllers.controller('fileUploader', ['$cookies', '$scope', 'File
         fd.append('restaurantId', $scope.restaurantId);
         $scope.uploader = new FileUploader({
             url: FileUploadService.FILE_SERVER_URL,
-            formData: fd
+            formData: [
+                {
+                    sessionId: $cookies.token
+                },
+                {
+                    restaurantId: $scope.restaurantId
+                },
+                {
+                    userId: $cookies.username
+                },
+                {
+                    pictureComment: undefined
+                }
+            ]
         });
-        $scope.upload = function () {
-            FileUploadService.upload($scope.files, $scope.restaurantId);
+//        $scope.upload = function () {
+//            FileUploadService.upload($scope.files, $scope.restaurantId);
+//        }
+        $scope.filePathList = [];
+        $scope.uploader.onSuccessItem = function (item, response, status, headers) {
+            var results = JSON.parse(response.data).results;
+            $scope.filePathList.push(results[0].filePath);
         }
     }
 ]);

@@ -206,7 +206,8 @@
                             <div class="pull-right" ng-hide="editing">
                                 <span class="glyphicon glyphicon-edit" ng-click="editItem()"></span>
                                 <span class="glyphicon glyphicon-minus" ng-click="removeItem($index)" x-confirm-hint
-                                      x-modal-title="溫馨提示" x-modal-content="确认删除&nbsp;<strong>“{{item.itemName}}”</strong>&nbsp;吗？"></span>
+                                      x-modal-title="溫馨提示"
+                                      x-modal-content="确认删除&nbsp;<strong>“{{item.itemName}}”</strong>&nbsp;吗？"></span>
                             </div>
                             <div class="pull-right" ng-show="editing">
                                 <button class="btn btn-primary" ng-click="cancelEditItem()">
@@ -319,12 +320,19 @@
 
 <tab heading="照片上传" ng-controller="fileUploader">
     <hr class="space"/>
+    <div class="col-xs-12" ng-show="filePathList.length!=0">
+        <label class="control-label">餐厅图片</label>
+    </div>
+    <div class="restaurant-img-list">
+        <img ng-repeat="filePath in filePathList" ng-src="{{filePath}}">
+    </div>
+
     <!--<form>-->
     <!--<input type="file" x-file-model="files" multiple/>-->
     <!--<button ng-click="upload()">上传</button>-->
     <!--</form>-->
     <div class="row">
-
+        <hr class="space"/>
         <div class="col-md-3">
 
             <p>选择文件</p>
