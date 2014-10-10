@@ -3,7 +3,7 @@
  */
 
 var ppzRestaurantControllers = angular.module("ppzControllers", []);
-ppzRestaurantControllers.controller('appController', ["$rootScope", function ($rootScope) {
+ppzRestaurantControllers.controller('appController', ["$rootScope", "$scope", '$cookies', "$location", function ($rootScope, $scope, $cookies, $location) {
     /**
      * 任何一个请求都有四种状态：INIT 尚未请求 REQUESTING 请求中 REQUEST_SUCCESSED 请求成功 REQUEST_FAILED 请求失败
      */
@@ -21,15 +21,48 @@ ppzRestaurantControllers.controller('appController', ["$rootScope", function ($r
         BOTTOM: 40,
         LEFT: 37
     };
+    /**
+     * 判断当前用户是否已登录
+     */
+    function isLogined() {
+        return !!($cookies.token && $cookies.token !== "null");
+    }
+
+    $scope.$on("$locationChangeStart", function (event, newUrl, oldUrl) {
+        if (!isLogined() && !/login/.test(newUrl)) {
+            $location.path("/login");
+        }
+    });
 }]);
 ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$window', '$location', '$cookies',
     function ($scope, Login, $window, $location, $cookies) {
         $scope.getUserName = function () {
             return $cookies.username;
         };
-
+        $scope.resetPasswordForm = {
+            userName: ""
+        };
+        $scope.submitted = false;
         $scope.active = function () {
             return $cookies.token !== 'null';
+        };
+        $scope.initResetInfo = function () {
+            $scope.resetPasswordForm.userName = "";
+            $scope.resetStatus = $scope.REQUEST_STATUS.INIT;
+            $scope.submitted = false;
+        };
+        $scope.resetStatus = $scope.REQUEST_STATUS.INIT;
+        $scope.resetPassword = function (valid) {
+            $scope.submitted = true;
+            if (valid) {
+                $scope.resetStatus = $scope.REQUEST_STATUS.REQUESTING;
+                Login.resetPassword($scope.resetPasswordForm.userName, function (data) {
+                    $scope.resetStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
+                }, function (msg) {
+                    $scope.resetStatus = $scope.REQUEST_STATUS.REQUEST_FAILED;
+                    $scope.resetHint = msg;
+                });
+            }
         };
         $scope.loginStatus = $scope.REQUEST_STATUS.INIT;
         $scope.performLogin = function () {
@@ -580,10 +613,22 @@ ppzRestaurantControllers.controller('fileUploader', ['$cookies', '$scope', 'File
         }
     }
 ]);
-ppzRestaurantControllers.controller('manageAccountController', ['$cookies', '$scope',
-    function ($cookies, $scope) {
-        $scope.modifyPassword = function () {
-
+ppzRestaurantControllers.controller('manageAccountController', ['$cookies', '$scope', 'manageAccountService',
+    function ($cookies, $scope, manageAccountService) {
+        $scope.submitted = false;
+        $scope.modifyPasswordForm = {
+            oldPassword: "",
+            newPassword: "",
+            againPassword: ""
+        };
+        $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.REQUESTING;
+        $scope.modifyPassword = function (valid) {
+            $scope.submitted = true;
+            if (valid && $scope.modifyPasswordForm.newPassword === $scope.modifyPasswordForm.againPassword) {
+                manageAccountService.modifyPassword($scope.modifyPasswordForm.oldPassword, $scope.modifyPasswordForm.newPassword, function () {
+                    $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
+                });
+            }
         };
     }
 ]);

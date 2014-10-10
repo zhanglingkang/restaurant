@@ -3,6 +3,7 @@
  */
 
 var SERVER_URL = "http://ali.ppzapp.cn:34952/BBQueue/API";
+var AUTH_SERVER_URL = "http://ali.ppzapp.cn:34952/BBQueue/CredentialService";
 var FILE_SERVER_URL = "http://ali.ppzapp.cn:34952/FileUploader/upload";
 var PPZ_ERROR = {None: 0, UserNotFound: 14};
 
@@ -63,6 +64,26 @@ ppzServices.factory('Login', ['$http', '$q', "$window", "$cookies",
                     }
                 );
             },
+            resetPassword: function (userName, callback, error) {
+                var reqData = createRequest('requestUserPasswordReset', {userId: userName});
+                $http.post(AUTH_SERVER_URL, reqData).
+                    success(
+                    function (data) {
+                        var jsonData = JSON.parse(data.data);
+                        if (jsonData.code != PPZ_ERROR.None)
+                            error(jsonData.message);
+                        else {
+                            callback(jsonData);
+                        }
+                    }
+                ).
+                    error(
+                    function (data) {
+                        console.log('encounted error in getMyRestaurantList: ' + data);
+                        error(data);
+                    }
+                );
+            }
         };
 
         return loginService;
@@ -301,6 +322,33 @@ ppzServices.factory('FileUploadService', ['$http', '$window', '$cookies', functi
                 success(function (data) {
                     var jsonData = JSON.parse(data.data);
                 });
+        }
+    };
+}]);
+ppzServices.factory('manageAccountService', ['$http', '$window', '$cookies', function ($http, $window, $cookies) {
+    var modifyAccountInfo = function (oldPassword, newPassword, email, success, error) {
+        var reqData = createRequest('updateUserInfo', {
+            sessionId: $cookies.token,
+            userId: $cookies.username,
+            password: newPassword,
+            email: email
+        });
+        $http.post(SERVER_URL, reqData).
+            success(function (data) {
+                var jsonData = JSON.parse(data.data);
+                if (jsonData.code != PPZ_ERROR.None)
+                    error(jsonData.message);
+                else {
+                    success(jsonData.results);
+                }
+            }).error(function (data) {
+                console.log('encounted error in getReviews: ' + data);
+                error(data);
+            });
+    };
+    return {
+        modifyPassword: function (oldPassword, newPassword, success, error) {
+            modifyAccountInfo(oldPassword, newPassword, "", success, error);
         }
     };
 }]);
