@@ -1,121 +1,122 @@
 /**
  * Created by Chris on 2/2/14.
  */
-
-var SERVER_URL = "http://ali.ppzapp.cn:34952/BBQueue/API";
-var AUTH_SERVER_URL = "http://ali.ppzapp.cn:34952/BBQueue/CredentialService";
-var FILE_SERVER_URL = "http://ali.ppzapp.cn:34952/FileUploader/upload";
-var PPZ_ERROR = {None: 0, UserNotFound: 14};
+var SERVER = "http://awsjp.ppzapp.com:34952";
+var SERVER = "http://ali.ppzapp.cn:34952";
+var SERVER_URL = SERVER + "/BBQueue/API";
+var AUTH_SERVER_URL = SERVER + "/BBQueue/CredentialService";
+var FILE_SERVER_URL = SERVER + "/FileUploader/upload";
+var MENU_IMPORT_URL = SERVER + "/FileUploader/menuUpload";
+var PPZ_ERROR = {
+    None: 0,//code为0表示请求成功
+    UserNotFound: 14,
+    SESSION_TIMEOUT: 16
+};
 
 function createRequest(commandName, payload) {
     return {"data": JSON.stringify({"command": commandName, "inputs": payload}), "hash": "pleasedonotcheckmyhashthankyou!!"};
 }
 
 var ppzServices = angular.module("ppzServices", ['ngResource']);
+ppzServices.factory('http', ['$http', '$q', '$location', function ($http, $q, $location) {
+    return {
+        /**
+         *
+         * @param {Object} config
+         * @param {Object} config.method
+         */
+        request: function (config) {
+            var deferred = $q.defer();
+            $http(config).
+                success(function (data, status, headers, config) {
+                    var jsonData = JSON.parse(data.data);
+                    if (jsonData.code == PPZ_ERROR.None) {
+                        deferred.resolve(jsonData);
+                    } else {
+                        if (jsonData.code == PPZ_ERROR.SESSION_TIMEOUT) {
+                            $location.path("/login");
+                        } else {
+                            deferred.reject(jsonData);
+                        }
+                    }
+                }).
+                error(function (data, status, headers, config) {
+                    deferred.reject(data);
+                });
+            return deferred.promise;
+        },
+        get: function (url, config) {
+            config = config || {};
+            return this.request(angular.extend(config, {
+                method: "GET",
+                url: url
+            }));
+        },
+        post: function (url, data, config) {
+            config = config || {};
+            return this.request(angular.extend(config, {
+                method: "POST",
+                url: url,
+                data: data
+            }));
+        }
+    };
+}]);
 
-ppzServices.factory('Login', ['$http', '$q', "$window", "$cookies",
-    function ($http, $q, $window, $cookies) {
+ppzServices.factory('Login', ['$http', '$q', "$window", "$cookies", "http",
+    function ($http, $q, $window, $cookies, http) {
         var loginService = {
             login: function (username, password) {
                 var response = $q.defer();
                 var postData = createRequest("login", {userId: username, password: password});
-                $http.post(SERVER_URL, postData).
-                    success(
-                    function (data, status, headers, config) {
-                        var jsonData = JSON.parse(data.data);
-                        if (status >= 400 || data.data == null || jsonData.code != PPZ_ERROR.None) {
-                            $cookies.token = null;
-                            response.reject("Login Failed");
-                            return;
-                        }
-                        console.log($cookies.token);
-                        var token = jsonData.results[0].sessionId;
-                        $cookies.token = token;
-                        $cookies.username = username;
-                        response.resolve("OK");
-                    }).
-                    error(
-                    function (error) {
-                        console.log("login failed " + error);
-                        $cookies.token = null;
-                        response.reject(error);
-                    });
-                return response.promise;
+                return http.post(SERVER_URL, postData).then(function (jsonData) {
+                    var token = jsonData.results[0].sessionId;
+                    $cookies.token = token;
+                    $cookies.username = username;
+                }, function () {
+                    $cookies.token = null;
+                });
             },
+            /**
+             *
+             * @param callback 成功之后的回调
+             */
             logout: function (callback) {
                 var reqData = createRequest('logout', {sessionId: $cookies.token});
-                $http.post(SERVER_URL, reqData).
-                    success(
-                    function (data) {
-                        var jsonData = JSON.parse(data.data);
-                        if (jsonData.code != PPZ_ERROR.None)
-                            callback(jsonData.message);
-                        else {
-                            $cookies.token = null;
-                            console.log($cookies.token);
-                            callback(null, null);
-                        }
-                    }
-                ).
-                    error(
-                    function (error) {
-                        console.log('encounted error in getMyRestaurantList: ' + error);
-                        callback(error);
-                    }
-                );
+                http.post(SERVER_URL, reqData).then(function () {
+                    $cookies.token = null;
+                    callback();
+                }, function (error) {
+                    console.log('encounted error in getMyRestaurantList: ' + error);
+                });
             },
             resetPassword: function (userName, callback, error) {
                 var reqData = createRequest('requestUserPasswordReset', {userId: userName});
-                $http.post(AUTH_SERVER_URL, reqData).
-                    success(
-                    function (data) {
-                        var jsonData = JSON.parse(data.data);
-                        if (jsonData.code != PPZ_ERROR.None)
-                            error(jsonData.message);
-                        else {
-                            callback(jsonData);
-                        }
-                    }
-                ).
-                    error(
-                    function (data) {
-                        console.log('encounted error in getMyRestaurantList: ' + data);
-                        error(data);
-                    }
-                );
+                return http.post(AUTH_SERVER_URL, reqData).then(function (data) {
+                    callback(data);
+                }, function (data) {
+                    error(data);
+                });
             }
         };
-
         return loginService;
     }
 ]);
 
-ppzServices.factory('RestaurantService', ['$http', '$window', '$q', '$cookies',
-    function ($http, $window, $q, $cookies) {
+ppzServices.factory('RestaurantService', ['$http', '$window', '$q', '$cookies', 'http',
+    function ($http, $window, $q, $cookies, http) {
         return {
             _restaurantList: null,
 
             getMyRestaurantList: function (callback) {
                 var _this = this;
                 var reqData = createRequest('getManagingRestaurants', {sessionId: $cookies.token});
-                $http.post(SERVER_URL, reqData).
-                    success(
-                    function (data) {
-                        var jsonData = JSON.parse(data.data);
-                        if (jsonData.code != PPZ_ERROR.None)
-                            callback(jsonData.message);
-                        else {
-                            _this._restaurantList = jsonData.results
-                            callback(null, _this._restaurantList);
-                        }
-                    }
-                ).
-                    error(
-                    function (error) {
-                        console.log('encounted error in getMyRestaurantList: ' + error);
-                        callback(error);
-                    }
-                );
+                return http.post(SERVER_URL, reqData).then(function (data) {
+                    _this._restaurantList = data.results;
+                    callback(null, data.results);
+                }, function () {
+                    console.log('encounted error in getMyRestaurantList: ' + error);
+                });
             },
 
             getRestaurant: function (restaurantId, callback) {
@@ -143,37 +144,17 @@ ppzServices.factory('RestaurantService', ['$http', '$window', '$q', '$cookies',
 
             updateRestaurantInfo: function (restaurantId, info, callback) {
                 var reqData = createRequest('modifyRestaurantInfo', {sessionId: $cookies.token, restaurantId: restaurantId, "phone.number": info.phone.phone, email: info.email, website: info.website, restaurantDescription: info.restaurantDescription, "address.city": info.address.city, "address.location": info.address.location, "address.state": info.address.state, "address.street": info.address.street, "address.zipcode": info.address.zipcode});
-                $http.post(SERVER_URL, reqData).
-                    success(function (data) {
-                        var jsonData = JSON.parse(data.data);
-                        if (jsonData.code != PPZ_ERROR.None)
-                            callback(jsonData.message);
-                        else
-                            callback(null, jsonData.results[0]);
-                    }).error(function (error) {
-                        console.log('encounted error in updateRestaurantInfo: ' + error);
-                        callback(error);
-                    });
+                return http.post(SERVER_URL, reqData);
             },
 
             getWaitingList: function (restaurantId, callback) {
                 var reqData = createRequest('allUnitInfo', {sessionId: $cookies.token, restaurantId: restaurantId});
-                $http.post(SERVER_URL, reqData).
-                    success(
-                    function (data) {
-                        var jsonData = JSON.parse(data.data);
-                        if (jsonData.code != PPZ_ERROR.None)
-                            callback(jsonData.message);
-                        else
-                            callback(null, jsonData.results[0]);
-                    }
-                ).
-                    error(
-                    function (error) {
-                        console.log('encounted error in queryRestaurantQueue: ' + error);
-                        callback(error);
-                    }
-                );
+                http.post(SERVER_URL, reqData).then(function (data) {
+                    callback(null, data.results[0]);
+                }, function (error) {
+                    console.log('encounted error in queryRestaurantQueue: ' + error);
+                    callback(error);
+                });
             }
         }
     }
@@ -233,25 +214,29 @@ ppzServices.factory('WaitingListService', ['$http', '$window', '$cookies', funct
     };
 }]);
 
-ppzServices.factory('MenuService', ['$http', '$window', '$cookies', function ($http, $window, $cookies) {
+ppzServices.factory('MenuService', ['$http', '$window', '$cookies', 'http', function ($http, $window, $cookies, http) {
     return {
         _menu: null,
         getMenu: function (restaurantId, callback) {
             var _this = this;
             var reqData = createRequest('getRestaurantMenu', {sessionId: $cookies.token, restaurantId: restaurantId});
-            $http.post(SERVER_URL, reqData).
-                success(function (data) {
-                    var jsonData = JSON.parse(data.data);
-                    if (jsonData.code != PPZ_ERROR.None)
-                        callback(jsonData.message);
-                    else {
-                        _this._menu = jsonData.results[0];
-                        callback(null, _this._menu);
-                    }
-                }).error(function (error) {
-                    console.log('encounted error in getRestaurantMenu: ' + error);
-                    callback(error);
-                });
+            return http.post(SERVER_URL, reqData).then(function (data) {
+                _this._menu = data.results[0];
+                callback(null, _this._menu);
+            }, function (error) {
+                console.log('encounted error in getRestaurantMenu: ' + error);
+                callback(error);
+            });
+        },
+        importMenu: function (file, restaurantId) {
+            var fd = new FormData();
+            fd.append('file', file);
+            fd.append('sessionId', $cookies.token);
+            fd.append('restaurantId', restaurantId);
+            return http.post(MENU_IMPORT_URL, fd, {
+                transformRequest: angular.identity,
+                headers: {'Content-Type': undefined}
+            })
         },
         updateMenu: function (menu, callback) {
             var reqData = createRequest('upsertRestaurantMenu', {sessionId: $cookies.token, restaurantId: menu.restaurantId, menuCategories: menu.menuCategories});
@@ -266,7 +251,7 @@ ppzServices.factory('MenuService', ['$http', '$window', '$cookies', function ($h
                     console.log('encounted error in getRestaurantMenu: ' + error);
                     callback(error);
                 });
-        },
+        }
     };
 }]);
 
@@ -326,18 +311,13 @@ ppzServices.factory('FileUploadService', ['$http', '$window', '$cookies', functi
     };
 }]);
 ppzServices.factory('manageAccountService', ['$http', '$window', '$cookies', function ($http, $window, $cookies) {
-    var modifyAccountInfo = function (oldPassword, newPassword, email, success, error) {
-        var reqData = createRequest('updateUserInfo', {
-            sessionId: $cookies.token,
-            userId: $cookies.username,
-            password: newPassword,
-            email: email
-        });
+    var modifyAccountInfo = function (data, success, error) {
+        var reqData = createRequest('updateUserInfo', data);
         $http.post(SERVER_URL, reqData).
             success(function (data) {
                 var jsonData = JSON.parse(data.data);
                 if (jsonData.code != PPZ_ERROR.None)
-                    error(jsonData.message);
+                    error(jsonData);
                 else {
                     success(jsonData.results);
                 }
@@ -348,7 +328,21 @@ ppzServices.factory('manageAccountService', ['$http', '$window', '$cookies', fun
     };
     return {
         modifyPassword: function (oldPassword, newPassword, success, error) {
-            modifyAccountInfo(oldPassword, newPassword, "", success, error);
+            var data = {
+                sessionId: $cookies.token,
+                userId: $cookies.username,
+                password: newPassword,
+                oldPassword: oldPassword
+            };
+            modifyAccountInfo(data, success, error);
+        },
+        modifyEmail: function (email, success, error) {
+            var data = {
+                sessionId: $cookies.token,
+                userId: $cookies.username,
+                email: email
+            };
+            modifyAccountInfo(data, success, error);
         }
     };
 }]);

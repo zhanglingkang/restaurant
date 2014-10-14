@@ -58,9 +58,9 @@ ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$win
                 $scope.resetStatus = $scope.REQUEST_STATUS.REQUESTING;
                 Login.resetPassword($scope.resetPasswordForm.userName, function (data) {
                     $scope.resetStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
-                }, function (msg) {
+                }, function (data) {
                     $scope.resetStatus = $scope.REQUEST_STATUS.REQUEST_FAILED;
-                    $scope.resetHint = msg;
+                    $scope.resetHint = data.message;
                 });
             }
         };
@@ -83,8 +83,8 @@ ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$win
         };
 
         $scope.logout = function () {
-            Login.logout(function (error) {
-                $location.path("/login")
+            Login.logout(function () {
+                $location.path("/login");
             });
         }
     }
@@ -123,12 +123,11 @@ ppzRestaurantControllers.controller('restaurantDetailController', ['$scope', '$r
         }
         $scope.confirm = function () {
             $scope.editing = false;
-            RestaurantService.updateRestaurantInfo($scope.restaurantId, $scope.newInfo, function (error, result) {
-                if (error)
-                    $scope.saved = false;
-                else
-                    $scope.saved = true;
-            });
+            RestaurantService.updateRestaurantInfo($scope.restaurantId, $scope.newInfo).then(function () {
+                $scope.saved = true;
+            }, function () {
+                $scope.saved = false;
+            })
         }
     }
 ]);
@@ -136,6 +135,24 @@ ppzRestaurantControllers.controller('restaurantDetailController', ['$scope', '$r
 ppzRestaurantControllers.controller('menuController', ['$scope', 'MenuService',
     function ($scope, MenuService) {
         $scope.addingNewItem = false;
+        $scope.importMenuFile = [];
+        $scope.wantImport = false;
+        $scope.importStatus = $scope.REQUEST_STATUS.INIT;
+        $scope.isExcel = function () {
+            return /application\/.+office.+/.test($scope.importMenuFile[0].type);
+        };
+        $scope.importMenu = function () {
+            $scope.wantImport = true;
+            if ($scope.importMenuFile.length > 0 && $scope.isExcel()) {
+                $scope.importStatus = $scope.REQUEST_STATUS.REQUESTING;
+                MenuService.importMenu($scope.importMenuFile[0], $scope.restaurantId).then(
+                    function () {
+                        $scope.importStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
+                    }, function (data) {
+                        $scope.importStatus = $scope.REQUEST_STATUS.REQUEST_FAILED;
+                    });
+            }
+        };
         $scope.refreshMenu = function () {
             MenuService.getMenu($scope.restaurantId, function (error, menu) {
                 $scope.error = error;
@@ -171,6 +188,7 @@ ppzRestaurantControllers.controller('menuController', ['$scope', 'MenuService',
                 }
                 else {
                     $scope.saved = true;
+                    $scope.menu = result;
                 }
             });
         };
@@ -321,7 +339,6 @@ ppzRestaurantControllers.controller('waitingListController', ['$modal', '$scope'
         var _updateData = function () {
             RestaurantService.getWaitingList($scope.restaurantId, function (error, allList) {
                 $scope.error = error;
-                //TODO only update new ones
                 $scope.waitingList = allList.waitingList;
                 $scope.reservationList = allList.reservationList;
                 $scope.completeList = allList.completeList;
@@ -627,6 +644,11 @@ ppzRestaurantControllers.controller('manageAccountController', ['$cookies', '$sc
             if (valid && $scope.modifyPasswordForm.newPassword === $scope.modifyPasswordForm.againPassword) {
                 manageAccountService.modifyPassword($scope.modifyPasswordForm.oldPassword, $scope.modifyPasswordForm.newPassword, function () {
                     $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
+                }, function (data) {
+                    $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.REQUEST_FAILED;
+                    if (angular.isObject(data) && data.code == 17) {
+                        $scope.failHint = "旧密码不正确";
+                    }
                 });
             }
         };

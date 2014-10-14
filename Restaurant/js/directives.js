@@ -67,4 +67,14 @@ angular.module("ppzDirectives", []).directive('menuManager', function () {
             }, true);
         }
     };
+}).directive("preventSpread", function () {
+    return {
+        restrict: "A",
+        link: function (scope, elem, attrs) {
+            var $elem = $(elem);
+            $elem.bind(attrs.preventSpread, function (event) {
+                event.stopPropagation();
+            });
+        }
+    };
 });
