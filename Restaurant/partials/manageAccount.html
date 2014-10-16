@@ -12,6 +12,10 @@
                  ng-show="modifyPasswordFormValidation.oldPassword.$error.required&&submitted">
                 旧密码不能为空
             </div>
+            <div class="alert alert-danger"
+                 ng-show="modifyPasswordStatus ===REQUEST_STATUS.REQUEST_FAILED&&submitted">
+                {{failHint}}
+            </div>
             <div class="form-group">
                 <label>新密码</label>
                 <input ng-model="modifyPasswordForm.newPassword" type="password" placeholder="password" required
@@ -38,19 +42,32 @@
                  ng-show="modifyPasswordStatus ===REQUEST_STATUS.REQUEST_SUCCESSED&&submitted">
                 密码修改成功
             </div>
-            <div class="alert alert-warning"
-                 ng-show="modifyPasswordStatus ===REQUEST_STATUS.REQUEST_FAILED&&submitted">
-                {{failHint}}
-            </div>
+
             <button type="submit" class="btn btn-default">确认</button>
         </form>
         <hr class="space"/>
-        <form>
+        <form name="modifyEmailFormValidation" novalidate ng-submit="modifyEmail(modifyEmailFormValidation.$valid);">
             <div class="form-group">
                 <label>Email</label>
-                <input ng-model="oldPassword" type="email" placeholder="Email" class="form-control"/>
+                <input ng-model="email" type="email" placeholder="Email" name="email" class="form-control" required/>
             </div>
-            <button type="submit" ng-click="modifyEmail()" class="btn btn-default">确认</button>
+            <div class="alert alert-danger"
+                 ng-show="modifyEmailFormValidation.email.$error.required&&wantModifyEmail">
+                email不能为空
+            </div>
+            <div class="alert alert-danger"
+                 ng-show="modifyEmailFormValidation.email.$error.email&&wantModifyEmail">
+                请输入合法email
+            </div>
+            <div class="alert alert-danger"
+                 ng-show="modifyEmailStatus===REQUEST_STATUS.REQUEST_SUCCESSED">
+                email修改成功
+            </div>
+            <div class="alert alert-danger"
+                 ng-show="modifyEmailStatus===REQUEST_STATUS.REQUEST_FAIDED">
+                {{modifyEmailHint}}
+            </div>
+            <button type="submit" class="btn btn-default">确认</button>
         </form>
     </div>
 </div>

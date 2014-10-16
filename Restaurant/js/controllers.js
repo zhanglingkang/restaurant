@@ -598,8 +598,8 @@ ppzRestaurantControllers.controller('printNumberController', ['$scope', '$window
 ]);
 
 
-ppzRestaurantControllers.controller('fileUploader', ['$cookies', '$scope', 'FileUploadService', 'FileUploader',
-    function ($cookies, $scope, FileUploadService, FileUploader) {
+ppzRestaurantControllers.controller('fileUploader', ['$cookies', '$scope', 'FileUploadService', 'FileUploader', 'RestaurantService',
+    function ($cookies, $scope, FileUploadService, FileUploader, RestaurantService) {
         var fd = new FormData();
         fd.append('sessionId', $cookies.token);
         fd.append('restaurantId', $scope.restaurantId);
@@ -627,7 +627,12 @@ ppzRestaurantControllers.controller('fileUploader', ['$cookies', '$scope', 'File
         $scope.uploader.onSuccessItem = function (item, response, status, headers) {
             var results = JSON.parse(response.data).results;
             $scope.filePathList.push(results[0].filePath);
-        }
+        };
+        RestaurantService.getMyRestaurantList().then(function (data) {
+            data.results[0].uploadedPictures.forEach(function (picture) {
+                $scope.filePathList.push(picture.filePath);
+            });
+        });
     }
 ]);
 ppzRestaurantControllers.controller('manageAccountController', ['$cookies', '$scope', 'manageAccountService',
@@ -638,10 +643,12 @@ ppzRestaurantControllers.controller('manageAccountController', ['$cookies', '$sc
             newPassword: "",
             againPassword: ""
         };
-        $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.REQUESTING;
+        $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.INIT;
         $scope.modifyPassword = function (valid) {
             $scope.submitted = true;
+            $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.INIT;
             if (valid && $scope.modifyPasswordForm.newPassword === $scope.modifyPasswordForm.againPassword) {
+                $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.REQUESTING;
                 manageAccountService.modifyPassword($scope.modifyPasswordForm.oldPassword, $scope.modifyPasswordForm.newPassword, function () {
                     $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
                 }, function (data) {
@@ -652,5 +659,23 @@ ppzRestaurantControllers.controller('manageAccountController', ['$cookies', '$sc
                 });
             }
         };
+        $scope.modifyEmailStatus = $scope.REQUEST_STATUS.INIT;
+        $scope.wantModifyEmail = false;
+        $scope.modifyEmail = function (valid) {
+            $scope.wantModifyEmail = true;
+            $scope.modifyEmailStatus = $scope.REQUEST_STATUS.INIT;
+            if (valid) {
+                $scope.modifyEmailStatus = $scope.REQUEST_STATUS.REQUESTING;
+                manageAccountService.modifyEmail($scope.email, function () {
+                    $scope.modifyEmailStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
+                }, function () {
+                    $scope.modifyEmailStatus = $scope.REQUEST_STATUS.REQUEST_FAILED;
+                    $scope.modifyEmailHint = "修改email失败";
+                })
+            }
+        };
+        manageAccountService.getUserInfo().then(function (data) {
+            $scope.email = data.results[0].email;
+        });
     }
 ]);

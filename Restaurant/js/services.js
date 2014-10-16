@@ -62,20 +62,65 @@ ppzServices.factory('http', ['$http', '$q', '$location', function ($http, $q, $l
         }
     };
 }]);
+/**
+ * 提供公共服务
+ */
+ppzServices.factory("public", [function () {
+    var buffer = {
+        /**
+         * @method store 以键值对的形式存储到本地，如果key已经存在，覆盖原先的值
+         * @param {String} key
+         * @param {Any} value
+         */
+        store: function (key, value) {
+            var valueStr = JSON.stringify(value);
+            sessionStorage.setItem(key, valueStr);
+        },
+        /**
+         * @method remove 从本地存储中删除键为key的信息。
+         * @param {String} key
+         */
+        remove: function (key) {
+            sessionStorage.removeItem(key);
+        },
+        /**
+         * @method has 检索本地存储中是否存在键为key的值
+         * @param key
+         * @return {Boolean}
+         */
+        has: function (key) {
+            return !!sessionStorage.getItem(key);
+        },
+        /**
+         * @method get 返回key对应的值，返回的数据类型与存储一致
+         * @param {String} key
+         * @return {Any}
+         */
+        get: function (key) {
+            var valueStr = sessionStorage.getItem(key);
+            return JSON.parse(valueStr);
+        }
 
+    };
+    return {
+        buffer: buffer
+    }
+}]);
 ppzServices.factory('Login', ['$http', '$q', "$window", "$cookies", "http",
     function ($http, $q, $window, $cookies, http) {
         var loginService = {
             login: function (username, password) {
                 var response = $q.defer();
                 var postData = createRequest("login", {userId: username, password: password});
-                return http.post(SERVER_URL, postData).then(function (jsonData) {
+                var promise = http.post(SERVER_URL, postData);
+                promise.then(function (jsonData) {
                     var token = jsonData.results[0].sessionId;
                     $cookies.token = token;
                     $cookies.username = username;
                 }, function () {
                     $cookies.token = null;
                 });
+                return promise;
             },
             /**
              *
@@ -83,40 +128,49 @@ ppzServices.factory('Login', ['$http', '$q', "$window", "$cookies", "http",
              */
             logout: function (callback) {
                 var reqData = createRequest('logout', {sessionId: $cookies.token});
-                http.post(SERVER_URL, reqData).then(function () {
+                var promise = http.post(SERVER_URL, reqData);
+                promise.then(function () {
                     $cookies.token = null;
                     callback();
                 }, function (error) {
                     console.log('encounted error in getMyRestaurantList: ' + error);
                 });
+                return promise;
             },
             resetPassword: function (userName, callback, error) {
                 var reqData = createRequest('requestUserPasswordReset', {userId: userName});
-                return http.post(AUTH_SERVER_URL, reqData).then(function (data) {
+                var promise = http.post(AUTH_SERVER_URL, reqData);
+                promise.then(function (data) {
                     callback(data);
                 }, function (data) {
                     error(data);
                 });
+                return promise;
             }
         };
         return loginService;
     }
 ]);
 
-ppzServices.factory('RestaurantService', ['$http', '$window', '$q', '$cookies', 'http',
+ppzServices.service('RestaurantService', ['$http', '$window', '$q', '$cookies', 'http',
     function ($http, $window, $q, $cookies, http) {
+        var getRestaurantListDefered;
         return {
             _restaurantList: null,
 
             getMyRestaurantList: function (callback) {
                 var _this = this;
                 var reqData = createRequest('getManagingRestaurants', {sessionId: $cookies.token});
-                return http.post(SERVER_URL, reqData).then(function (data) {
-                    _this._restaurantList = data.results;
-                    callback(null, data.results);
-                }, function () {
-                    console.log('encounted error in getMyRestaurantList: ' + error);
-                });
+                if (!getRestaurantListDefered) {
+                    getRestaurantListDefered = http.post(SERVER_URL, reqData);
+                    getRestaurantListDefered.then(function (data) {
+                        _this._restaurantList = data.results;
+                        callback(null, data.results);
+                    }, function () {
+                        console.log('encounted error in getMyRestaurantList: ' + error);
+                    });
+                }
+                return getRestaurantListDefered;
             },
 
             getRestaurant: function (restaurantId, callback) {
@@ -130,8 +184,9 @@ ppzServices.factory('RestaurantService', ['$http', '$window', '$q', '$cookies', 
                             defer.resolve();
                     });
                 }
-                else
+                else {
                     defer.resolve();
+                }
                 defer.promise.then(function () {
                     for (var i = 0; i < _this._restaurantList.length; ++i) {
                         if (_this._restaurantList[i].restaurantId === restaurantId)
@@ -149,12 +204,14 @@ ppzServices.factory('RestaurantService', ['$http', '$window', '$q', '$cookies', 
 
             getWaitingList: function (restaurantId, callback) {
                 var reqData = createRequest('allUnitInfo', {sessionId: $cookies.token, restaurantId: restaurantId});
-                http.post(SERVER_URL, reqData).then(function (data) {
+                var promise = http.post(SERVER_URL, reqData);
+                promise.then(function (data) {
                     callback(null, data.results[0]);
                 }, function (error) {
                     console.log('encounted error in queryRestaurantQueue: ' + error);
                     callback(error);
                 });
+                return promise;
             }
         }
     }
@@ -220,13 +277,16 @@ ppzServices.factory('MenuService', ['$http', '$window', '$cookies', 'http', func
         getMenu: function (restaurantId, callback) {
             var _this = this;
             var reqData = createRequest('getRestaurantMenu', {sessionId: $cookies.token, restaurantId: restaurantId});
-            return http.post(SERVER_URL, reqData).then(function (data) {
-                _this._menu = data.results[0];
-                callback(null, _this._menu);
-            }, function (error) {
-                console.log('encounted error in getRestaurantMenu: ' + error);
-                callback(error);
-            });
+            var promise = http.post(SERVER_URL, reqData);
+            promise.
+                then(function (data) {
+                    _this._menu = data.results[0];
+                    callback(null, _this._menu);
+                }, function (error) {
+                    console.log('encounted error in getRestaurantMenu: ' + error);
+                    callback(error);
+                });
+            return promise;
         },
         importMenu: function (file, restaurantId) {
             var fd = new FormData();
@@ -310,7 +370,7 @@ ppzServices.factory('FileUploadService', ['$http', '$window', '$cookies', functi
         }
     };
 }]);
-ppzServices.factory('manageAccountService', ['$http', '$window', '$cookies', function ($http, $window, $cookies) {
+ppzServices.service('manageAccountService', ['$http', '$window', '$cookies', 'http', function ($http, $window, $cookies, http) {
     var modifyAccountInfo = function (data, success, error) {
         var reqData = createRequest('updateUserInfo', data);
         $http.post(SERVER_URL, reqData).
@@ -326,6 +386,7 @@ ppzServices.factory('manageAccountService', ['$http', '$window', '$cookies', fun
                 error(data);
             });
     };
+    var getUserInfoDefered;
     return {
         modifyPassword: function (oldPassword, newPassword, success, error) {
             var data = {
@@ -343,6 +404,15 @@ ppzServices.factory('manageAccountService', ['$http', '$window', '$cookies', fun
                 email: email
             };
             modifyAccountInfo(data, success, error);
+        },
+        getUserInfo: function () {
+            var data = createRequest("getUserInfo", {
+                sessionId: $cookies.token
+            });
+            if (!getUserInfoDefered) {
+                getUserInfoDefered = http.post(SERVER_URL, data);
+            }
+            return getUserInfoDefered;
         }
     };
 }]);

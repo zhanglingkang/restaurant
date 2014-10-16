@@ -121,8 +121,14 @@ h4, h1 {
 }
 
 .restaurant-img-list img {
-    max-width: 300px;
+    max-width: 85%;
+    width: 85%;
     max-height: 200px;
     display: inline-block;
     margin: 5px 10px;
+}
+
+.restaurant-img-list {
+    height: 400px;
+    overflow-y: scroll;
 }
