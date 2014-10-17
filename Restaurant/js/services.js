@@ -156,45 +156,35 @@ ppzServices.service('RestaurantService', ['$http', '$window', '$q', '$cookies', 
     function ($http, $window, $q, $cookies, http) {
         var getRestaurantListDefered;
         return {
-            _restaurantList: null,
-
-            getMyRestaurantList: function (callback) {
+            getMyRestaurantList: function () {
                 var _this = this;
                 var reqData = createRequest('getManagingRestaurants', {sessionId: $cookies.token});
                 if (!getRestaurantListDefered) {
                     getRestaurantListDefered = http.post(SERVER_URL, reqData);
                     getRestaurantListDefered.then(function (data) {
-                        _this._restaurantList = data.results;
-                        callback(null, data.results);
-                    }, function () {
+                    }, function (error) {
                         console.log('encounted error in getMyRestaurantList: ' + error);
                     });
                 }
                 return getRestaurantListDefered;
             },
 
-            getRestaurant: function (restaurantId, callback) {
-                var _this = this;
+            getRestaurant: function (restaurantId) {
                 var defer = $q.defer();
-                if (!this._restaurantList) {
-                    this.getMyRestaurantList(function (error, list) {
-                        if (error)
-                            defer.reject(error);
-                        else
-                            defer.resolve();
-                    });
-                }
-                else {
-                    defer.resolve();
-                }
-                defer.promise.then(function () {
-                    for (var i = 0; i < _this._restaurantList.length; ++i) {
-                        if (_this._restaurantList[i].restaurantId === restaurantId)
-                            return callback(null, _this._restaurantList[i]);
+                this.getMyRestaurantList().then(function (data) {
+                    for (var i = 0; i < data.results.length; ++i) {
+                        if (data.results[i].restaurantId === restaurantId) {
+                            defer.resolve(data.results[i]);
+                            break;
+                        }
+                    }
+                    if (i == data.results.length) {
+                        defer.reject("没找到对应餐厅");
                     }
                 }, function (error) {
-                    callback(error);
+                    defer.reject(error);
                 });
+                return defer.promise;
             },
 
             updateRestaurantInfo: function (restaurantId, info, callback) {
@@ -271,22 +261,23 @@ ppzServices.factory('WaitingListService', ['$http', '$window', '$cookies', funct
     };
 }]);
 
-ppzServices.factory('MenuService', ['$http', '$window', '$cookies', 'http', function ($http, $window, $cookies, http) {
+ppzServices.service('MenuService', ['$http', '$window', '$cookies', 'http', function ($http, $window, $cookies, http) {
+    var getMenuDefered;
     return {
         _menu: null,
-        getMenu: function (restaurantId, callback) {
+        getMenu: function (restaurantId) {
             var _this = this;
             var reqData = createRequest('getRestaurantMenu', {sessionId: $cookies.token, restaurantId: restaurantId});
-            var promise = http.post(SERVER_URL, reqData);
-            promise.
-                then(function (data) {
-                    _this._menu = data.results[0];
-                    callback(null, _this._menu);
-                }, function (error) {
-                    console.log('encounted error in getRestaurantMenu: ' + error);
-                    callback(error);
-                });
-            return promise;
+            if (!getMenuDefered) {
+                getMenuDefered = http.post(SERVER_URL, reqData);
+                getMenuDefered.
+                    then(function (data) {
+                        _this._menu = data.results[0];
+                    }, function (error) {
+                        console.log('encounted error in getRestaurantMenu: ' + error);
+                    });
+            }
+            return getMenuDefered;
         },
         importMenu: function (file, restaurantId) {
             var fd = new FormData();

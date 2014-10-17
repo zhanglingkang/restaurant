@@ -90,14 +90,19 @@ ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$win
     }
 ]);
 
-ppzRestaurantControllers.controller('restaurantListController', ['$scope', 'RestaurantService',
-    function ($scope, RestaurantService) {
+ppzRestaurantControllers.controller('restaurantListController', ['$scope', 'RestaurantService', "MenuService",
+    function ($scope, RestaurantService, MenuService) {
         $scope.loading = true;
         $scope.includeHeader = true;
-        RestaurantService.getMyRestaurantList(function (error, restaurantList) {
+        RestaurantService.getMyRestaurantList().then(function (data) {
             $scope.loading = false;
+            $scope.restaurantList = data.results;
+            //这里加载菜单式预加载菜单，缓解管理页面的性能问题。
+            $scope.restaurantList.forEach(function (restaurant) {
+                MenuService.getMenu(restaurant.restaurantId);
+            });
+        }, function (error) {
             $scope.error = error;
-            $scope.restaurantList = restaurantList;
         });
     }
 ]);
@@ -108,10 +113,11 @@ ppzRestaurantControllers.controller('restaurantDetailController', ['$scope', '$r
             window.history.back();
         }
         $scope.restaurantId = $routeParams.restaurantId;
-        RestaurantService.getRestaurant($scope.restaurantId, function (error, restaurant) {
-            $scope.error = error;
+        RestaurantService.getRestaurant($scope.restaurantId).then(function (restaurant) {
             $scope.restaurant = restaurant;
             $scope.newInfo = angular.copy($scope.restaurant);
+        }, function (error) {
+            $scope.error = error;
         });
         $scope.editing = false;
         $scope.edit = function () {
@@ -132,8 +138,8 @@ ppzRestaurantControllers.controller('restaurantDetailController', ['$scope', '$r
     }
 ]);
 
-ppzRestaurantControllers.controller('menuController', ['$scope', 'MenuService',
-    function ($scope, MenuService) {
+ppzRestaurantControllers.controller('menuController', ['$scope', 'MenuService', '$timeout',
+    function ($scope, MenuService, $timeout) {
         $scope.addingNewItem = false;
         $scope.importMenuFile = [];
         $scope.wantImport = false;
@@ -154,11 +160,40 @@ ppzRestaurantControllers.controller('menuController', ['$scope', 'MenuService',
             }
         };
         $scope.refreshMenu = function () {
-            MenuService.getMenu($scope.restaurantId, function (error, menu) {
+            MenuService.getMenu($scope.restaurantId).then(function (data) {
+                setMenu(data.results[0]);
+            }, function (error) {
                 $scope.error = error;
-                $scope.menu = menu;
             });
         };
+        /**
+         * @method setMenu
+         * @description 这个方法是为了缓解性能问题，将赋值操作分散在多个事件处理器中执行
+         * @param {Object} menu
+         */
+        function setMenu(menu) {
+            $scope.menu = {
+                "@class": menu["@class"],
+                menuCategories: [],
+                restaurantId: menu["restaurantId"]
+            };
+            var size = 1;
+            var count = parseInt(menu.menuCategories.length / size + 1);
+            var index = 0;
+
+            function appendMenu() {
+                $scope.menu.menuCategories = $scope.menu.menuCategories.concat(menu.menuCategories.slice(index * size, index * size + size));
+                index++;
+                if (index != count) {
+                    $timeout(appendMenu, 0);
+                } else {
+                    console.log("menuCount" + $scope.menu.menuCategories.length);
+                }
+            }
+
+            $timeout(appendMenu, 0);
+        }
+
         /**
          *
          * @param {Boolean} collapse
