@@ -53,6 +53,11 @@ ppzServices.factory('http', ['$http', '$q', '$location', function ($http, $q, $l
             }));
         },
         post: function (url, data, config) {
+            if (angular.isObject(url)) {
+                config = data;
+                data = url;
+                url = SERVER_URL;
+            }
             config = config || {};
             return this.request(angular.extend(config, {
                 method: "POST",
@@ -289,6 +294,117 @@ ppzServices.service('MenuService', ['$http', '$window', '$cookies', 'http', func
                 headers: {'Content-Type': undefined}
             })
         },
+        /**
+         *
+         * @param {Object} menuCategoryForm
+         * @param {String} menuCategoryForm.categoryName;
+         * @param {String} menuCategoryForm.categoryDescription
+         * @param {String} restaurantId
+         */
+        addMenuCategory: function (menuCategoryForm, restaurantId) {
+            var reqData = createRequest('createMenuCategory', angular.extend(menuCategoryForm, {
+                sessionId: $cookies.token,
+                restaurantId: restaurantId
+            }));
+            return http.post(reqData);
+        },
+        /**
+         *
+         * @param {Object} menuCategoryForm
+         * @param {String} menuCategoryForm.categoryName;
+         * @param {String} menuCategoryForm.categoryDescription
+         * @param {String} menuCategoryForm.categoryId
+         * @param {String} restaurantId
+         */
+        modifyMenuCategory: function (menuCategoryForm, restaurantId) {
+            var reqData = createRequest('modifyMenuCategory', angular.extend(menuCategoryForm, {
+                sessionId: $cookies.token,
+                restaurantId: restaurantId
+            }));
+            return http.post(reqData);
+        },
+        /**
+         *
+         * @param {String} categoryId
+         * @param {String} restaurantId
+         */
+        removeMenuCategory: function (categoryId, restaurantId) {
+            var reqData = createRequest('deleteMenuCategory', {
+                sessionId: $cookies.token,
+                restaurantId: restaurantId,
+                categoryId: categoryId
+            });
+            return http.post(reqData);
+        },
+        /**
+         *
+         * @param {Object} menuItemForm
+         * @param {String} menuItemForm.categoryId
+         * @param {String} menuItemForm.itemName
+         * @param {String} menuItemForm.itemDescription
+         * @param {String} menuItemForm.price
+         * @param restaurantId
+         */
+        addMenuItem: function (menuItemForm, restaurantId) {
+            var reqData = createRequest('createMenuItem', angular.extend(menuItemForm, {
+                sessionId: $cookies.token,
+                restaurantId: restaurantId
+            }));
+            return http.post(reqData);
+        },
+        /**
+         *
+         * @param {Object} menuItemForm
+         * @param {String} menuItemForm.itemId
+         * @param {String} menuItemForm.categoryId
+         * @param {String} menuItemForm.itemName
+         * @param {String} menuItemForm.itemDescription
+         * @param {String} menuItemForm.price
+         * @param restaurantId
+         */
+        modifyMenuItem: function (menuItemForm, restaurantId) {
+            var reqData = createRequest('modifyMenuItem', angular.extend(menuItemForm, {
+                sessionId: $cookies.token,
+                restaurantId: restaurantId
+            }));
+            return http.post(reqData);
+        },
+        removeMenuItem: function (menuItemForm, restaurantId) {
+            var reqData = createRequest('deleteMenuItem', angular.extend(menuItemForm, {
+                sessionId: $cookies.token,
+                restaurantId: restaurantId
+            }));
+            return http.post(reqData);
+        },
+        /**
+         *
+         * @param {Object} sortForm
+         * @param {String} sortForm.categoryId
+         * @param {String} sortForm.previousCategoryId
+         * @param restaurantId
+         */
+        sortMenuCategory: function (sortForm, restaurantId) {
+            var reqData = createRequest('pivotMenuCategory', angular.extend(sortForm, {
+                sessionId: $cookies.token,
+                restaurantId: restaurantId
+            }));
+            return http.post(reqData);
+        },
+        /**
+         *
+         * @param {Object} sortForm
+         * @param {String} sortForm.itemId
+         * @param {String} sortForm.previousItemId
+         * @param {String} sortForm.categoryId
+         * @param restaurantId
+         */
+        sortMenuItem: function (sortForm, restaurantId) {
+            var reqData = createRequest('pivotMenuItem', angular.extend(sortForm, {
+                sessionId: $cookies.token,
+                restaurantId: restaurantId
+            }));
+            return http.post(reqData);
+        },
         updateMenu: function (menu, callback) {
             var reqData = createRequest('upsertRestaurantMenu', {sessionId: $cookies.token, restaurantId: menu.restaurantId, menuCategories: menu.menuCategories});
             $http.post(SERVER_URL, reqData).
@@ -304,7 +420,8 @@ ppzServices.service('MenuService', ['$http', '$window', '$cookies', 'http', func
                 });
         }
     };
-}]);
+}])
+;
 
 ppzServices.factory('ReviewService', ['$http', '$window', '$cookies', function ($http, $window, $cookies) {
     return {
@@ -341,7 +458,7 @@ ppzServices.factory('ReviewService', ['$http', '$window', '$cookies', function (
     };
 }]);
 
-ppzServices.factory('FileUploadService', ['$http', '$window', '$cookies', function ($http, $window, $cookies) {
+ppzServices.factory('FileUploadService', ['$http', '$window', '$cookies', 'http', function ($http, $window, $cookies, http) {
     return {
         FILE_SERVER_URL: FILE_SERVER_URL,
         upload: function (files, restaurantId) {
@@ -358,6 +475,25 @@ ppzServices.factory('FileUploadService', ['$http', '$window', '$cookies', functi
                 success(function (data) {
                     var jsonData = JSON.parse(data.data);
                 });
+        },
+        getPictures: function (restaurantId) {
+            var reqData = createRequest("getRestaurantPicture", {
+                sessionId: $cookies.token,
+                restaurantId: restaurantId
+            });
+            return http.post(reqData);
+        },
+        /**
+         *
+         * @param {Object} removeForm
+         * @param {String} removeForm.pictureId
+         * @param {String} removeForm.restaurantId
+         */
+        removePicture: function (removeForm) {
+            var reqData = createRequest("removeRestaurantPicture", angular.extend(removeForm, {
+                sessionId: $cookies.token
+            }));
+            return http.post(reqData);
         }
     };
 }]);

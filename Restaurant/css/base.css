@@ -121,14 +121,27 @@ h4, h1 {
 }
 
 .restaurant-img-list img {
-    max-width: 85%;
-    width: 85%;
     max-height: 200px;
+    max-width: 100%;
     display: inline-block;
-    margin: 5px 10px;
 }
 
 .restaurant-img-list {
     height: 400px;
-    overflow-y: scroll;
+    overflow-y: auto;
+    text-align: center;
+}
+
+.restaurant-img-list figure {
+    width: 85%;
+    position: relative;
+    margin: 20px auto;
+}
+
+.restaurant-img-list > div span {
+    position: absolute;
+    color: red;
+    top: -5px;
+    right: -5px;
+    cursor: pointer;
 }
