@@ -33,10 +33,9 @@ ppzServices.factory('http', ['$http', '$q', '$location', function ($http, $q, $l
                     if (jsonData.code == PPZ_ERROR.None) {
                         deferred.resolve(jsonData);
                     } else {
+                        deferred.reject(jsonData);
                         if (jsonData.code == PPZ_ERROR.SESSION_TIMEOUT) {
                             $location.path("/login");
-                        } else {
-                            deferred.reject(jsonData);
                         }
                     }
                 }).
@@ -168,7 +167,8 @@ ppzServices.service('RestaurantService', ['$http', '$window', '$q', '$cookies', 
                     getRestaurantListDefered = http.post(SERVER_URL, reqData);
                     getRestaurantListDefered.then(function (data) {
                     }, function (error) {
-                        console.log('encounted error in getMyRestaurantList: ' + error);
+                        console.log('businessError:getManagingRestaurants: ' + error);
+                        getRestaurantListDefered = null;
                     });
                 }
                 return getRestaurantListDefered;
@@ -280,6 +280,7 @@ ppzServices.service('MenuService', ['$http', '$window', '$cookies', 'http', func
                         _this._menu = data.results[0];
                     }, function (error) {
                         console.log('encounted error in getRestaurantMenu: ' + error);
+                        getMenuDefered = null;
                     });
             }
             return getMenuDefered;
@@ -494,6 +495,18 @@ ppzServices.factory('FileUploadService', ['$http', '$window', '$cookies', 'http'
                 sessionId: $cookies.token
             }));
             return http.post(reqData);
+        },
+        /**
+         * @param {Object} pictureCommentForm
+         * @param {String} pictureCommentForm.pictureId
+         * @param {String} pictureCommentForm.pictureComment
+         * @param {String} pictureCommentForm.restaurantId
+         */
+        modifyIntroduce: function (pictureCommentForm) {
+            var reqData = createRequest("modifyRestaurantPictureComment", angular.extend(pictureCommentForm, {
+                sessionId: $cookies.token
+            }));
+            return http.post(reqData);
         }
     };
 }]);
@@ -537,7 +550,9 @@ ppzServices.service('manageAccountService', ['$http', '$window', '$cookies', 'ht
                 sessionId: $cookies.token
             });
             if (!getUserInfoDefered) {
-                getUserInfoDefered = http.post(SERVER_URL, data);
+                getUserInfoDefered = http.post(SERVER_URL, data).catch(function () {
+                    getUserInfoDefered = null;
+                });
             }
             return getUserInfoDefered;
         }

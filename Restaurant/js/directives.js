@@ -113,7 +113,7 @@ angular.module("ppzDirectives", []).directive('menuManager', function () {
             //在一次拖拽过程中，除了被拖拽元素之外的其他元素的先后顺序是不会变化的。所以判断此次拖拽是否发生了元素重排只需要判断被拖拽元素的位置是否改变
             var dragNode;//被拖拽的节点，每次拖拽结束置为空
             var originalPosition = -1;//
-            var selector = "[" + attrs.dragSort + "]";
+            var selector = ">[" + attrs.dragSort + "]";
             $elem.delegate(selector, "dragstart", function (event) {
                 var rawEvent = event.originalEvent;
                 dragNode = event.currentTarget;
@@ -140,7 +140,7 @@ angular.module("ppzDirectives", []).directive('menuManager', function () {
                 var sortList = [];
                 $(dragNode).removeClass("moving");
                 //如果发生了顺序重排或者强制认为只要拖拽即发生顺序重排
-                if (originalPosition !== getPosition(dragNode) || "forceRefresh" in attrs) {
+                if ((dragNode && originalPosition !== getPosition(dragNode)) || "forceRefresh" in attrs) {
                     $elem.children().attr("data-remove", "");
                     $elem.find(selector).each(function (index, value) {
                         sortList.push({
@@ -175,4 +175,38 @@ angular.module("ppzDirectives", []).directive('menuManager', function () {
             }
         }
     };
-});
+}).directive("selfPopover", ["$compile", function ($compile) {
+    return {
+        restrict: "A",
+        scope: {
+            close: "="
+        },
+        link: function (scope, elem, attrs) {
+            var contentId = ("popover-" + Date.now() + Math.random()).replace(".", "-");
+            var $elem = $(elem);
+            var style = attrs.style || "";
+            var content = $(attrs.selector).html();
+            var form;
+            $elem.popover({
+                    html: true,
+                    content: "<div id='" + contentId + "'style='" + style + "'></div>"
+                }
+            );
+            $elem.on("shown.bs.popover", function () {
+                if (!form) {
+                    form = $elem.parent().find("form");
+                }
+                $("#" + contentId).append(form);
+            });
+            $elem.on("hide.bs.popover", function () {
+                $elem.parent().find(".form-container").append(form);
+            });
+            scope.$watch("close", function () {
+                if (scope.close) {
+                    $elem.popover('hide');
+                    scope.close = false;
+                }
+            });
+        }
+    };
+}]);

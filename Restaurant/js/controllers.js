@@ -21,6 +21,22 @@ ppzRestaurantControllers.controller('appController', ["$rootScope", "$scope", '$
         BOTTOM: 40,
         LEFT: 37
     };
+    $rootScope.showCover = false;
+    $rootScope.alertType = "alert-info";
+    $rootScope.alertContent = "";
+    /**
+     *
+     * @param {Object} config
+     * @param {String} config.alertType
+     * @param {String} config.alertContent
+     * @param {Boolean} config.showCover
+     */
+    $rootScope.setAlert = function (config) {
+        $rootScope.showCover = config.showCover || false;
+        $rootScope.alertType = config.alertType || "alert-info";
+        $rootScope.alertContent = config.alertContent || "";
+    };
+
     /**
      * 判断当前用户是否已登录
      */
@@ -172,20 +188,56 @@ ppzRestaurantControllers.controller('menuController', ['$scope', 'MenuService', 
                     });
             }
         };
+        $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.INIT;
         $scope.sortMenuCategory = function (data) {
             var previousCategoryId = null;
-            data.sortList.forEach(function (item, index) {
+            var sortList = data.sortList;
+            sortList.forEach(function (item, index) {
                 if (item.id === data.dragNodeId) {
                     if (index > 0) {
                         previousCategoryId = data.sortList[index - 1].id;
                     }
                 }
             });
+            $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.REQUESTING;
+            $scope.setAlert({
+                showCover: true,
+                alertContent: "排序中..."
+            });
             MenuService.sortMenuCategory({
                 categoryId: data.dragNodeId,
                 previousCategoryId: previousCategoryId
-            }, $scope.menu.restaurantId).then(function () {
+            }, $scope.menu.restaurantId).then(function (data) {
+                $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
+                var menuCategoryList = [];
+                sortList.forEach(function (item, index) {
+                    menuCategoryList.push($scope.getMenuCategory(item.id));
+                });
+                $scope.menu.menuCategories = menuCategoryList;
+                $scope.setAlert({
+                    showCover: false
+                });
+            }, function () {
+                $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.REQUEST_FAILED;
+                $scope.setAlert({
+                    showCover: true,
+                    alertContent: "操作失败"
+                });
             });
+        };
+        /**
+         * @method 从$scope.menu.menuCategories中获取menuCategory
+         * @param {String} menuCategoryId
+         */
+        $scope.getMenuCategory = function (menuCategoryId) {
+            var menuCategory;
+            $scope.menu.menuCategories.some(function (item) {
+                if (item.categoryId === menuCategoryId) {
+                    menuCategory = item;
+                    return true;
+                }
+            });
+            return menuCategory;
         };
         $scope.refreshMenu = function () {
             MenuService.getMenu($scope.restaurantId).then(function (data) {
@@ -252,10 +304,11 @@ ppzRestaurantControllers.controller('menuController', ['$scope', 'MenuService', 
         $scope.addStatus = $scope.REQUEST_STATUS.INIT;
         $scope.addMenuCategory = function () {
             $scope.addStatus = $scope.REQUEST_STATUS.REQUESTING;
-            MenuService.addMenuCategory($scope.categoryForm, $scope.menu.restaurantId).then(function () {
+            MenuService.addMenuCategory($scope.categoryForm, $scope.menu.restaurantId).then(function (data) {
                 initCategoryForm();
                 $scope.addStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
-                $scope.menu.menuCategories.unshift();
+                $scope.menu.menuCategories = $scope.menu.menuCategories.concat(data.results);
+                $scope.adding = false;
             }, function () {
                 $scope.addStatus = $scope.REQUEST_STATUS.REQUEST_FAILED;
             });
@@ -291,9 +344,15 @@ ppzRestaurantControllers.controller('menuCategoryController', ['$scope', 'MenuSe
                 $scope.editStatus = $scope.REQUEST_STATUS.REQUEST_FAILED;
             });
         };
+
         $scope.sortMenuItem = function (data) {
             var previousItemId = null;
-            data.sortList.forEach(function (item, index) {
+            var sortList = data.sortList;
+            $scope.setAlert({
+                showCover: true,
+                alertContent: "排序中..."
+            });
+            sortList.forEach(function (item, index) {
                 if (item.id === data.dragNodeId) {
                     if (index > 0) {
                         previousItemId = data.sortList[index - 1].id;
@@ -305,7 +364,29 @@ ppzRestaurantControllers.controller('menuCategoryController', ['$scope', 'MenuSe
                 previousItemId: previousItemId,
                 categoryId: $scope.category.categoryId
             }, $scope.menu.restaurantId).then(function () {
+                var menuItemList = [];
+                sortList.forEach(function (item, index) {
+                    menuItemList.push($scope.getMenuItem(item.id));
+                });
+                $scope.category.items = menuItemList;
+                $scope.setAlert({
+                    showCover: false
+                });
             });
+        };
+        /**
+         * @method 从$scope.category.items中获取menuItem
+         * @param {String} menuItemId
+         */
+        $scope.getMenuItem = function (menuItemId) {
+            var menuItem;
+            $scope.category.items.some(function (item) {
+                if (item.itemId === menuItemId) {
+                    menuItem = item;
+                    return true;
+                }
+            });
+            return menuItem;
         };
         $scope.deleteStatus = $scope.REQUEST_STATUS.INIT;
         $scope.removeMenuCategory = function () {
@@ -734,7 +815,12 @@ ppzRestaurantControllers.controller('fileUploader', ['$cookies', '$scope', 'File
             if (fileItem.pictureComment) {
                 fileItem.upload();
             }
-        }
+        };
+        $scope.uploadAll = function () {
+            $scope.uploader.queue.forEach(function (item) {
+                $scope.upload(item);
+            });
+        };
         $scope.uploader.onSuccessItem = function (item, response, status, headers) {
             var results = JSON.parse(response.data).results;
             $scope.fileList = $scope.fileList.concat(results);
@@ -761,6 +847,25 @@ ppzRestaurantControllers.controller('fileUploader', ['$cookies', '$scope', 'File
 //        });
     }
 ]);
+ppzRestaurantControllers.controller('pictureItemController', [
+    '$cookies', '$scope', 'FileUploadService', function ($cookies, $scope, FileUploadService) {
+        $scope.file.pictureCommentCopy = $scope.file.pictureComment;
+        $scope.modifyIntroduce = function (valid) {
+            if (valid) {
+                FileUploadService.modifyIntroduce({
+                    pictureId: $scope.file.pictureId,
+                    pictureComment: $scope.file.pictureCommentCopy,
+                    restaurantId: $scope.file.restaurantId
+                }).then(function () {
+                    $scope.file.pictureComment = $scope.file.pictureCommentCopy;
+                    $scope.closePopover = true;
+                }, function () {
+                });
+            }
+        }
+    }
+]);
+
 ppzRestaurantControllers.controller('manageAccountController', ['$cookies', '$scope', 'manageAccountService',
     function ($cookies, $scope, manageAccountService) {
         $scope.submitted = false;

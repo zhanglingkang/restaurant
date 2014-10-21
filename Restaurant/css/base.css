@@ -25,6 +25,34 @@ h4, h1 {
     margin-bottom: 5px;
 }
 
+.cover, .alert-container {
+    position: fixed;
+    top: 0px;
+    right: 0px;
+    bottom: 0px;
+    filter: alpha(opacity=60);
+    z-index: 1002;
+    left: 0px;
+    display: flex;
+}
+
+.cover {
+    opacity: 0.5;
+    -moz-opacity: 0.5;
+    background-color: #777;
+}
+
+.public-alert {
+    margin: auto;
+    min-width: 200px;
+    min-height: 100px;
+}
+
+.public-alert > div {
+    margin: auto;
+    font-size: 14px;
+}
+
 .btn-primary {
     color: #ffffff;
     background-color: #009900;
@@ -121,7 +149,6 @@ h4, h1 {
 }
 
 .restaurant-img-list img {
-    max-height: 200px;
     max-width: 100%;
     display: inline-block;
 }
@@ -130,6 +157,7 @@ h4, h1 {
     height: 400px;
     overflow-y: auto;
     text-align: center;
+    word-wrap: break-word;
 }
 
 .restaurant-img-list figure {
@@ -138,6 +166,9 @@ h4, h1 {
     margin: 20px auto;
 }
 
+.restaurant-img-list figure p {
+    cursor: pointer;
+}
 .restaurant-img-list > div span {
     position: absolute;
     color: red;
