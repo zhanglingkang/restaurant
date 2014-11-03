@@ -818,7 +818,9 @@ ppzRestaurantControllers.controller('fileUploader', ['$cookies', '$scope', 'File
         };
         $scope.uploadAll = function () {
             $scope.uploader.queue.forEach(function (item) {
-                $scope.upload(item);
+                if (!item.isSuccess) {
+                    $scope.upload(item);
+                }
             });
         };
         $scope.uploader.onSuccessItem = function (item, response, status, headers) {

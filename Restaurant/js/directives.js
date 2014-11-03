@@ -187,6 +187,7 @@ angular.module("ppzDirectives", []).directive('menuManager', function () {
             var style = attrs.style || "";
             var content = $(attrs.selector).html();
             var form;
+            var showStatus = false;//当前弹出框的显示状态
             $elem.popover({
                     html: true,
                     content: "<div id='" + contentId + "'style='" + style + "'></div>"
@@ -197,9 +198,17 @@ angular.module("ppzDirectives", []).directive('menuManager', function () {
                     form = $elem.parent().find("form");
                 }
                 $("#" + contentId).append(form);
+                showStatus = true;
             });
             $elem.on("hide.bs.popover", function () {
                 $elem.parent().find(".form-container").append(form);
+                showStatus = false;
+            });
+            $(document).click(function (event) {
+                var container = $("#" + contentId).parents(".popover")[0];
+                if (showStatus && container && !$.contains(container, event.target)) {
+                    $elem.popover("hide");
+                }
             });
             scope.$watch("close", function () {
                 if (scope.close) {
