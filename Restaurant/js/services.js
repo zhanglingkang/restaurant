@@ -1,7 +1,8 @@
 /**
  * Created by Chris on 2/2/14.
  */
-;(function () {
+;
+(function () {
     var SERVER = "http://awsjp.ppzapp.com:34952";
     var SERVER = "http://ali.ppzapp.cn:34952";
     var SERVER_URL = SERVER + "/BBQueue/API";
@@ -19,7 +20,7 @@
     }
 
     var ppzServices = angular.module("ppzServices", ['ngResource']);
-    ppzServices.factory('http', ['$http', '$q', '$location', function ($http, $q, $location) {
+    ppzServices.factory('http', ['$http', '$q', '$location', '$cookies', function ($http, $q, $location, $cookies) {
         return {
             /**
              *
@@ -36,6 +37,8 @@
                         } else {
                             deferred.reject(jsonData);
                             if (jsonData.code == PPZ_ERROR.SESSION_TIMEOUT) {
+                                delete $cookies.token;
+                                delete $cookies.username;
                                 $location.path("/login");
                             }
                         }
@@ -43,6 +46,14 @@
                     error(function (data, status, headers, config) {
                         deferred.reject(data);
                     });
+                deferred.promise.success = function (callback) {
+                    deferred.promise.then(callback);
+                    return deferred.promise;
+                };
+                deferred.promise.error = function (callback) {
+                    deferred.promise.then(null, callback);
+                    return deferred.promise;
+                };
                 return deferred.promise;
             },
             get: function (url, config) {
@@ -192,10 +203,42 @@
                     });
                     return defer.promise;
                 },
-
+                /**
+                 *
+                 * @param {Boolean} enable
+                 */
+                acceptReservation: function (restaurantId, enable) {
+                    var reqData = createRequest('modifyRestaurantInfo', {
+                        sessionId: $cookies.token,
+                        restaurantId: restaurantId,
+                        acceptReservation: enable
+                    });
+                    return http.post(reqData);
+                },
+                enableQueue: function (restaurantId, enable) {
+                    var reqData = createRequest('modifyRestaurantInfo', {
+                        sessionId: $cookies.token,
+                        restaurantId: restaurantId,
+                        enableQueue: enable
+                    });
+                    return http.post(reqData);
+                },
+                /**
+                 *
+                 * @param restaurantId
+                 * @param {Number} length
+                 */
+                setMaxQueue: function (restaurantId, length) {
+                    var reqData = createRequest('modifyRestaurantInfo', {
+                        sessionId: $cookies.token,
+                        restaurantId: restaurantId,
+                        maxQueueLength : length
+                    });
+                    return http.post(reqData);
+                },
                 updateRestaurantInfo: function (restaurantId, info, callback) {
                     var reqData = createRequest('modifyRestaurantInfo', {sessionId: $cookies.token, restaurantId: restaurantId, "phone.number": info.phone.phone, email: info.email, website: info.website, restaurantDescription: info.restaurantDescription, "address.city": info.address.city, "address.location": info.address.location, "address.state": info.address.state, "address.street": info.address.street, "address.zipcode": info.address.zipcode});
-                    return http.post(SERVER_URL, reqData);
+                    return http.post(reqData);
                 },
 
                 getWaitingList: function (restaurantId, callback) {

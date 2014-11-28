@@ -1,7 +1,8 @@
 /**
  * Created by Chris on 2/2/14.
  */
-;(function () {
+;
+(function () {
 
 
     var ppzRestaurantControllers = angular.module("ppzControllers", []);
@@ -61,9 +62,6 @@
                 userName: ""
             };
             $scope.submitted = false;
-            $scope.active = function () {
-                return $cookies.token !== 'null';
-            };
             $scope.initResetInfo = function () {
                 $scope.resetPasswordForm.userName = "";
                 $scope.resetStatus = $scope.REQUEST_STATUS.INIT;
@@ -510,10 +508,40 @@
             $scope.restaurantId = $routeParams.restaurantId;
             RestaurantService.getRestaurant($scope.restaurantId).then(function (restaurant) {
                 $scope.partyTypeList = restaurant.partyTypeInfos;
-                $scope.newReserve.typeId = $scope.partyTypeList[0].partyTypeId
+                $scope.newReserve.typeId = $scope.partyTypeList[0].partyTypeId;
+                $scope.restaurant = restaurant;
+                $scope.maxQueueLength = restaurant.restaurantSettings.maxQueueLength;
             }, function () {
                 $scope.error = error;
             });
+            $scope.setMaxQueue = function (valid) {
+                if (valid) {
+                    RestaurantService.setMaxQueue($scope.restaurantId, $scope.maxQueueLength).success(function () {
+                        $scope.restaurant.restaurantSettings.maxQueueLength = $scope.maxQueueLength;
+                        $scope.closePopover = true;
+                    });
+                }
+            };
+            $scope.stopReservation = function () {
+                RestaurantService.acceptReservation($scope.restaurantId, false).success(function () {
+                    $scope.restaurant.restaurantSettings.acceptReservation = false;
+                });
+            };
+            $scope.startReservation = function () {
+                RestaurantService.acceptReservation($scope.restaurantId, true).success(function () {
+                    $scope.restaurant.restaurantSettings.acceptReservation = true;
+                });
+            };
+            $scope.stopQueue = function () {
+                RestaurantService.enableQueue($scope.restaurantId, false).success(function () {
+                    $scope.restaurant.restaurantSettings.enableQueue = false;
+                });
+            };
+            $scope.startQueue = function () {
+                RestaurantService.enableQueue($scope.restaurantId, true).success(function () {
+                    $scope.restaurant.restaurantSettings.enableQueue = true;
+                });
+            };
             $scope.waitingList = [];
             $scope.newReserve = {
                 time: new Date(),

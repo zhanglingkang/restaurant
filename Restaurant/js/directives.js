@@ -1,5 +1,5 @@
-
-;(function () {
+;
+(function () {
     var FLOAT_REGEXP = /^\-?\d+((\.|\,)\d+)?$/;
 
     angular.module("ppzDirectives", []).directive('menuManager', function () {
@@ -54,7 +54,7 @@
                     if ($elem[0] === event.target) {
                         if (!confirmed) {
                             event.stopPropagation();
-                            $modal.find(".modal-title").html(attrs.modalTitle);
+                            $modal.find(".modal-title").html(attrs.modalTitle || "温馨提示");
                             $modal.find(".modal-body").html(attrs.modalContent);
                             $modal.modal('show');
                             $modal.find(".confirm")[0].onclick = function () {
