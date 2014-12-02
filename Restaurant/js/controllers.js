@@ -47,6 +47,7 @@
             return !!($cookies.token && $cookies.token !== "null");
         }
 
+        $scope.isLogined = isLogined;
         $scope.$on("$locationChangeStart", function (event, newUrl, oldUrl) {
             if (!isLogined() && !/login/.test(newUrl)) {
                 $location.path("/login");
@@ -895,7 +896,7 @@
                         restaurantId: $scope.file.restaurantId
                     }).then(function () {
                         $scope.file.pictureComment = $scope.file.pictureCommentCopy;
-                        $scope.closePopover = true;
+                        $scope.popoverScope.close();
                     }, function () {
                     });
                 }

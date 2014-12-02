@@ -176,3 +176,6 @@ h4, h1 {
     right: -5px;
     cursor: pointer;
 }
+figure.recommend .description{
+    margin-top:5px;
+}

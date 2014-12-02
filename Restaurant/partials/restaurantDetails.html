@@ -522,13 +522,14 @@
 
         <div class="restaurant-img-list">
             <div ng-repeat="file in fileList | orderBy:'uploadTime':true" ng-controller="pictureItemController">
-                <figure>
+                <figure class="recommend">
                     <img ng-src="{{file.filePath}}" x-view-img=""/>
 
-                    <p data-toggle="popover" x-self-popover="" x-close="closePopover" data-placement="top"
-                       data-container="body" x-style="min-width:200px;min-height:150px;">{{file.pictureComment}}</p>
-
-                    <div class="ng-hide form-container">
+                    <p class="description">{{file.pictureComment}}
+                    </p>
+                    <x-self-popover data-placement="top" context="parent" related-target=">p"
+                                    x-style="min-width:200px;min-height:200px;"
+                                    name="popoverScope" auto-close>
                         <form name="modifyIntroduceFormValidation" novalidate=""
                               ng-submit="modifyIntroduce(modifyIntroduceFormValidation.$valid)">
                             <textarea rows="3" ng-model="file.pictureCommentCopy" name="pictureComment" required=""
@@ -544,7 +545,8 @@
                                 <button type="submit" class="btn btn-primary"> 确定</button>
                             </div>
                         </form>
-                    </div>
+                    </x-self-popover>
+
                     <span class="glyphicon glyphicon-remove" ng-click="removePicture(file)" x-confirm-hint=""
                           x-modal-title="溫馨提示"
                           x-modal-content="确认删除&nbsp;&lt;strong&gt;“{{file.pictureComment}}”&lt;/strong&gt;&nbsp;吗？"></span>

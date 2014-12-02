@@ -177,48 +177,120 @@
                 }
             }
         };
-    }).directive("selfPopover", ["$compile", function ($compile) {
+    }).directive("selfPopover", ["$compile", "utilService", function ($compile, utilService) {
+        /**
+         * 此指令相关的属性
+         * 1.relatedTarget:可选
+         *  type string
+         *  描述：css选择器，当指定relatedTarget时，点击relatedTarget时，出现弹出框,如果没有设置此属性，目标节点为父节点
+         * 2. context:选择器的上下文，默认body。可选值parent
+         * 3.autoClose 如果有此属性，点击浮框意外的部分时，自动关闭。
+         * 4.container popover插件的options
+         * 5.placement popover插件的options
+         */
         return {
-            restrict: "A",
-            scope: {
-                close: "="
-            },
-            link: function (scope, elem, attrs) {
-                var contentId = ("popover-" + Date.now() + Math.random()).replace(".", "-");
+            restrict: "E",
+            terminal: true,
+            scope: true,
+            link: function (scope, elem, attrs, controller, transclude) {
                 var $elem = $(elem);
+                var targetNode = $elem.parent();
                 var style = attrs.style || "";
-                var content = $(attrs.selector).html();
-                var form;
-                var showStatus = false;//当前弹出框的显示状态
-                $elem.popover({
+                scope.$$close = false;
+                scope.$watch("$$close", function () {
+                    if (scope.$$close) {
+                        targetNode.popover('hide');
+                        scope.$$close = false;
+                    }
+                });
+                scope.close = function () {
+                    scope.$$close = true;
+                };
+                if (attrs.name) {
+                    utilService.setPropertyValue(scope.$parent, attrs.name, scope);
+                }
+                if (attrs.relatedTarget) {
+                    if (attrs.context === "parent") {
+                        targetNode = $elem.parent().find(attrs.relatedTarget);
+                    } else {
+                        targetNode = $(attrs.relatedTarget);
+                    }
+                }
+                $elem.remove();
+                targetNode.attr("data-toggle", "popover");
+                targetNode.popover({
                         html: true,
-                        content: "<div id='" + contentId + "'style='" + style + "'></div>"
+                        content: $elem.html(),
+                        container: attrs.container,
+                        placement: "top" || attrs.placement
                     }
                 );
-                $elem.on("shown.bs.popover", function () {
-                    if (!form) {
-                        form = $elem.parent().find("form");
-                    }
-                    $("#" + contentId).append(form);
-                    showStatus = true;
-                });
-                $elem.on("hide.bs.popover", function () {
-                    $elem.parent().find(".form-container").append(form);
-                    showStatus = false;
-                });
-                $(document).click(function (event) {
-                    var container = $("#" + contentId).parents(".popover")[0];
-                    if (showStatus && container && !$.contains(container, event.target)) {
-                        $elem.popover("hide");
+                targetNode.on("shown.bs.popover", function (event) {
+                    var popoverContent = targetNode.data("bs.popover").$tip.find(".popover-content");
+                    popoverContent.attr("style", style);
+                    $compile(popoverContent.children())(scope);
+                    if ("autoClose" in attrs) {
+                        $(document).bind("click", autoClose);
                     }
                 });
-                scope.$watch("close", function () {
-                    if (scope.close) {
-                        $elem.popover('hide');
-                        scope.close = false;
-                    }
+                targetNode.on("hidden.bs.popover", function (event) {
+                    $(document).unbind("click", autoClose);
                 });
+                function autoClose(event) {
+                    var container = targetNode.data("bs.popover").$tip[0];
+                    if (container && !$.contains(container, event.target)) {
+                        targetNode.popover("hide");
+                    }
+                }
             }
-        };
-    }]);
-}());
+        }
+    }])
+//        .directive("selfPopover", ["$compile", function ($compile) {
+//        return {
+//            restrict: "A",
+//            scope: {
+//                close: "="
+//            },
+//            link: function (scope, elem, attrs) {
+//                var contentId = ("popover-" + Date.now() + Math.random()).replace(".", "-");
+//                var $elem = $(elem);
+//                var style = attrs.style || "";
+//                var content = $(attrs.selector).html();
+//                var form;
+//                var showStatus = false;//当前弹出框的显示状态
+//                $elem.popover({
+//                        html: true,
+//                        content: "<div id='" + contentId + "'style='" + style + "'></div>"
+//                    }
+//                );
+//                $elem.on("shown.bs.popover", function () {
+//                    if (!form) {
+//                        form = $elem.parent().find("form");
+//                    }
+//                    $("#" + contentId).append(form);
+//                    showStatus = true;
+//                });
+//                $elem.on("hide.bs.popover", function () {
+//                    $elem.parent().find(".form-container").append(form);
+//                    showStatus = false;
+//                });
+//                $(document).click(function (event) {
+//                    var container = $("#" + contentId).parents(".popover")[0];
+//                    if (showStatus && container && !$.contains(container, event.target)) {
+//                        $elem.popover("hide");
+//                    }
+//                });
+//                scope.$watch("close", function () {
+//                    if (scope.close) {
+//                        $elem.popover('hide');
+//                        scope.close = false;
+//                    }
+//                });
+//}
+//}
+//;
+//}])
+    ;
+}
+())
+;
