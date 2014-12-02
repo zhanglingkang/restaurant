@@ -187,6 +187,7 @@
          * 3.autoClose 如果有此属性，点击浮框意外的部分时，自动关闭。
          * 4.container popover插件的options
          * 5.placement popover插件的options
+         * 6.name 如果设置了name属性为popover，则在父scope里设置属性名为popover，值为此指令关联的scope
          */
         return {
             restrict: "E",
