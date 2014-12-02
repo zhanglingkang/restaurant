@@ -1,2 +1,2 @@
-/*! ppz_website 2014-12-02 2:52:39 PM */
+/*! ppz_website 2014-12-02 3:48:40 PM */
 !function(){angular.module("ppzUtils",[]).service("utilService",function(){return{setPropertyValue:function(a,b,c){var d,e=b.split(".");e.forEach(function(b,c){c<e.length-1&&(a=a[b])}),d=e.pop(),a[d]=c}}})}();
