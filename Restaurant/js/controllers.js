@@ -766,6 +766,9 @@
                     $scope.loading = false;
                     $scope.error = error;
                     $scope.reviewList = reviewList;
+                    $scope.reviewList.forEach(function (review) {
+                        review.rating /= 2;
+                    });
                 });
             };
             $scope.selectPage(1);
