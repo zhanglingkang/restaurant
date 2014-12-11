@@ -2,26 +2,18 @@
 <html ng-app="ppzRestaurant" ng-controller="appController">
 <head>
     <title>PPZ Restaurant</title>
-    <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
-    <script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
-    <script src="lib/angular.js"></script>
-    <script src="lib/angular-route.js"></script>
-    <script src="lib/angular-resource.js"></script>
-    <script src="lib/angular-cookies.js"></script>
-    <script src="lib/angular-file-upload.js"></script>
-    <script src="lib/ui-bootstrap-tpls-0.9.0.min.js"></script>
-    <script src="js/app.js"></script>
-    <script src="js/util.js"></script>
-    <script src="js/directives.js"></script>
-    <script src="js/services.js"></script>
-    <script src="js/controllers.js"></script>
-    <script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <link href="css/bootstrap.simplex.min.css" rel="stylesheet">
+    <link href="bower_components/angular-material/angular-material.css" rel="stylesheet">
     <link href="css/base.css" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style type="text/css">
+        .ng-cloak {
+            display: none;
+        }
+    </style>
 </head>
-<body>
+<body class="ng-cloak">
 <div ng-include="'partials/header.html'" ng-if="!excludeHeader"></div>
 
 <div ng-view ng-class="{true : 'container', false : 'container-fluid'}[!excludeHeader]"></div>
@@ -63,10 +55,26 @@
 </div>
 <div class="alert-container" ng-show="showCover">
     <!--<div class="alert {{alertType}} public-alert" role="alert" ng-show="showCover">-->
-        <div class="well well-lg public-alert" >
-            {{alertContent}}
-        </div>
+    <div class="well well-lg public-alert">
+        {{alertContent}}
+    </div>
     <!--</div>-->
 </div>
+<script src="bower_components/hammerjs/hammer.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="http://code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script src="lib/angular.js"></script>
+<script src="lib//angular-route.js"></script>
+<script src="bower_components/angular-material/angular-material.js"></script>
+<script src="lib/angular-resource.js"></script>
+<script src="lib/angular-cookies.js"></script>
+<script src="lib/angular-file-upload.js"></script>
+<script src="lib/ui-bootstrap-tpls-0.9.0.min.js"></script>
+<script src="js/app.js"></script>
+<script src="js/util.js"></script>
+<script src="js/directives.js"></script>
+<script src="js/services.js"></script>
+<script src="js/controllers.js"></script>
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
 </body>
 </html>

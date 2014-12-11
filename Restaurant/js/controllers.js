@@ -499,14 +499,29 @@
     ])
     ;
 
-    ppzRestaurantControllers.controller('waitingListController', ['$modal', '$scope', '$routeParams', '$timeout', '$window', 'RestaurantService', 'WaitingListService',
-        function ($modal, $scope, $routeParams, $timeout, $window, RestaurantService, WaitingListService) {
+    ppzRestaurantControllers.controller('waitingListController', ['$modal', '$scope', '$routeParams', '$timeout', '$cookies', '$window', 'RestaurantService', 'WaitingListService', "utilService",
+        function ($modal, $scope, $routeParams, $timeout, $cookies, $window, RestaurantService, WaitingListService, utilService) {
+            $scope.restaurantId = $routeParams.restaurantId;
+            var eventSource = new EventSource(utilService.getUrl("/bbqueue", {
+                restaurantId: $routeParams.restaurantId,
+                sessionId: $cookies.token,
+                lastUpdateTime: 0
+            }));
+            eventSource.addEventListener("open", function () {
+                console.log("open");
+            });
+            eventSource.addEventListener("error", function () {
+                console.log("error");
+            });
+            eventSource.addEventListener("message", function () {
+                console.log("message");
+            });
             var UPDATE_INTERVAL = 10000;
             var publicWindow = null;
             $scope.goBack = function () {
                 window.history.back();
-            }
-            $scope.restaurantId = $routeParams.restaurantId;
+            };
+
             RestaurantService.getRestaurant($scope.restaurantId).then(function (restaurant) {
                 $scope.partyTypeList = restaurant.partyTypeInfos;
                 $scope.newReserve.typeId = $scope.partyTypeList[0].partyTypeId;
@@ -519,7 +534,7 @@
                 if (valid) {
                     RestaurantService.setMaxQueue($scope.restaurantId, $scope.maxQueueLength).success(function () {
                         $scope.restaurant.restaurantSettings.maxQueueLength = $scope.maxQueueLength;
-                        $scope.closePopover = true;
+                        $scope.modifyMaxQueuePopover.close();
                     });
                 }
             };

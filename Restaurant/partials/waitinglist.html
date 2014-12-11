@@ -15,25 +15,24 @@
     <button ng-click="startQueue()" class="btn btn-primary" ng-hide="restaurant.restaurantSettings.enableQueue"
             x-confirm-hint x-modal-content="确认启用“排队功能”吗？">启用排队
     </button>
-    <button class="btn btn-primary" data-toggle="popover" x-self-popover="" x-close="closePopover" data-placement="bottom"
-            data-container="body" x-style="min-width:200px;min-height:150px;">
+    <button class="btn btn-primary">
         设置排队人数
-    </button>
-    <div class="ng-hide form-container">
-        <form name="modifyMaxQueueFormValidation" novalidate=""
-              ng-submit="setMaxQueue(modifyMaxQueueFormValidation.$valid)">
-            <input type="number" ng-model="maxQueueLength" name="maxQueueLength" required=""
-                   style="width: 100%;"/>
+        <x-self-popover data-placement="bottom" x-style="min-width:200px;min-height:150px;" name="modifyMaxQueuePopover" auto-close>
+            <form name="modifyMaxQueueFormValidation" novalidate=""
+                  ng-submit="setMaxQueue(modifyMaxQueueFormValidation.$valid)">
+                <input type="number" class="form-control" ng-model="maxQueueLength" name="maxQueueLength" required=""
+                       style="width: 100%;"/>
 
-            <div class="alert alert-danger"
-                 ng-show="modifyMaxQueueFormValidation.maxQueueLength.$dirty&&modifyMaxQueueFormValidation.maxQueueLength.$error.required">
-                请设置一个正确的数字
-            </div>
-            <div style="direction: rtl;margin-top:5px; ">
-                <button type="submit" class="btn btn-primary"> 确定</button>
-            </div>
-        </form>
-    </div>
+                <div class="alert alert-danger"
+                     ng-show="modifyMaxQueueFormValidation.maxQueueLength.$dirty&&modifyMaxQueueFormValidation.maxQueueLength.$error.required">
+                    请设置一个正确的数字
+                </div>
+                <div style="float: right;margin-top:5px;">
+                    <input type="submit" class="btn btn-primary" value="确定"/>
+                </div>
+            </form>
+        </x-self-popover>
+    </button>
     <hr class='space'/>
 </div>
 

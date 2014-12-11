@@ -184,10 +184,10 @@
          *  type string
          *  描述：css选择器，当指定relatedTarget时，点击relatedTarget时，出现弹出框,如果没有设置此属性，目标节点为父节点
          * 2. context:选择器的上下文，默认body。可选值parent
-         * 3.autoClose 如果有此属性，点击浮框意外的部分时，自动关闭。
+         * 3.autoClose 如果有此属性，点击浮框以外的部分时，自动关闭。
          * 4.container popover插件的options
          * 5.placement popover插件的options
-         * 6.name 如果设置了name属性为popover，则在父scope里设置属性名为popover，值为此指令关联的scope
+         * 6.name 如果设置了name属性为popover，则在父scope里设置属性名为popover的一个对象
          */
         return {
             restrict: "E",
@@ -197,19 +197,15 @@
                 var $elem = $(elem);
                 var targetNode = $elem.parent();
                 var style = attrs.style || "";
-                scope.$$close = false;
-                scope.$watch("$$close", function () {
-                    if (scope.$$close) {
+                var template = '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content" ></div></div>';
+                template = template.replace(/(?=class=['"]popover-content['"])/, "style='" + style + "' ");
+                scope.close = false;
+                scope.$watch("close", function () {
+                    if (scope.close) {
                         targetNode.popover('hide');
-                        scope.$$close = false;
+                        scope.close = false;
                     }
                 });
-                scope.close = function () {
-                    scope.$$close = true;
-                };
-                if (attrs.name) {
-                    utilService.setPropertyValue(scope.$parent, attrs.name, scope);
-                }
                 if (attrs.relatedTarget) {
                     if (attrs.context === "parent") {
                         targetNode = $elem.parent().find(attrs.relatedTarget);
@@ -217,22 +213,25 @@
                         targetNode = $(attrs.relatedTarget);
                     }
                 }
+                $elem.children().addClass("ng-cloak");
                 $elem.remove();
                 targetNode.attr("data-toggle", "popover");
                 targetNode.popover({
                         html: true,
                         content: $elem.html(),
                         container: attrs.container,
-                        placement: "top" || attrs.placement
+                        placement: attrs.placement || "top",
+                        template: template
                     }
                 );
                 targetNode.on("shown.bs.popover", function (event) {
                     var popoverContent = targetNode.data("bs.popover").$tip.find(".popover-content");
-                    popoverContent.attr("style", style);
-                    $compile(popoverContent.children())(scope);
+//                    popoverContent.attr("style", style);
+                    $compile(popoverContent.children())(scope.$parent);
                     if ("autoClose" in attrs) {
                         $(document).bind("click", autoClose);
                     }
+                    scope.$emit("");
                 });
                 targetNode.on("hidden.bs.popover", function (event) {
                     $(document).unbind("click", autoClose);
@@ -243,7 +242,18 @@
                         targetNode.popover("hide");
                     }
                 }
+
+                var externalAPI = {
+                    close: function () {
+                        scope.close = true;
+                    }
+                };
+                if ("name" in attrs) {
+                    utilService.setPropertyValue(scope.$parent, attrs.name, externalAPI);
+                }
+
             }
         }
+
     }])
 }())
