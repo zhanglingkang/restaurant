@@ -9,7 +9,7 @@
     /**
      * @description
      *
-     * This object provides a utility for producing rich Error messages within
+     * This object provides a utility for producing rich Error message within
      * Angular. It can be called as follows:
      *
      * var exampleMinErr = minErr('example');

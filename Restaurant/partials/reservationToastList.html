@@ -1,0 +1,9 @@
+<md-bottom-sheet class="md-grid">
+    <md-list>
+        <md-item ng-repeat="restaurant in restaurantList">
+            <md-button class="md-grid-item-content" ng-click="viewReservationDetail(restaurant)">
+                {{restaurant.name}} <span class="badge">{{reservationMap[restaurant.restaurantId].length}}</span>
+            </md-button>
+        </md-item>
+    </md-list>
+</md-bottom-sheet>

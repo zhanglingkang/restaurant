@@ -6,54 +6,105 @@
 
 
     var ppzRestaurantControllers = angular.module("ppzControllers", []);
-    ppzRestaurantControllers.controller('appController', ["$rootScope", "$scope", '$cookies', "$location", function ($rootScope, $scope, $cookies, $location) {
-        /**
-         * 任何一个请求都有四种状态：INIT 尚未请求 REQUESTING 请求中 REQUEST_SUCCESSED 请求成功 REQUEST_FAILED 请求失败
-         */
-        $rootScope.REQUEST_STATUS = {
-            INIT: 0,
-            REQUESTING: 1,
-            REQUEST_SUCCESSED: 2,
-            REQUEST_FAILED: 3
-        };
-        $rootScope.KEY_CODE = {
-            ENTER: 13,
-            BACKSPACE: 8,
-            TOP: 38,
-            RIGHT: 39,
-            BOTTOM: 40,
-            LEFT: 37
-        };
-        $rootScope.showCover = false;
-        $rootScope.alertType = "alert-info";
-        $rootScope.alertContent = "";
-        /**
-         *
-         * @param {Object} config
-         * @param {String} config.alertType
-         * @param {String} config.alertContent
-         * @param {Boolean} config.showCover
-         */
-        $rootScope.setAlert = function (config) {
-            $rootScope.showCover = config.showCover || false;
-            $rootScope.alertType = config.alertType || "alert-info";
-            $rootScope.alertContent = config.alertContent || "";
-        };
+    var reservationCtrl = ["$scope", "reservationService" , "dataService", "$location", "restaurantList", "reservationMap", function ($scope, reservationService, dataService, $location, restaurantList, reservationMap) {
 
-        /**
-         * 判断当前用户是否已登录
-         */
-        function isLogined() {
-            return !!($cookies.token && $cookies.token !== "null");
-        }
-
-        $scope.isLogined = isLogined;
-        $scope.$on("$locationChangeStart", function (event, newUrl, oldUrl) {
-            if (!isLogined() && !/login/.test(newUrl)) {
-                $location.path("/login");
-            }
+        $scope.restaurantList = restaurantList;
+        $scope.reservationMap = reservationMap;
+        angular.forEach(reservationMap, function (reservationArray, key) {
+            reservationArray = reservationArray.filter(function (reservation) {
+                return dataService.reservationStatus.waitConfirm == reservation.reservationStatus;
+            });
+            reservationMap[key] = reservationArray;
         });
-    }]);
+        $scope.viewReservationDetail = function (restaurant) {
+            $location.path("/waitinglist/" + restaurant.restaurantId);
+        };
+//        $scope.accept = function (reservation) {
+//            reservationService.accept({
+//                restaurantId: reservation.restaurantId,
+//                unitId: reservation.unitId,
+//                comment: ""
+//            }).success(function () {
+//
+//            });
+//        };
+//        $scope.refuse = function (valid, reservation) {
+//            if (valid) {
+//                reservationService.accept({
+//                    restaurantId: reservation.restaurantId,
+//                    unitId: reservation.unitId,
+//                    comment: $scope.refuseReason
+//                }).success(function () {
+//
+//                });
+//            }
+//        };
+    }];
+    ppzRestaurantControllers.controller('appController', ["$rootScope", "$scope", '$cookies', "$location", "pubSubService" , "$mdBottomSheet", "reservationService", "utilService",
+        function ($rootScope, $scope, $cookies, $location, pubSubService, $mdBottomSheet, reservationService, utilService) {
+            /**
+             * 任何一个请求都有四种状态：INIT 尚未请求 REQUESTING 请求中 REQUEST_SUCCESSED 请求成功 REQUEST_FAILED 请求失败
+             */
+            $rootScope.REQUEST_STATUS = {
+                INIT: 0,
+                REQUESTING: 1,
+                REQUEST_SUCCESSED: 2,
+                REQUEST_FAILED: 3
+            };
+            $rootScope.KEY_CODE = {
+                ENTER: 13,
+                BACKSPACE: 8,
+                TOP: 38,
+                RIGHT: 39,
+                BOTTOM: 40,
+                LEFT: 37
+            };
+            $rootScope.showCover = false;
+            $rootScope.alertType = "alert-info";
+            $rootScope.alertContent = "";
+            /**
+             *
+             * @param {Object} config
+             * @param {String} config.alertType
+             * @param {String} config.alertContent
+             * @param {Boolean} config.showCover
+             */
+            $rootScope.setAlert = function (config) {
+                $rootScope.showCover = config.showCover || false;
+                $rootScope.alertType = config.alertType || "alert-info";
+                $rootScope.alertContent = config.alertContent || "";
+            };
+
+            /**
+             * 判断当前用户是否已登录
+             */
+            function isLogined() {
+                return !!($cookies.token && $cookies.token !== "null");
+            }
+
+            $scope.isLogined = isLogined;
+            $scope.$on("$locationChangeStart", function (event, newUrl, oldUrl) {
+                if (!isLogined() && !/login/.test(newUrl)) {
+                    $location.path("/login");
+                }
+            });
+            var restaurantList = [];
+            pubSubService.subscribe("newReservation", function (reservationMap) {
+                var restaurantReservationArray = utilService.getArray(reservationMap);
+                var $mdBottomSheetPromise = $mdBottomSheet.show({
+                    templateUrl: 'partials/reservationToastList.html',
+                    controller: 'reservationCtrl',
+                    locals: {
+                        restaurantList: restaurantList,
+                        reservationMap: reservationMap
+                    }
+                });
+            });
+            pubSubService.subscribe("loadedRestaurantList", function (data) {
+                restaurantList = data;
+                reservationService.receiveReservationInfo(restaurantList);
+            });
+        }]);
     ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$window', '$location', '$cookies',
         function ($scope, Login, $window, $location, $cookies) {
             $scope.getUserName = function () {
@@ -107,14 +158,15 @@
         }
     ]);
 
-    ppzRestaurantControllers.controller('restaurantListController', ['$scope', 'RestaurantService', "MenuService",
-        function ($scope, RestaurantService, MenuService) {
+    ppzRestaurantControllers.controller('restaurantListController', ['$scope', 'RestaurantService', "MenuService", "pubSubService",
+        function ($scope, RestaurantService, MenuService, pubSubService) {
             $scope.loading = true;
             $scope.includeHeader = true;
             RestaurantService.getMyRestaurantList().then(function (data) {
                 $scope.loading = false;
                 $scope.restaurantList = data.results;
                 console.log("loading restaurantList");
+                pubSubService.publish("loadedRestaurantList", $scope.restaurantList);
                 //这里加载菜单式预加载菜单，缓解管理页面的性能问题。
                 $scope.restaurantList.forEach(function (restaurant) {
                     MenuService.getMenu(restaurant.restaurantId);
@@ -499,23 +551,9 @@
     ])
     ;
 
-    ppzRestaurantControllers.controller('waitingListController', ['$modal', '$scope', '$routeParams', '$timeout', '$cookies', '$window', 'RestaurantService', 'WaitingListService', "utilService",
-        function ($modal, $scope, $routeParams, $timeout, $cookies, $window, RestaurantService, WaitingListService, utilService) {
+    ppzRestaurantControllers.controller('waitingListController', ['$modal', '$scope', '$routeParams', '$timeout', '$cookies', '$window', '$mdToast', 'RestaurantService', 'WaitingListService', "utilService",
+        function ($modal, $scope, $routeParams, $timeout, $cookies, $window, $mdToast, RestaurantService, WaitingListService, utilService) {
             $scope.restaurantId = $routeParams.restaurantId;
-            var eventSource = new EventSource(utilService.getUrl("/bbqueue", {
-                restaurantId: $routeParams.restaurantId,
-                sessionId: $cookies.token,
-                lastUpdateTime: 0
-            }));
-            eventSource.addEventListener("open", function () {
-                console.log("open");
-            });
-            eventSource.addEventListener("error", function () {
-                console.log("error");
-            });
-            eventSource.addEventListener("message", function () {
-                console.log("message");
-            });
             var UPDATE_INTERVAL = 10000;
             var publicWindow = null;
             $scope.goBack = function () {
@@ -966,4 +1004,7 @@
             });
         }
     ]);
+
+    ppzRestaurantControllers.controller("reservationCtrl", reservationCtrl);
+
 }())

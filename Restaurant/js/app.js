@@ -3,7 +3,7 @@
  */
 ;
 (function () {
-    var ppzRestaurant = angular.module('ppzRestaurant', ['ngRoute', 'ngCookies', 'ppzUtils', 'ppzControllers', 'ppzDirectives', 'ppzServices', 'ui.bootstrap', 'angularFileUpload']);
+    var ppzRestaurant = angular.module('ppzRestaurant', ['ngRoute', 'ngCookies', 'ngMaterial', 'ppzUtils', 'ppzControllers', 'ppzDirectives', 'ppzServices', 'ui.bootstrap', 'angularFileUpload']);
 
     ppzRestaurant.config(['$routeProvider', '$httpProvider', '$interpolateProvider',
         function ($routeProvider, $httpProvider, $interpolateProvider) {
