@@ -78,135 +78,158 @@
 
         };
     }];
-    var reservationService = ["http", "utilService", "$cookies", "$mdBottomSheet", "pubSubService", function (http, utilService, $cookies, $mdBottomSheet, pubSubService) {
-        /**
-         *
-         * @type {Object} key为restaurantId,value为eventSource
-         */
-        var eventSourceMap = {
-
-        };
-        var $mdBottomSheetPromise;
-        /**
-         * key为restaurantId,
-         * value为reservationList
-         * @type {{}}
-         */
-        var reservationMap = {
-
-        };
-        reservationMap.__proto__ = {
-            /**
-             *
-             * @param restaurantId
-             * @param {Array} reservationList
-             */
-            addReservationList: function (restaurantId, reservationList) {
-                reservationMap[restaurantId] = reservationMap[restaurantId] || [];
-                reservationList.forEach(function (newItem) {
-                    if (!contain(reservationMap[restaurantId], item)) {
-                        reservationMap[restaurantId].push(item);
-                    } else {
-                        reservationMap[restaurantId].forEach(function (oldItem, index) {
-                                if (equal(newItem, oldItem)) {
-                                    reservationMap[restaurantId][index] = newItem;
-                                }
-                            }
-                        )
-                    }
-                });
-
-            }
-        }
-        /**
-         * 某个预约列表是否某条预约信息
-         * @param {Array} reservationList
-         * @param {Object} reservation
-         */
-        function contain(reservationList, reservation) {
-            var map = {};
-            reservationList.forEach(function (item) {
-                map[item.createTime] = item;
-            });
-            return !!map[reservation.createTime];
-        }
-
-        /**
-         * 比较两条预约信息是否为同一条
-         * @param {Object} reservation1
-         * @param {Object} reservation2
-         * @return {boolean}如果是，返回true
-         */
-        function equal(reservation1, reservation2) {
-            return reservation1.createTime === reservation2.createTime;
-        }
+    var audioService = ['$document', function ($document) {
 
         return {
             /**
-             * 接受餐厅列表中包含的餐厅的推送消息
-             * @param {Array} restaurantList
-             */
-            receiveReservationInfo: function (restaurantList) {
-                restaurantList.forEach(function (restaurant) {
-                    this.connect(restaurant.restaurantId);
-                });
-
-            },
-            /**
-             * 与服务器建立一条EventSource连接，如果连接已经建立，不重复建立,同一个餐厅id可以多次调用没有副作用
-             * @param restaurantId
-             */
-            connection: function (restaurantId) {
-                if (!eventSourceMap[restaurantId]) {
-                    var eventSource = eventSourceMap[restaurantId] = new EventSource(utilService.getUrl("/bbqueue", {
-                        restaurantId: restaurantId,
-                        sessionId: $cookies.token,
-                        lastUpdateTime: 0
-                    }));
-                    eventSource.addEventListener("open", function (event) {
-                        debugger;
-                        console.log("open");
-                    });
-                    eventSource.addEventListener("error", function (event) {
-                        debugger;
-                        console.log("error");
-                    });
-                    eventSource.addEventListener("message", function (event) {
-                        var data = JSON.parse(event.data);
-                        reservationMap.addReservationList(restaurantId, data.queues.reservationList);
-                        pubSubService.publish("newReservation", reservationMap);
-                        console.log("message");
-                        console.log(data);
-                    });
-                }
-            },
-            getReservationMap: function () {
-                return reservationMap;
-            },
-            /**
              *
-             * @param {Object} reservationForm
-             * @param reservationForm.restaurantId
-             * @param reservationForm.unitId,
-             * @param reservationForm.comment
+             * @param {Object} config
+             * @param {Object} config.src 视频地址
+             * @returns {{play: play, pause: pause}}
              */
-            accept: function (reservationForm) {
-                return this.acceptOrDeclineReservation(angular.extend({
-                    accept: true
-                }, reservationForm));
-            },
-            refuse: function (reservationForm) {
-                return this.acceptOrDeclineReservation(angular.extend({
-                    accept: false
-                }, reservationForm));
-            },
-            acceptOrDeclineReservation: function (data) {
-                var reqData = createRequest('acceptOrDeclineReservation', data);
-                return http.post(reqData);
+            create: function (config) {
+                var $audio = $("<audio></audio>");
+                config = config || {};
+                angular.forEach(config, function (value, key) {
+                    $audio.attr(key, value);
+                });
+                var audio = $audio[0];
+                $(document.documentElement).append(audio);
+                return {
+                    play: function () {
+                        audio.play();
+                    },
+                    pause: function () {
+                        audio.pause();
+                    }
+                }
             }
         }
-    }
-    ];
+    }];
+    var reservationService = ["http", "utilService", "$cookies", "$mdBottomSheet", "pubSubService", function (http, utilService, $cookies, $mdBottomSheet, pubSubService) {
+            var eventSource;
+            /**
+             * key为restaurantId,
+             * value为{waitingList:[],completeList:[],reservationList:[]}
+             * @type {{}}
+             */
+            var queueMap = {
+
+            };
+            queueMap.__proto__ = {
+                /**
+                 *
+                 * @param restaurantId
+                 * @param {Object} queue
+                 */
+                addQueue: function (restaurantId, queue) {
+                    if (!queueMap[restaurantId]) {
+                        queueMap[restaurantId] = queue;
+                        return;
+                    }
+                    queue.reservationList.forEach(function (newItem) {
+                        if (!contain(queueMap[restaurantId].reservationList, newItem)) {
+                            queueMap[restaurantId].reservationList.push(newItem);
+                        } else {
+                            queueMap[restaurantId].reservationList.forEach(function (oldItem, index) {
+                                    if (equal(newItem, oldItem)) {
+                                        queueMap[restaurantId].reservationList[index] = newItem;
+                                    }
+                                }
+                            )
+                        }
+                    });
+                    queueMap[restaurantId].waitingList = queueMap[restaurantId].waitingList.concat(queue.waitingList);
+                    queueMap[restaurantId].completeList = queueMap[restaurantId].completeList.concat(queue.completeList);
+                }
+            };
+            /**
+             * 某个预约列表是否有某条预约信息
+             * @param {Array} reservationList
+             * @param {Object} reservation
+             */
+            function contain(reservationList, reservation) {
+                var map = {};
+                reservationList.forEach(function (item) {
+                    map[item.createTime] = item;
+                });
+                return !!map[reservation.createTime];
+            }
+
+            /**
+             * 比较两条预约信息是否为同一条
+             * @param {Object} reservation1
+             * @param {Object} reservation2
+             * @return {boolean}如果是，返回true
+             */
+            function equal(reservation1, reservation2) {
+                return reservation1.createTime === reservation2.createTime;
+            }
+
+            return {
+//                /**
+//                 * 接受餐厅列表中包含的餐厅的推送消息
+//                 * @param {Array} restaurantList
+//                 */
+//                receiveReservationInfo: function (self, restaurantList) {
+//                    restaurantList.forEach(function (restaurant) {
+//                        self.connect();
+//                    });
+//                }.curryThis(),
+                /**
+                 * 与服务器建立一条EventSource连接，如果连接已经建立，不重复建立,同一个餐厅id可以多次调用没有副作用
+                 */
+                connect: function () {
+                    if (!eventSource) {
+                        eventSource = new EventSource(utilService.getUrl("/bbqueue", {
+                            command: "pullQueueUnit",
+                            sessionId: $cookies.token
+                        }));
+                        eventSource.addEventListener("open", function (event) {
+                            console.log("open:" + new Date());
+                        });
+                        eventSource.addEventListener("error", function (event) {
+                            console.log("error:" + new Date());
+                        });
+                        eventSource.addEventListener("message", function (event) {
+                            var data = JSON.parse(event.data);
+                            queueMap.addQueue(data.restaurantId, data.queues);
+                            pubSubService.publish("newReservation", queueMap);
+                            console.log("message:");
+                        });
+                    }
+                },
+                getQueueMap: function () {
+                    return queueMap;
+                },
+                getQueue: function (restaurantId) {
+                    return queueMap[restaurantId];
+                },
+                /**
+                 *
+                 * @param {Object} reservationForm
+                 * @param reservationForm.restaurantId
+                 * @param reservationForm.unitId,
+                 * @param reservationForm.comment
+                 */
+                accept: function (reservationForm) {
+                    return this.acceptOrDeclineReservation(angular.extend({
+                        accept: true
+                    }, reservationForm));
+                },
+                refuse: function (reservationForm) {
+                    return this.acceptOrDeclineReservation(angular.extend({
+                        accept: false
+                    }, reservationForm));
+                },
+                acceptOrDeclineReservation: function (data) {
+                    var reqData = createRequest('acceptOrDeclineReservation', data);
+                    return http.post(reqData);
+                }
+            }
+        }
+        ]
+        ;
 
     ppzServices.factory('http', ['$http', '$q', '$location', '$cookies', function ($http, $q, $location, $cookies) {
         return {
@@ -790,6 +813,6 @@
             }
         };
     }]);
-    ppzServices.service("reservationService", reservationService).service("dataService", dataService).service("pubSubService", pubSubService);
+    ppzServices.service("reservationService", reservationService).service("dataService", dataService).service("pubSubService", pubSubService).service("audioService", audioService);
 }
 ())

@@ -6,18 +6,19 @@
 
 
     var ppzRestaurantControllers = angular.module("ppzControllers", []);
-    var reservationCtrl = ["$scope", "reservationService" , "dataService", "$location", "restaurantList", "reservationMap", function ($scope, reservationService, dataService, $location, restaurantList, reservationMap) {
+    var reservationCtrl = ["$scope", "reservationService" , "dataService", "$location", "$mdBottomSheet", "RestaurantService" , "queueMap", function ($scope, reservationService, dataService, $location, $mdBottomSheet, RestaurantService, queueMap) {
+        $scope.reservationMap = [];
+        $scope.restaurantList = [];
 
-        $scope.restaurantList = restaurantList;
-        $scope.reservationMap = reservationMap;
-        angular.forEach(reservationMap, function (reservationArray, key) {
-            reservationArray = reservationArray.filter(function (reservation) {
-                return dataService.reservationStatus.waitConfirm == reservation.reservationStatus;
+        angular.forEach(queueMap, function (queue, restaurantId) {
+            RestaurantService.getRestaurant(restaurantId).then(function (restaurant) {
+                $scope.restaurantList.push(restaurant);
             });
-            reservationMap[key] = reservationArray;
+            $scope.reservationMap[restaurantId] = queue.reservationList;
         });
         $scope.viewReservationDetail = function (restaurant) {
             $location.path("/waitinglist/" + restaurant.restaurantId);
+            $mdBottomSheet.hide();
         };
 //        $scope.accept = function (reservation) {
 //            reservationService.accept({
@@ -40,8 +41,8 @@
 //            }
 //        };
     }];
-    ppzRestaurantControllers.controller('appController', ["$rootScope", "$scope", '$cookies', "$location", "pubSubService" , "$mdBottomSheet", "reservationService", "utilService",
-        function ($rootScope, $scope, $cookies, $location, pubSubService, $mdBottomSheet, reservationService, utilService) {
+    ppzRestaurantControllers.controller('appController', ["$rootScope", "$scope", '$cookies', "$location", "pubSubService" , "$mdBottomSheet", "reservationService", "utilService", "audioService",
+        function ($rootScope, $scope, $cookies, $location, pubSubService, $mdBottomSheet, reservationService, utilService, audioService) {
             /**
              * 任何一个请求都有四种状态：INIT 尚未请求 REQUESTING 请求中 REQUEST_SUCCESSED 请求成功 REQUEST_FAILED 请求失败
              */
@@ -88,22 +89,23 @@
                     $location.path("/login");
                 }
             });
-            var restaurantList = [];
-            pubSubService.subscribe("newReservation", function (reservationMap) {
-                var restaurantReservationArray = utilService.getArray(reservationMap);
+            var audio;
+            pubSubService.subscribe("newReservation", function (queueMap) {
                 var $mdBottomSheetPromise = $mdBottomSheet.show({
                     templateUrl: 'partials/reservationToastList.html',
                     controller: 'reservationCtrl',
                     locals: {
-                        restaurantList: restaurantList,
-                        reservationMap: reservationMap
+                        queueMap: queueMap
                     }
                 });
+                if (!audio) {
+                    audio = audioService.create({
+                        src: "img/tip.ogg"
+                    })
+                }
+                audio.play();
             });
-            pubSubService.subscribe("loadedRestaurantList", function (data) {
-                restaurantList = data;
-                reservationService.receiveReservationInfo(restaurantList);
-            });
+            reservationService.connect();
         }]);
     ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$window', '$location', '$cookies',
         function ($scope, Login, $window, $location, $cookies) {
@@ -551,8 +553,9 @@
     ])
     ;
 
-    ppzRestaurantControllers.controller('waitingListController', ['$modal', '$scope', '$routeParams', '$timeout', '$cookies', '$window', '$mdToast', 'RestaurantService', 'WaitingListService', "utilService",
-        function ($modal, $scope, $routeParams, $timeout, $cookies, $window, $mdToast, RestaurantService, WaitingListService, utilService) {
+    ppzRestaurantControllers.controller('waitingListController', [
+        '$modal', '$scope', '$routeParams', '$timeout', '$cookies', '$window', '$mdToast', 'RestaurantService', 'WaitingListService', "utilService", "reservationService", "pubSubService",
+        function ($modal, $scope, $routeParams, $timeout, $cookies, $window, $mdToast, RestaurantService, WaitingListService, utilService, reservationService, pubSubService) {
             $scope.restaurantId = $routeParams.restaurantId;
             var UPDATE_INTERVAL = 10000;
             var publicWindow = null;
@@ -602,19 +605,25 @@
                 typeId: ""
             };
             var _updateData = function () {
-                RestaurantService.getWaitingList($scope.restaurantId, function (error, allList) {
-                    $scope.error = error;
-                    $scope.waitingList = allList.waitingList;
-                    $scope.reservationList = allList.reservationList;
-                    $scope.completeList = allList.completeList;
-                });
+                var allList = reservationService.getQueue($scope.restaurantId);
+                $scope.waitingList = allList.waitingList;
+                $scope.reservationList = allList.reservationList;
+                $scope.completeList = allList.completeList;
             };
-            var _nextUpdate = function () {
-                $timeout(function () {
-                    _updateData();
-                    _nextUpdate();
-                }, UPDATE_INTERVAL);
-            };
+            _updateData();
+            $scope.$on("$destroy", function () {
+                pubSubService.unSubscribe("newReservation", _updateData);
+            });
+
+            pubSubService.subscribe("newReservation", _updateData);
+//                getReservationInfo
+//            var _nextUpdate = function () {
+//                $timeout(function () {
+//                    _updateData();
+//                    _nextUpdate();
+//                }, UPDATE_INTERVAL);
+//            };
+
             $scope.call = function (unit, unitIdPrefix) {
                 if (publicWindow) {
                     publicWindow.lastCalledUnit = unit;
@@ -723,8 +732,7 @@
                 }
                 printWindow.printUnitId = unit.unitId;
             };
-            _updateData();
-            _nextUpdate();
+            // _nextUpdate();
         }
     ]);
 
