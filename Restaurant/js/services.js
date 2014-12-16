@@ -16,6 +16,7 @@
     };
 
     function createRequest(commandName, payload) {
+        payload = payload || {};
         return {"data": JSON.stringify({"command": commandName, "inputs": payload}), "hash": "pleasedonotcheckmyhashthankyou!!"};
     }
 
@@ -107,66 +108,68 @@
         }
     }];
     var reservationService = ["http", "utilService", "$cookies", "$mdBottomSheet", "pubSubService", function (http, utilService, $cookies, $mdBottomSheet, pubSubService) {
-            var eventSource;
-            /**
-             * key为restaurantId,
-             * value为{waitingList:[],completeList:[],reservationList:[]}
-             * @type {{}}
-             */
-            var queueMap = {
+        var eventSource;
+        /**
+         * key为restaurantId,
+         * value为{waitingList:[],completeList:[],reservationList:[]}
+         * @type {{}}
+         */
+        var queueMap = {
 
-            };
-            queueMap.__proto__ = {
-                /**
-                 *
-                 * @param restaurantId
-                 * @param {Object} queue
-                 */
-                addQueue: function (restaurantId, queue) {
-                    if (!queueMap[restaurantId]) {
-                        queueMap[restaurantId] = queue;
-                        return;
-                    }
-                    queue.reservationList.forEach(function (newItem) {
-                        if (!contain(queueMap[restaurantId].reservationList, newItem)) {
-                            queueMap[restaurantId].reservationList.push(newItem);
-                        } else {
-                            queueMap[restaurantId].reservationList.forEach(function (oldItem, index) {
-                                    if (equal(newItem, oldItem)) {
-                                        queueMap[restaurantId].reservationList[index] = newItem;
-                                    }
-                                }
-                            )
-                        }
-                    });
-                    queueMap[restaurantId].waitingList = queueMap[restaurantId].waitingList.concat(queue.waitingList);
-                    queueMap[restaurantId].completeList = queueMap[restaurantId].completeList.concat(queue.completeList);
+        };
+        queueMap.__proto__ = {
+            /**
+             *
+             * @param restaurantId
+             * @param {Object} queue
+             */
+            addQueue: function (restaurantId, queue) {
+                if (!queueMap[restaurantId]) {
+                    queueMap[restaurantId] = queue;
+                    return;
                 }
-            };
-            /**
-             * 某个预约列表是否有某条预约信息
-             * @param {Array} reservationList
-             * @param {Object} reservation
-             */
-            function contain(reservationList, reservation) {
-                var map = {};
-                reservationList.forEach(function (item) {
-                    map[item.createTime] = item;
+                queue.reservationList.forEach(function (newItem) {
+                    if (!contain(queueMap[restaurantId].reservationList, newItem)) {
+                        queueMap[restaurantId].reservationList.push(newItem);
+                    } else {
+                        queueMap[restaurantId].reservationList.forEach(function (oldItem, index) {
+                                if (equal(newItem, oldItem)) {
+                                    queueMap[restaurantId].reservationList[index] = newItem;
+                                }
+                            }
+                        )
+                    }
                 });
-                return !!map[reservation.createTime];
+                angular.forEach(queueMap[restaurantId].waitingList, function (value, key) {
+                    queueMap[restaurantId].waitingList[key] = queueMap[restaurantId].waitingList[key].concat(queue.waitingList[key]);
+                });
+                queueMap[restaurantId].completeList = queueMap[restaurantId].completeList.concat(queue.completeList);
             }
+        };
+        /**
+         * 某个预约列表是否有某条预约信息
+         * @param {Array} reservationList
+         * @param {Object} reservation
+         */
+        function contain(reservationList, reservation) {
+            var map = {};
+            reservationList.forEach(function (item) {
+                map[item.createTime] = item;
+            });
+            return !!map[reservation.createTime];
+        }
 
-            /**
-             * 比较两条预约信息是否为同一条
-             * @param {Object} reservation1
-             * @param {Object} reservation2
-             * @return {boolean}如果是，返回true
-             */
-            function equal(reservation1, reservation2) {
-                return reservation1.createTime === reservation2.createTime;
-            }
+        /**
+         * 比较两条预约信息是否为同一条
+         * @param {Object} reservation1
+         * @param {Object} reservation2
+         * @return {boolean}如果是，返回true
+         */
+        function equal(reservation1, reservation2) {
+            return reservation1.createTime === reservation2.createTime;
+        }
 
-            return {
+        return {
 //                /**
 //                 * 接受餐厅列表中包含的餐厅的推送消息
 //                 * @param {Array} restaurantList
@@ -176,60 +179,83 @@
 //                        self.connect();
 //                    });
 //                }.curryThis(),
-                /**
-                 * 与服务器建立一条EventSource连接，如果连接已经建立，不重复建立,同一个餐厅id可以多次调用没有副作用
-                 */
-                connect: function () {
-                    if (!eventSource) {
-                        eventSource = new EventSource(utilService.getUrl("/bbqueue", {
-                            command: "pullQueueUnit",
-                            sessionId: $cookies.token
-                        }));
-                        eventSource.addEventListener("open", function (event) {
-                            console.log("open:" + new Date());
-                        });
-                        eventSource.addEventListener("error", function (event) {
-                            console.log("error:" + new Date());
-                        });
-                        eventSource.addEventListener("message", function (event) {
-                            var data = JSON.parse(event.data);
-                            queueMap.addQueue(data.restaurantId, data.queues);
-                            pubSubService.publish("newReservation", queueMap);
-                            console.log("message:");
-                        });
-                    }
-                },
-                getQueueMap: function () {
-                    return queueMap;
-                },
-                getQueue: function (restaurantId) {
-                    return queueMap[restaurantId];
-                },
-                /**
-                 *
-                 * @param {Object} reservationForm
-                 * @param reservationForm.restaurantId
-                 * @param reservationForm.unitId,
-                 * @param reservationForm.comment
-                 */
-                accept: function (reservationForm) {
-                    return this.acceptOrDeclineReservation(angular.extend({
-                        accept: true
-                    }, reservationForm));
-                },
-                refuse: function (reservationForm) {
-                    return this.acceptOrDeclineReservation(angular.extend({
-                        accept: false
-                    }, reservationForm));
-                },
-                acceptOrDeclineReservation: function (data) {
-                    var reqData = createRequest('acceptOrDeclineReservation', data);
-                    return http.post(reqData);
+            /**
+             * 与服务器建立一条EventSource连接，如果连接已经建立，不重复建立,同一个餐厅id可以多次调用没有副作用
+             */
+            connect: function () {
+                if (!eventSource) {
+                    eventSource = new EventSource(utilService.getUrl("/bbqueue", {
+                        command: "pullQueueUnit",
+                        sessionId: $cookies.token
+                    }));
+                    eventSource.addEventListener("open", function (event) {
+                        console.log("open:" + new Date());
+                    });
+                    eventSource.addEventListener("error", function (event) {
+                        console.log("error:" + new Date());
+                    });
+                    eventSource.addEventListener("message", function (event) {
+                        var data = JSON.parse(event.data);
+                        queueMap.addQueue(data.restaurantId, data.queues);
+                        pubSubService.publish("newReservation", queueMap);
+                        console.log("message:");
+                    });
                 }
+            },
+            getQueueMap: function () {
+                return queueMap;
+            },
+            getQueue: function (restaurantId) {
+                return queueMap[restaurantId];
+            },
+            /**
+             *
+             * @param {Object} reservationForm
+             * @param reservationForm.restaurantId
+             * @param reservationForm.unitId,
+             * @param reservationForm.comment
+             */
+            accept: function (reservationForm) {
+                return this.acceptOrDeclineReservation(angular.extend({
+                    accept: true
+                }, reservationForm));
+            },
+            refuse: function (reservationForm) {
+                return this.acceptOrDeclineReservation(angular.extend({
+                    accept: false
+                }, reservationForm));
+            },
+            acceptOrDeclineReservation: function (data) {
+                data.sessionId = $cookies.token;
+                var reqData = createRequest('acceptOrDeclineReservation', data);
+                return http.post(reqData);
             }
         }
-        ]
-        ;
+    }
+    ];
+    var notificationService = ["$q", function ($q) {
+        return {
+            create: function (title, config) {
+                var defer = $q.defer();
+                if (Notification.permission === "granted") {
+                    defer.resolve(new Notification(title, config));
+                } else if (Notification.permission !== 'denied') {
+                    Notification.requestPermission(function (permission) {
+                        if (!('permission' in Notification)) {
+                            Notification.permission = permission;
+                        }
+                        if (Notification.permission === "granted") {
+                            defer.resolve(new Notification(title, config));
+                        } else {
+                            defer.reject("权限不足");
+                        }
+                    });
+                }
+                return defer.promise;
+            }
+        }
+
+    }]
 
     ppzServices.factory('http', ['$http', '$q', '$location', '$cookies', function ($http, $q, $location, $cookies) {
         return {
@@ -813,6 +839,6 @@
             }
         };
     }]);
-    ppzServices.service("reservationService", reservationService).service("dataService", dataService).service("pubSubService", pubSubService).service("audioService", audioService);
+    ppzServices.service("reservationService", reservationService).service("dataService", dataService).service("pubSubService", pubSubService).service("audioService", audioService).service("notificationService", notificationService);
 }
 ())

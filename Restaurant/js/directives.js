@@ -243,13 +243,22 @@
                     }
                 }
 
+                scope.$on("closePopover", function (event, popoverName) {
+                    if (popoverName === attrs.name) {
+                        targetNode.popover("hide");
+                    }
+                });
                 var externalAPI = {
                     close: function () {
                         scope.close = true;
                     }
                 };
                 if ("name" in attrs) {
-                    utilService.setPropertyValue(scope.$parent, attrs.name, externalAPI);
+                    var propertyName = attrs.name;
+                    if ("object" in attrs) {
+                        propertyName = attrs.object + "." + attrs.name;
+                    }
+                    utilService.setPropertyValue(scope.$parent, propertyName, externalAPI);
                 }
 
             }

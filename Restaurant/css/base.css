@@ -169,6 +169,7 @@ h4, h1 {
 .restaurant-img-list figure p {
     cursor: pointer;
 }
+
 .restaurant-img-list > div span {
     position: absolute;
     color: red;
@@ -176,6 +177,23 @@ h4, h1 {
     right: -5px;
     cursor: pointer;
 }
-figure.recommend .description{
-    margin-top:5px;
+
+figure.recommend .description {
+    margin-top: 5px;
+}
+
+#switch-toast-list {
+    position: fixed;
+    right: 20px;
+    top: 80px;
+}
+
+#reservation-list {
+    position: fixed;
+    padding-bottom: 0;
+    left: 0;
+    top: -80px;
+    right: 0;
+    max-height: 200px;
+    min-height: 100px;
 }

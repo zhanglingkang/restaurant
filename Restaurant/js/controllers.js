@@ -14,35 +14,18 @@
             RestaurantService.getRestaurant(restaurantId).then(function (restaurant) {
                 $scope.restaurantList.push(restaurant);
             });
-            $scope.reservationMap[restaurantId] = queue.reservationList;
+            $scope.reservationMap[restaurantId] = queue.reservationList.filter(function (item) {
+                return item.reservationStatus === dataService.reservationStatus.waitConfirm;
+            });
         });
         $scope.viewReservationDetail = function (restaurant) {
             $location.path("/waitinglist/" + restaurant.restaurantId);
             $mdBottomSheet.hide();
         };
-//        $scope.accept = function (reservation) {
-//            reservationService.accept({
-//                restaurantId: reservation.restaurantId,
-//                unitId: reservation.unitId,
-//                comment: ""
-//            }).success(function () {
-//
-//            });
-//        };
-//        $scope.refuse = function (valid, reservation) {
-//            if (valid) {
-//                reservationService.accept({
-//                    restaurantId: reservation.restaurantId,
-//                    unitId: reservation.unitId,
-//                    comment: $scope.refuseReason
-//                }).success(function () {
-//
-//                });
-//            }
-//        };
+
     }];
-    ppzRestaurantControllers.controller('appController', ["$rootScope", "$scope", '$cookies', "$location", "pubSubService" , "$mdBottomSheet", "reservationService", "utilService", "audioService",
-        function ($rootScope, $scope, $cookies, $location, pubSubService, $mdBottomSheet, reservationService, utilService, audioService) {
+    ppzRestaurantControllers.controller('appController', ["$rootScope", "$scope", '$cookies', "$location", "pubSubService" , "$mdBottomSheet", "reservationService", "utilService", "audioService", "dataService", "notificationService",
+        function ($rootScope, $scope, $cookies, $location, pubSubService, $mdBottomSheet, reservationService, utilService, audioService, dataService, notificationService) {
             /**
              * 任何一个请求都有四种状态：INIT 尚未请求 REQUESTING 请求中 REQUEST_SUCCESSED 请求成功 REQUEST_FAILED 请求失败
              */
@@ -89,26 +72,62 @@
                     $location.path("/login");
                 }
             });
-            var audio;
-            pubSubService.subscribe("newReservation", function (queueMap) {
+            $scope.showReservationList = function () {
                 var $mdBottomSheetPromise = $mdBottomSheet.show({
                     templateUrl: 'partials/reservationToastList.html',
                     controller: 'reservationCtrl',
                     locals: {
-                        queueMap: queueMap
+                        queueMap: reservationService.getQueueMap()
                     }
                 });
-                if (!audio) {
-                    audio = audioService.create({
-                        src: "img/tip.ogg"
+            };
+            function getReservationMap(queueMap) {
+                var reservationMap = {};
+                angular.forEach(queueMap, function (queue, restaurantId) {
+                    reservationMap[restaurantId] = queue.reservationList;
+                });
+                return reservationMap;
+            }
+
+            function getWaitConfirmReservationNum(queueMap) {
+                var reservationMap = getReservationMap(queueMap);
+                var sum = 0;
+                angular.forEach(reservationMap, function (reservationList, restaurantId) {
+                    reservationList.forEach(function (reservation) {
+                        sum += reservation.reservationStatus === dataService.reservationStatus.waitConfirm ? 1 : 0;
                     })
+                });
+                return sum;
+            }
+
+            var audio;
+            pubSubService.subscribe("newReservation", function (queueMap) {
+                var waitConfirmReservationNum = getWaitConfirmReservationNum(queueMap);
+                if (waitConfirmReservationNum > 0) {
+                    notificationService.create('预约消息', {
+                        body: '一共收到' + waitConfirmReservationNum + '条预约消息',
+                        icon: 'img/ppz.jpg',
+                        tag: "tip"
+                    }).then(function (notification) {
+                        notification.onclick = function () {
+                            console.log("notification");
+                        }
+                    });
+
+                    if (!audio) {
+                        audio = audioService.create({
+                            src: "img/tip.ogg"
+                        })
+                    }
+                    audio.play();
                 }
-                audio.play();
             });
-            reservationService.connect();
+            if (isLogined()) {
+                reservationService.connect();
+            }
         }]);
-    ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$window', '$location', '$cookies',
-        function ($scope, Login, $window, $location, $cookies) {
+    ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$window', '$location', '$cookies', 'reservationService',
+        function ($scope, Login, $window, $location, $cookies, reservationService) {
             $scope.getUserName = function () {
                 return $cookies.username;
             };
@@ -145,6 +164,7 @@
                         console.log("login result " + result);
                         console.log("token " + $cookies.token);
                         $location.path("/myRestaurants");
+                        reservationService.connect();
                     }, function (result) {
                         $scope.loginStatus = $scope.REQUEST_STATUS.REQUEST_FAILED;
                         console.log("login failed " + result);
@@ -154,7 +174,8 @@
 
             $scope.logout = function () {
                 Login.logout(function () {
-                    $location.path("/login");
+                    //$location.path("/login");
+                    location.reload();
                 });
             }
         }
@@ -554,8 +575,8 @@
     ;
 
     ppzRestaurantControllers.controller('waitingListController', [
-        '$modal', '$scope', '$routeParams', '$timeout', '$cookies', '$window', '$mdToast', 'RestaurantService', 'WaitingListService', "utilService", "reservationService", "pubSubService",
-        function ($modal, $scope, $routeParams, $timeout, $cookies, $window, $mdToast, RestaurantService, WaitingListService, utilService, reservationService, pubSubService) {
+        '$modal', '$scope', '$routeParams', '$timeout', '$cookies', '$window', '$mdToast', 'RestaurantService', 'WaitingListService', "utilService", "reservationService", "pubSubService", "reservationService", "dataService",
+        function ($modal, $scope, $routeParams, $timeout, $cookies, $window, $mdToast, RestaurantService, WaitingListService, utilService, reservationService, pubSubService, reservationService, dataService) {
             $scope.restaurantId = $routeParams.restaurantId;
             var UPDATE_INTERVAL = 10000;
             var publicWindow = null;
@@ -606,9 +627,11 @@
             };
             var _updateData = function () {
                 var allList = reservationService.getQueue($scope.restaurantId);
-                $scope.waitingList = allList.waitingList;
-                $scope.reservationList = allList.reservationList;
-                $scope.completeList = allList.completeList;
+                if (allList) {
+                    $scope.waitingList = allList.waitingList;
+                    $scope.reservationList = allList.reservationList;
+                    $scope.completeList = allList.completeList;
+                }
             };
             _updateData();
             $scope.$on("$destroy", function () {
@@ -732,6 +755,28 @@
                 }
                 printWindow.printUnitId = unit.unitId;
             };
+            $scope.accept = function (reservation) {
+                reservationService.accept({
+                    restaurantId: reservation.restaurantId,
+                    unitId: reservation.unitId,
+                    comment: ""
+                }).success(function (data) {
+                    reservation.reservationStatus = dataService.reservationStatus.accept;
+                });
+            };
+            $scope.refuse = function (valid, reservation, childScope) {
+                if (valid) {
+                    reservationService.refuse({
+                        restaurantId: reservation.restaurantId,
+                        unitId: reservation.unitId,
+                        comment: childScope.refuseReason
+                    }).success(function (data) {
+                        $scope.$broadcast("closePopover", "refusePopover");
+                        reservation.reservationStatus = dataService.reservationStatus.refuse;
+                    });
+                }
+            };
+            $scope.reservationStatusMap = dataService.reservationStatus;
             // _nextUpdate();
         }
     ]);
