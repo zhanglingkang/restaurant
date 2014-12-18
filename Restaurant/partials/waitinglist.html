@@ -62,7 +62,8 @@
             <button ng-click="addUser(false)" class="btn btn-primary" ng-disabled="!reserveForm.$valid">排队</button>
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" datepicker-popup ng-model="newReserve.time" placeholder="日期"
+            <input type="text" class="form-control" datepicker-popup="yyyy-MM-dd" ng-model="newReserve.time"
+                   placeholder="日期"
                    show-weeks="false" current-text="今天" toggle-weeks-text="显示周序" clear-text="清除" close-text="关闭"/>
         </div>
         <div class="form-group">
@@ -75,186 +76,218 @@
     </form>
 </div>
 <div class='row'>
-    <tabset class='col-lg-12'>
-        <tab ng-repeat='(seg, units) in waitingList'
-             heading='{{partyTypeList[seg - 1].partyTypeDescription}} ({{units.length}}人等候)'
-             typeId='{{partyTypeList[seg-1].partyTypeId}}'>
-            <hr class='space'/>
-            <div class="list-group">
-                <div class="list-group-item list-group-item-info">
-                    <div class="row">
-                        <div class="col-lg-1">
-                            座号
-                        </div>
-                        <div class="col-lg-2">
-                            用户名
-                        </div>
-                        <div class="col-lg-2">
-                            电话
-                        </div>
-                        <div class="col-lg-3">
-                            排队时间
-                        </div>
-                        <div class="col-lg-1">
-                            叫号次数
-                        </div>
-                        <div class='col-lg-3'>
-                            操作
-                        </div>
-                    </div>
+<tabset class='col-lg-12'>
+<tab ng-repeat='(seg, units) in waitingList'
+     heading='{{partyTypeList[seg - 1].partyTypeDescription}} ({{units.length}}人等候)'
+     typeId='{{partyTypeList[seg-1].partyTypeId}}'>
+    <hr class='space'/>
+    <div class="list-group">
+        <div class="list-group-item list-group-item-info">
+            <div class="row">
+                <div class="col-lg-1">
+                    座号
                 </div>
-                <div ng-repeat='unit in units' class="list-group-item">
-                    <div class="row">
-                        <div class="col-lg-1">
-                            {{unit.unitId}}
-                        </div>
-                        <div class="col-lg-2">
-                            {{unit.userName}}
-                        </div>
-                        <div class="col-lg-2">
-                            {{unit.phone}}
-                        </div>
-                        <div class="col-lg-3">
-                            {{unit.createTime * 1000 | date:'medium'}}
-                        </div>
-                        <div class="col-lg-1">
-                            {{unit.callCount}}
-                        </div>
-                        <div class='col-lg-3 '>
-                            <!--<button class="btn btn-primary"  ng-click="remove(units, $index)">移除</button>-->
-                            <button class="btn btn-danger" ng-click="openConfirmation(units, $index)">移除</button>
-                            <button class="btn btn-primary" ng-click="call(unit,partyTypeList[seg - 1].unitIdPrefix)">
-                                叫号
-                            </button>
-                            <button class="btn btn-info" ng-click="openPrintView(unit, partyTypeList[seg - 1])">出票
-                            </button>
-                        </div>
-                    </div>
+                <div class="col-lg-2">
+                    用户名
+                </div>
+                <div class="col-lg-2">
+                    电话
+                </div>
+                <div class="col-lg-3">
+                    排队时间
+                </div>
+                <div class="col-lg-1">
+                    叫号次数
+                </div>
+                <div class='col-lg-3'>
+                    操作
                 </div>
             </div>
-        </tab>
-        <tab heading='预定 ({{reservationList.length}}人等候)'>
-            <hr class='space'/>
-            <div class="list-group">
-                <div class="list-group-item list-group-item-info">
-                    <div class="row">
-                        <div class="col-lg-1">
-                            座号
-                        </div>
-                        <div class="col-lg-2">
-                            用户名
-                        </div>
-                        <div class="col-lg-2">
-                            电话
-                        </div>
-                        <div class="col-lg-3">
-                            预约时间
-                        </div>
-                        <div class="col-lg-1">
-                            叫号次数
-                        </div>
-                        <div class='col-lg-3'>
-                            操作
-                        </div>
-                    </div>
+        </div>
+        <div ng-repeat='unit in units' class="list-group-item">
+            <div class="row">
+                <div class="col-lg-1">
+                    {{unit.unitId}}
                 </div>
-                <div ng-repeat='unit in reservationList' class="list-group-item">
-                    <div class="row">
-                        <div class="col-lg-1">
-                            {{unit.unitId}}
-                        </div>
-                        <div class="col-lg-2">
-                            {{unit.userName}}
-                        </div>
-                        <div class="col-lg-2">
-                            {{unit.phone}}
-                        </div>
-                        <div class="col-lg-3">
-                            {{unit.reservationInfo.reservationTime * 1000 | date:'medium'}}
-                        </div>
-                        <div class="col-lg-1">
-                            {{unit.callCount}}
-                        </div>
-                        <div class='col-lg-3'>
-                            <button class="btn btn-danger"
-                                    ng-click="openConfirmation(reservationList, $index, 'reservation')">移除
-                            </button>
-                            <button class="btn btn-primary" ng-click="call(unit)">叫号</button>
-                            <button class="btn btn-info" ng-click="openPrintView(unit)">出票</button>
-                            <button class="btn btn-danger" ng-click="accept(unit)"
-                                    ng-show="unit.reservationStatus===reservationStatusMap.waitConfirm">同意
-                            </button>
-                            <button class="btn btn-primary"
-                                    ng-show="unit.reservationStatus===reservationStatusMap.waitConfirm">
-                                拒绝
-                                <x-self-popover data-placement="top" x-style="min-width:200px;min-height:150px;"
-                                                name="refusePopover" auto-close>
-                                    <form name="refuseReservationFormValidation" novalidate=""
-                                          ng-submit="refuse(refuseReservationFormValidation.$valid,unit,this)">
-                                        <textarea class="form-control" ng-model="refuseReason" name="refuseReason"
-                                                  required=""
-                                                  style="width: 100%;"/>
-                                        </textarea>
-                                        <div class="alert alert-danger"
-                                             ng-show="submitted&&refuseReservationFormValidation.refuseReason.$error.required">
-                                            请填写拒绝原因
-                                        </div>
-                                        <div style="float: right;margin-top:5px;">
-                                            <input type="submit" class="btn btn-primary" value="确定"/>
-                                        </div>
-                                    </form>
-                                </x-self-popover>
+                <div class="col-lg-2">
+                    {{unit.userName}}
+                </div>
+                <div class="col-lg-2">
+                    {{unit.phone}}
+                </div>
+                <div class="col-lg-3">
+                    {{unit.createTime * 1000 | date:'medium'}}
+                </div>
+                <div class="col-lg-1">
+                    {{unit.callCount}}
+                </div>
+                <div class='col-lg-3 '>
+                    <!--<button class="btn btn-primary"  ng-click="remove(units, $index)">移除</button>-->
+                    <button class="btn btn-danger" ng-click="openConfirmation(units, $index)">移除</button>
+                    <button class="btn btn-primary" ng-click="call(unit,partyTypeList[seg - 1].unitIdPrefix)">
+                        叫号
+                    </button>
+                    <button class="btn btn-info" ng-click="openPrintView(unit, partyTypeList[seg - 1])">出票
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</tab>
+<tab heading='预定 ({{reservationList.length}}人等候)'>
+    <hr class='space'/>
+    <div class="list-group">
+        <div class="list-group-item list-group-item-info">
+            <div class="row">
+                <div class="col-lg-1">
+                    座号
+                </div>
+                <div class="col-lg-2">
+                    用户名
+                </div>
+                <div class="col-lg-2">
+                    电话
+                </div>
+                <div class="col-lg-2">
+                    预约时间
+                </div>
+                <div class="col-lg-2">
+                    预约回复
+                </div>
+                <div class="col-lg-1">
+                    叫号次数
+                </div>
+                <div class='col-lg-2'>
+                    操作
+                </div>
+            </div>
+        </div>
+        <div ng-repeat='unit in reservationList' class="list-group-item"
+             ng-class="{'success':unit.reservationStatus===reservationStatusMap.accept,'danger':unit.reservationStatus===reservationStatusMap.refuse}">
+            <div class="row">
+                <div class="col-lg-1">
+                    {{unit.unitId}}
+                </div>
+                <div class="col-lg-2">
+                    {{unit.userName}}
+                </div>
+                <div class="col-lg-2">
+                    {{unit.phone}}
+                </div>
+                <div class="col-lg-2">
+                    {{unit.reservationInfo.reservationTime * 1000 | date:'medium'}}
+                </div>
+                <div class="col-lg-2">
+                    {{unit.reservationComment}}
+                </div>
+                <div class="col-lg-1">
+                    {{unit.callCount}}
+                </div>
+                <div class='col-lg-2'>
+                    <button class="btn btn-danger"
+                            ng-click="openConfirmation(reservationList, $index, 'reservation')">移除
+                    </button>
+                    <button class="btn btn-primary" ng-click="call(unit)">叫号</button>
+                    <button class="btn btn-info" ng-click="openPrintView(unit)">出票</button>
+                    <button class="btn btn-danger"
+                            ng-show="unit.reservationStatus===reservationStatusMap.waitConfirm">同意
+                        <x-self-popover data-placement="top" x-style="min-width:200px;min-height:150px;"
+                                        name="acceptPopover" auto-close>
+                            <form name="acceptReservationFormValidation" novalidate=""
+                                  ng-submit="accept(acceptReservationFormValidation.$valid,unit,acceptReason)">
+                                <textarea class="form-control" ng-model="acceptReason" name="acceptReason"
+                                          required=""
+                                          style="width: 100%;">
+                                </textarea>
 
-                            </button>
-                        </div>
-                    </div>
+                                <div class="alert alert-danger"
+                                     ng-show="submitted&&acceptReservationFormValidation.acceptReason.$error.required">
+                                    请填写相关回复
+                                </div>
+                                <div style="float: right;margin-top:5px;">
+                                    <input type="submit" class="btn btn-primary" value="确定"/>
+                                </div>
+                            </form>
+                        </x-self-popover>
+                    </button>
+                    <button class="btn btn-primary"
+                            ng-show="unit.reservationStatus===reservationStatusMap.waitConfirm">
+                        拒绝
+                        <x-self-popover data-placement="top" x-style="min-width:200px;min-height:150px;"
+                                        name="refusePopover" auto-close>
+                            <form name="refuseReservationFormValidation" novalidate=""
+                                  ng-submit="refuse(refuseReservationFormValidation.$valid,unit,refuseReason)">
+                                <textarea class="form-control" ng-model="refuseReason" name="refuseReason"
+                                          required=""
+                                          style="width: 100%;">
+                                </textarea>
+
+                                <div class="alert alert-danger"
+                                     ng-show="submitted&&refuseReservationFormValidation.refuseReason.$error.required">
+                                    请填写拒绝原因
+                                </div>
+                                <div style="float: right;margin-top:5px;">
+                                    <input type="submit" class="btn btn-primary" value="确定"/>
+                                </div>
+                            </form>
+                        </x-self-popover>
+
+                    </button>
                 </div>
             </div>
-        </tab>
-        <tab heading='历史记录 ({{completeList.length}}人)'>
-            <hr class='space'/>
-            <div class="list-group">
-                <div class="list-group-item list-group-item-info">
-                    <div class="row">
-                        <div class="col-lg-1">
-                            座号
-                        </div>
-                        <div class="col-lg-2">
-                            用户名
-                        </div>
-                        <div class="col-lg-2">
-                            电话
-                        </div>
-                        <div class="col-lg-3">
-                            完成时间
-                        </div>
-                        <div class="col-lg-4">
-                            叫号次数
-                        </div>
-                    </div>
+        </div>
+    </div>
+</tab>
+<tab heading='历史记录 ({{completeList.length}}人)'>
+    <hr class='space'/>
+    <div class="list-group">
+        <div class="list-group-item list-group-item-info">
+            <div class="row">
+                <div class="col-lg-1">
+                    座号
                 </div>
-                <div ng-repeat='unit in completeList' class="list-group-item">
-                    <div class="row">
-                        <div class="col-lg-1">
-                            {{unit.unitId}}
-                        </div>
-                        <div class="col-lg-2">
-                            {{unit.userName}}
-                        </div>
-                        <div class="col-lg-2">
-                            {{unit.phone}}
-                        </div>
-                        <div class="col-lg-3">
-                            {{unit.completeTime * 1000 | date:'medium'}}
-                        </div>
-                        <div class="col-lg-4">
-                            {{unit.callCount}}
-                        </div>
-                    </div>
+                <div class="col-lg-2">
+                    用户名
+                </div>
+                <div class="col-lg-2">
+                    电话
+                </div>
+                <div class="col-lg-2">
+                    完成时间
+                </div>
+                <div class="col-lg-3">
+                    预约回复
+                </div>
+                <div class="col-lg-2">
+                    叫号次数
                 </div>
             </div>
-        </tab>
-    </tabset>
+        </div>
+        <div ng-repeat='unit in completeList' class="list-group-item">
+            <div class="row">
+                <div class="col-lg-1">
+                    {{unit.unitId}}
+                </div>
+                <div class="col-lg-2">
+                    {{unit.userName}}
+                </div>
+                <div class="col-lg-2">
+                    {{unit.phone}}
+                </div>
+                <div class="col-lg-2">
+                    {{unit.completeTime * 1000 | date:'medium'}}
+                </div>
+                <div class="col-lg-3">
+                    {{unit.reservationComment}}
+                </div>
+                <div class="col-lg-2">
+                    {{unit.callCount}}
+                </div>
+            </div>
+        </div>
+    </div>
+</tab>
+</tabset>
 </div>
 
 <script type="text/ng-template" id="confirmationModal.html">

@@ -128,35 +128,43 @@
                     queueMap[restaurantId] = queue;
                     return;
                 }
-                queue.reservationList.forEach(function (newItem) {
-                    if (!contain(queueMap[restaurantId].reservationList, newItem)) {
-                        queueMap[restaurantId].reservationList.push(newItem);
-                    } else {
-                        queueMap[restaurantId].reservationList.forEach(function (oldItem, index) {
-                                if (equal(newItem, oldItem)) {
-                                    queueMap[restaurantId].reservationList[index] = newItem;
-                                }
-                            }
-                        )
-                    }
-                });
+                concat(queueMap[restaurantId].reservationList, queue.reservationList);
                 angular.forEach(queueMap[restaurantId].waitingList, function (value, key) {
-                    queueMap[restaurantId].waitingList[key] = queueMap[restaurantId].waitingList[key].concat(queue.waitingList[key]);
+                    concat(queueMap[restaurantId].waitingList[key], queue.waitingList[key]);
                 });
-                queueMap[restaurantId].completeList = queueMap[restaurantId].completeList.concat(queue.completeList);
+                concat(queueMap[restaurantId].completeList, queue.completeList);
+                /**
+                 * 将secondList concat至firstList,此函数会改变firstList的内容
+                 * @param {Array} firstList
+                 * @param {Array} secondList
+                 */
+                function concat(firstList, secondList) {
+                    secondList.forEach(function (newItem) {
+                        if (!contain(firstList, newItem)) {
+                            firstList.push(newItem);
+                        } else {
+                            firstList.forEach(function (oldItem, index) {
+                                    if (equal(newItem, oldItem)) {
+                                        firstList[index] = newItem;
+                                    }
+                                }
+                            )
+                        }
+                    });
+                }
             }
         };
         /**
          * 某个预约列表是否有某条预约信息
-         * @param {Array} reservationList
-         * @param {Object} reservation
+         * @param {Array} unitList
+         * @param {Object} unit
          */
-        function contain(reservationList, reservation) {
+        function contain(unitList, unit) {
             var map = {};
-            reservationList.forEach(function (item) {
+            unitList.forEach(function (item) {
                 map[item.createTime] = item;
             });
-            return !!map[reservation.createTime];
+            return !!map[unit.createTime];
         }
 
         /**
@@ -165,8 +173,8 @@
          * @param {Object} reservation2
          * @return {boolean}如果是，返回true
          */
-        function equal(reservation1, reservation2) {
-            return reservation1.createTime === reservation2.createTime;
+        function equal(unit1, unit2) {
+            return unit1.createTime === unit2.createTime;
         }
 
         return {

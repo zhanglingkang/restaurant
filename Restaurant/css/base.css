@@ -197,3 +197,18 @@ figure.recommend .description {
     max-height: 200px;
     min-height: 100px;
 }
+
+md-backdrop {
+    position: fixed !important;
+}
+
+.success {
+    background-color: #d0e9c6;
+}
+
+.danger {
+    background-color: #ebcccc;
+}
+.row .btn{
+    margin-bottom: 5px;
+}
