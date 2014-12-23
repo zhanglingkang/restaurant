@@ -68,6 +68,7 @@
             }
             pubSubService.subscribe("businessError", tip);
             pubSubService.subscribe("serverError", tip);
+            pubSubService.subscribe("businessSuccess", tip);
             /**
              * 判断当前用户是否已登录
              */
@@ -647,7 +648,12 @@
                     $scope.error = error;
                     $scope.waitingList = allList.waitingList;
                     $scope.reservationList = allList.reservationList;
-                    $scope.completeList = allList.completeList;
+                    $scope.reservationCompleteList = allList.completeList.filter(function (value) {
+                        return !!value.reservationInfo;
+                    });
+                    $scope.waitingCompleteList = allList.completeList.filter(function (value) {
+                        return !value.reservationInfo;
+                    });
                 });
             };
             _updateData();
@@ -662,6 +668,9 @@
                 }
                 WaitingListService.callUser($scope.restaurantId, unit.unitId).success(function (data) {
                     unit.callCount = data.results[0].callCount;
+                    pubSubService.publish("businessSuccess", {
+                        msg: "已发送"
+                    });
                 }).error(function (error) {
                 })
             };
@@ -679,30 +688,29 @@
                     publicWindow.lastCalledNumbers[party.unitIdPrefix] = frontUnit;
                 }
             };
-            $scope.remove = function (units, idx, type) {
-                var unit = units[idx];
-                var unitIdPrefix = unit.unitId.charAt(0);
-                var nextUnit = null;
-                if (units[idx + 1]) {
-                    nextUnit = units[idx + 1];
-                }
-                WaitingListService.removeUser($scope.restaurantId, unit.unitId, type, function (error, updatedUnit) {
-                    if (error != null) {
-                        alert(error);
-                        units.splice(idx, 1);
-                    } else if (publicWindow && idx == 0) {
-                        //update public window if unit is removed from the front
-                        publicWindow.lastReplacedUnit = nextUnit;
-                        publicWindow.lastReplacedUnitPrefix = unitIdPrefix;
-                    }
+            $scope.removeReservation = function (unitId) {
+                WaitingListService.removeReservation($scope.restaurantId, unitId).success(function () {
+                    $scope.reservationList = $scope.reservationList.filter(function (item) {
+                        return item.unitId !== unitId;
+                    });
+                    _updateData();
+                });
+            };
+            $scope.removeWaiting = function (unitId, key) {
+                WaitingListService.removeWaiting($scope.restaurantId, unitId).success(function () {
+                    $scope.waitingList[key] = $scope.waitingList[key].filter(function (item) {
+                        return item.unitId !== unitId;
+                    });
+                    _updateData();
                 });
             };
             $scope.addUser = function (reserve) {
                 var reserveTime = reserve ? $scope.newReserve.time : null;
                 var typeId = $scope.newReserve.typeId;
-                WaitingListService.addUser($scope.restaurantId, $scope.newReserve.name, $scope.newReserve.typeId, $scope.newReserve.phone, reserveTime, function (error, newUnit) {
-                    $scope.error = error;
-                    if (!error) {
+                WaitingListService.addUser(
+                    $scope.restaurantId, $scope.newReserve.name, $scope.newReserve.typeId, $scope.newReserve.phone, reserveTime
+                ).success(function (data) {
+                        var newUnit = data.results[0];
                         if (reserve) {
                             $scope.reservationList.push(newUnit);
                         }
@@ -716,12 +724,14 @@
                             $scope.waitingList[typeId].push(newUnit);
                         }
 
-                        $scope.newReserve = {time: new Date()};
+                        $scope.newReserve = {
+                            time: new Date(),
+                            typeId: $scope.newReserve.typeId
+                        };
                         $scope.reserveForm.$setPristine();
-                        $("li[typeId=" + typeId + "]").hide();
-                        $("li[typeId=" + typeId + "]").slideDown();
-                    }
-                });
+//                    $("li[typeId=" + typeId + "]").hide();
+//                    $("li[typeId=" + typeId + "]").slideDown();
+                    })
             };
 
             $scope.openConfirmation = function (units, idx, type) {
