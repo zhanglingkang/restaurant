@@ -237,9 +237,11 @@
                     $(document).unbind("click", autoClose);
                 });
                 function autoClose(event) {
-                    var container = targetNode.data("bs.popover").$tip[0];
-                    if (container && !$.contains(container, event.target)) {
-                        targetNode.popover("hide");
+                    if (targetNode.data("bs.popover")) {
+                        var container = targetNode.data("bs.popover").$tip[0];
+                        if (container && !$.contains(container, event.target)) {
+                            targetNode.popover("hide");
+                        }
                     }
                 }
 

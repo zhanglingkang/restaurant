@@ -202,6 +202,10 @@ md-backdrop {
     position: fixed !important;
 }
 
+md-toast {
+    position: fixed !important;
+}
+
 .success {
     background-color: #d0e9c6;
 }
@@ -209,6 +213,7 @@ md-backdrop {
 .danger {
     background-color: #ebcccc;
 }
-.row .btn{
+
+.row .btn {
     margin-bottom: 5px;
 }

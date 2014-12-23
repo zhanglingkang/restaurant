@@ -265,7 +265,7 @@
 
     }]
 
-    ppzServices.factory('http', ['$http', '$q', '$location', '$cookies', function ($http, $q, $location, $cookies) {
+    ppzServices.factory('http', ['$http', '$q', '$location', '$cookies', "pubSubService", function ($http, $q, $location, $cookies, pubSubService) {
         return {
             /**
              *
@@ -285,10 +285,17 @@
                                 delete $cookies.token;
                                 delete $cookies.username;
                                 $location.path("/login");
+                            } else {
+                                pubSubService.publish("businessError", {
+                                    msg: "操作失败"
+                                });
                             }
                         }
                     }).
-                    error(function (data, status, headers, config) {
+                    error(function (data, status, headers) {
+                        pubSubService.publish("serverError", {
+                            msg: "服务器出错了！，命令：" + config.data.command + ",响应码:" + status
+                        });
                         deferred.reject(data);
                     });
                 deferred.promise.success = function (callback) {
@@ -430,7 +437,17 @@
                     }
                     return getRestaurantListDefered;
                 },
-
+                /**
+                 * 清空某个餐厅的等候队列
+                 * @param restaurantId
+                 */
+                resetWaitingList: function (restaurantId) {
+                    var reqData = createRequest('resetWaitingList', {
+                        sessionId: $cookies.token,
+                        restaurantId: restaurantId
+                    });
+                    return http.post(reqData);
+                },
                 getRestaurant: function (restaurantId) {
                     var defer = $q.defer();
                     this.getMyRestaurantList().then(function (data) {
@@ -501,23 +518,13 @@
         }
     ]);
 
-    ppzServices.factory('WaitingListService', ['$http', '$window', '$cookies', function ($http, $window, $cookies) {
+    ppzServices.factory('WaitingListService', ['$http', '$window', '$cookies', "http", function ($http, $window, $cookies, http) {
         return {
             lastCalledNumber: 0,
-            callUser: function (restaurantId, unitId, callback) {
+            callUser: function (restaurantId, unitId) {
                 this.lastCalledNumber = unitId;
                 var reqData = createRequest('callUser', {sessionId: $cookies.token, restaurantId: restaurantId, unitId: unitId});
-                $http.post(SERVER_URL, reqData).
-                    success(function (data) {
-                        var jsonData = JSON.parse(data.data);
-                        if (jsonData.code != PPZ_ERROR.None)
-                            callback(jsonData.message);
-                        else
-                            callback(null, jsonData.results[0]);
-                    }).error(function (error) {
-                        console.log('encounted error in callUser: ' + error);
-                        callback(error);
-                    });
+                return http.post(reqData);
             },
             removeUser: function (restaurantId, unitId, type, callback) {
                 var command = 'waitingToComplete';
