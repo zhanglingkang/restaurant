@@ -41,22 +41,22 @@
                 <div class="col-xs-8">
                     <label class="control-label">地址</label>
                     <input class="form-control" placeholder="地址" ng-model="newInfo.address.street"
-                           ng-disabled="!editing"/>
+                           disabled/>
                 </div>
                 <div class="col-xs-1">
                     <label class="control-label">市</label>
                     <input class="form-control" placeholder="地址" ng-model="newInfo.address.city"
-                           ng-disabled="!editing"/>
+                           disabled/>
                 </div>
                 <div class="col-xs-1">
                     <label class="control-label">省</label>
                     <input class="form-control" placeholder="地址" ng-model="newInfo.address.state"
-                           ng-disabled="!editing"/>
+                           disabled/>
                 </div>
                 <div class="col-xs-2">
                     <label class="control-label">邮编</label>
                     <input class="form-control" placeholder="地址" ng-model="newInfo.address.zipcode"
-                           ng-disabled="!editing"/>
+                           disabled/>
                 </div>
                 <hr class="space"/>
                 <div class="col-xs-4">
@@ -226,7 +226,8 @@
                     <div class="pull-right" x-prevent-spread="click">
                         <span class="glyphicon glyphicon-edit" ng-click="editCategory()"></span>
                         <span class="glyphicon glyphicon-plus" ng-click="collapse=false;addNewItem()"></span>
-                            <span class="glyphicon glyphicon-minus" ng-click="removeMenuCategory()" x-confirm-hint=""
+                            <span class="glyphicon glyphicon-minus" ng-click="removeMenuCategory()"
+                                  x-confirm-hint=""
                                   x-modal-title="溫馨提示"
                                   x-modal-content="确认删除&nbsp;&lt;strong&gt;“{{category.categoryName}}”&lt;/strong&gt;&nbsp;吗？"></span>
                     </div>

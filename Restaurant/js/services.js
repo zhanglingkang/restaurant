@@ -526,38 +526,22 @@
                 var reqData = createRequest('callUser', {sessionId: $cookies.token, restaurantId: restaurantId, unitId: unitId});
                 return http.post(reqData);
             },
-            removeUser: function (restaurantId, unitId, type, callback) {
-                var command = 'waitingToComplete';
-                if (type === 'reservation')
-                    command = 'reservationToComplete';
+            removeReservation: function (restaurantId, unitId) {
+                var command = 'reservationToComplete';
                 var reqData = createRequest(command, {sessionId: $cookies.token, restaurantId: restaurantId, unitId: unitId});
-                $http.post(SERVER_URL, reqData).
-                    success(function (data) {
-                        var jsonData = JSON.parse(data.data);
-                        if (jsonData.code != PPZ_ERROR.None)
-                            callback(jsonData.message);
-                        else
-                            callback(null, jsonData.results[0]);
-                    }).error(function (error) {
-                        console.log('encounted error in removeUser: ' + error);
-                        callback(error);
-                    });
+                return http.post(reqData);
+
             },
-            addUser: function (restaurantId, name, partyTypeId, phone, reservationTime, callback) {
+            removeWaiting: function (restaurantId, unitId) {
+                var command = 'waitingToComplete';
+                var reqData = createRequest(command, {sessionId: $cookies.token, restaurantId: restaurantId, unitId: unitId});
+                return http.post(reqData);
+            },
+            addUser: function (restaurantId, name, partyTypeId, phone, reservationTime) {
                 if (reservationTime !== null)
                     reservationTime = Math.round(reservationTime.getTime() / 1000);
                 var reqData = createRequest('addAdhocUserToQueue', {sessionId: $cookies.token, restaurantId: restaurantId, name: name, partyTypeId: parseInt(partyTypeId), 'phone.number': phone, "reservationTime": reservationTime});
-                $http.post(SERVER_URL, reqData).
-                    success(function (data) {
-                        var jsonData = JSON.parse(data.data);
-                        if (jsonData.code != PPZ_ERROR.None)
-                            callback(jsonData.message);
-                        else
-                            callback(null, jsonData.results[0]);
-                    }).error(function (error) {
-                        console.log('encounted error in addUser: ' + error);
-                        callback(error);
-                    });
+                return http.post(SERVER_URL, reqData);
             }
         };
     }]);
