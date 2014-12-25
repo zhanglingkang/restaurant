@@ -120,7 +120,7 @@
                     }).then(function (notification) {
                         notification.onclick = function () {
                             console.log("notification");
-                            alert("亲，收到新的预约信息了！");
+                            top.window.focus();
                         }
                     });
                     if (!audio) {
