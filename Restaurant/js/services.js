@@ -89,13 +89,11 @@
              * @returns {{play: play, pause: pause}}
              */
             create: function (config) {
-                var $audio = $("<audio></audio>");
+                var audio = new Audio();
                 config = config || {};
                 angular.forEach(config, function (value, key) {
-                    $audio.attr(key, value);
+                    audio[key] = value;
                 });
-                var audio = $audio[0];
-                $(document.documentElement).append(audio);
                 return {
                     play: function () {
                         audio.play();
@@ -248,16 +246,20 @@
                 if (Notification.permission === "granted") {
                     defer.resolve(new Notification(title, config));
                 } else if (Notification.permission !== 'denied') {
-                    Notification.requestPermission(function (permission) {
-                        if (!('permission' in Notification)) {
-                            Notification.permission = permission;
-                        }
-                        if (Notification.permission === "granted") {
-                            defer.resolve(new Notification(title, config));
-                        } else {
-                            defer.reject("权限不足");
-                        }
-                    });
+                    if (!Notification.requestPermissioning) {
+                        Notification.requestPermissioning = true;
+                        Notification.requestPermission(function (permission) {
+                            Notification.requestPermissioning = false;
+                            if (!('permission' in Notification)) {
+                                Notification.permission = permission;
+                            }
+                            if (Notification.permission === "granted") {
+                                defer.resolve(new Notification(title, config));
+                            } else {
+                                defer.reject("权限不足");
+                            }
+                        });
+                    }
                 }
                 return defer.promise;
             }
