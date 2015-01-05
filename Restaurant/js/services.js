@@ -247,7 +247,7 @@
              * 与服务器建立一条EventSource连接，如果连接已经建立，不重复建立,同一个餐厅id可以多次调用没有副作用
              */
             connect: function () {
-                if (!eventSource) {
+                if (!eventSource || eventSource.readyState === EventSource.CLOSED) {
                     eventSource = new EventSource(utilService.getUrl("/bbqueue", {
                         command: "pullQueueUnit",
                         sessionId: $cookies.token
@@ -264,6 +264,11 @@
                         pubSubService.publish("newReservation", queueMap);
                         console.log("message:");
                     });
+                }
+            },
+            close: function () {
+                if (eventSource) {
+                    eventSource.close();
                 }
             },
             getQueueMap: function () {

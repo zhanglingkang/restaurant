@@ -111,32 +111,41 @@
             }
 
             var audio;
-            if (!$rootScope.disableReservationHint) {
-                pubSubService.subscribe("newReservation", function (queueMap) {
-                    var waitConfirmReservationNum = getWaitConfirmReservationNum(queueMap);
-                    if (waitConfirmReservationNum > 0) {
-                        notificationService.create('预约消息', {
-                            body: '一共收到' + waitConfirmReservationNum + '条预约消息',
-                            icon: 'img/ppz.jpg',
-                            tag: "tip"
-                        }).then(function (notification) {
-                            notification.onclick = function () {
-                                console.log("notification");
-                                top.window.focus();
-                            }
-                        });
-                        if (!audio) {
-                            audio = audioService.create({
-                                src: "img/tip.ogg"
-                            })
+            $rootScope.$watch("disableReservationHint", function (value) {
+                if (value) {
+                    reservationService.close();
+                    pubSubService.unSubscribe("newReservation", handleNewReservation);
+                }
+            })
+            function handleNewReservation(queueMap) {
+                var waitConfirmReservationNum = getWaitConfirmReservationNum(queueMap);
+                if (waitConfirmReservationNum > 0) {
+                    notificationService.create('预约消息', {
+                        body: '一共收到' + waitConfirmReservationNum + '条预约消息',
+                        icon: 'img/ppz.jpg',
+                        tag: "tip"
+                    }).then(function (notification) {
+                        notification.onclick = function () {
+                            console.log("notification");
+                            top.window.focus();
                         }
-                        audio.play();
+                    });
+                    if (!audio) {
+                        audio = audioService.create({
+                            src: "img/tip.ogg"
+                        })
                     }
-                });
+                    audio.play();
+                }
             }
-            if (isLogined()) {
-                reservationService.connect();
+
+            if (!$rootScope.disableReservationHint) {
+                pubSubService.subscribe("newReservation", handleNewReservation);
+                if (isLogined()) {
+                    reservationService.connect();
+                }
             }
+
         }]);
     ppzRestaurantControllers.controller('loginController', ['$scope', 'Login', '$window', '$location', '$cookies', 'reservationService',
         function ($scope, Login, $window, $location, $cookies, reservationService) {
