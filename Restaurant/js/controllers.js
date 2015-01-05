@@ -111,27 +111,29 @@
             }
 
             var audio;
-            pubSubService.subscribe("newReservation", function (queueMap) {
-                var waitConfirmReservationNum = getWaitConfirmReservationNum(queueMap);
-                if (waitConfirmReservationNum > 0) {
-                    notificationService.create('预约消息', {
-                        body: '一共收到' + waitConfirmReservationNum + '条预约消息',
-                        icon: 'img/ppz.jpg',
-                        tag: "tip"
-                    }).then(function (notification) {
-                        notification.onclick = function () {
-                            console.log("notification");
-                            top.window.focus();
+            if (!$rootScope.disableReservationHint) {
+                pubSubService.subscribe("newReservation", function (queueMap) {
+                    var waitConfirmReservationNum = getWaitConfirmReservationNum(queueMap);
+                    if (waitConfirmReservationNum > 0) {
+                        notificationService.create('预约消息', {
+                            body: '一共收到' + waitConfirmReservationNum + '条预约消息',
+                            icon: 'img/ppz.jpg',
+                            tag: "tip"
+                        }).then(function (notification) {
+                            notification.onclick = function () {
+                                console.log("notification");
+                                top.window.focus();
+                            }
+                        });
+                        if (!audio) {
+                            audio = audioService.create({
+                                src: "img/tip.ogg"
+                            })
                         }
-                    });
-                    if (!audio) {
-                        audio = audioService.create({
-                            src: "img/tip.ogg"
-                        })
+                        audio.play();
                     }
-                    audio.play();
-                }
-            });
+                });
+            }
             if (isLogined()) {
                 reservationService.connect();
             }
@@ -229,7 +231,7 @@
             $scope.cancel = function () {
                 $scope.newInfo = angular.copy($scope.restaurant);
                 $scope.editing = false;
-            }
+            };
             $scope.confirm = function () {
                 $scope.editing = false;
                 RestaurantService.updateRestaurantInfo($scope.restaurantId, $scope.newInfo).then(function () {
@@ -585,8 +587,8 @@
     ;
 
     ppzRestaurantControllers.controller('waitingListController', [
-        '$modal', '$scope', '$routeParams', '$timeout', '$cookies', '$window', '$mdToast', 'RestaurantService', 'WaitingListService', "utilService", "reservationService", "pubSubService", "reservationService", "dataService", "$filter",
-        function ($modal, $scope, $routeParams, $timeout, $cookies, $window, $mdToast, RestaurantService, WaitingListService, utilService, reservationService, pubSubService, reservationService, dataService, $filter) {
+        '$modal', '$scope', '$routeParams', '$timeout', '$cookies', '$window', '$mdToast', 'RestaurantService', 'WaitingListService', "utilService", "reservationService", "pubSubService", "reservationService", "dataService", "$filter", "speechService",
+        function ($modal, $scope, $routeParams, $timeout, $cookies, $window, $mdToast, RestaurantService, WaitingListService, utilService, reservationService, pubSubService, reservationService, dataService, $filter, speechService) {
             $scope.restaurantId = $routeParams.restaurantId;
             var UPDATE_INTERVAL = 10000;
             var publicWindow = null;
@@ -662,31 +664,49 @@
             });
             pubSubService.subscribe("newReservation", _updateData);
             $scope.call = function (unit, unitIdPrefix) {
-                if (publicWindow) {
-                    publicWindow.lastCalledUnit = unit;
-                    publicWindow.lastCalledUnitPrefix = unitIdPrefix;
-                }
+                var msg = speechService.createMsg();
+                msg.text = "现在叫号," + unit.unitId;
+                speechService.speak(msg);
                 WaitingListService.callUser($scope.restaurantId, unit.unitId).success(function (data) {
                     unit.callCount = data.results[0].callCount;
                     pubSubService.publish("businessSuccess", {
                         msg: "已发送"
                     });
                 }).error(function (error) {
-                })
+                });
+                if (publicWindow) {
+                    publicWindow.postMessage({
+                        type: "call",
+                        data: {
+                            unitIdPrefix: unitIdPrefix,
+                            unit: unit
+                        }
+                    }, window.location.href);
+                }
+
             };
             $scope.openPublicWaitListWindow = function () {
-                publicWindow = $window.open('#/publicWaitList/' + $scope.restaurantId);
-                publicWindow.partyTypes = $scope.partyTypeList;
-                publicWindow.lastCalledNumbers = {};
+                var feature = "left=0,top=0,width=" + screen.width + ",height=" + screen.height;
+                publicWindow = $window.open('#/publicWaitList/' + $scope.restaurantId, "publicWindow", feature);
+                publicWindow.focus();
+                var data = publicWindow.data = {
+                    partyTypes: $scope.partyTypeList,
+                    lastCalledNumbers: {
 
-                for (var i = 0; i < publicWindow.partyTypes.length; i++) {
-                    var party = publicWindow.partyTypes[i];
+                    }
+                };
+                for (var i = 0; i < data.partyTypes.length; i++) {
+                    var party = data.partyTypes[i];
                     var frontUnit = "--";
                     if ($scope.waitingList[i + 1].length > 0) {
                         frontUnit = $scope.waitingList[i + 1][0].unitId;
                     }
-                    publicWindow.lastCalledNumbers[party.unitIdPrefix] = frontUnit;
+                    data.lastCalledNumbers[party.unitIdPrefix] = frontUnit;
                 }
+                publicWindow.postMessage({
+                    type: "initData",
+                    data: data
+                }, window.location.href);
             };
             $scope.removeReservation = function (unitId) {
                 WaitingListService.removeReservation($scope.restaurantId, unitId).success(function () {
@@ -819,72 +839,42 @@
 
     ppzRestaurantControllers.controller('publicWaitListController', ['$rootScope', '$scope', '$timeout', '$window',
         function ($rootScope, $scope, $timeout, $window) {
-            $scope.partyTypes = $window.partyTypes;
+            $window.addEventListener("message", function (event) {
+                var data = event.data.data;
+                switch (event.data.type) {
+                    case "initData":
+                        initData(data);
+                        break;
+                    case "call":
+                        $scope.lastCalledNumbers[data.unitIdPrefix] = data.unit.unitId;
+                        $scope.panelTypes[data.unitIdPrefix] = "panel-primary animate-flicker";
+                        $timeout(function () {
+                            $scope.panelTypes[data.unitIdPrefix] = "panel-info";
+                        }, 3000);
+                        break;
+                }
+                $scope.$apply();
+            });
+            /**
+             *
+             * @param {Object} data {partyTypes:[],lastCalledNumbers:{}}
+             */
+            function initData(data) {
+                data = data || $window.data;
+                angular.forEach(data, function (value, key) {
+                    $scope[key] = value;
+                });
+            }
+
+            initData();
             $rootScope.excludeHeader = true;
-            $scope.lastCalledNumbers = $window.lastCalledNumbers;
+            $rootScope.disableReservationHint = true;
             $scope.panelTypes = {};
             for (var i = 0; i < $scope.partyTypes.length; i++) {
                 var party = $scope.partyTypes[i];
                 $scope.panelTypes[party.unitIdPrefix] = "panel-info";
             }
             console.log(JSON.stringify($scope.lastCalledNumbers));
-            var UPDATE_INTERVAL = 1000;
-            var _updateData = function () {
-
-                //handle removal first
-                if ($window.lastReplacedUnitPrefix) {
-                    $scope.lastCalledNumbers[$window.lastReplacedUnitPrefix] = $window.lastReplacedUnit ? $window.lastReplacedUnit.unitId : "--";
-                    $window.lastReplacedUnitPrefix = null;
-                }
-
-                var lastCalledUnit = $window.lastCalledUnit;
-                var currentPrefix = $scope.currentPrefix;
-                var prefix = $window.lastCalledUnitPrefix;
-                if (!prefix) {
-                    return;
-                }
-                var units = $scope.units;
-                var currentCallCount = 0;
-                if (!units) {
-                    $scope.units = {};
-                    units = $scope.units;
-                }
-                if (units[prefix]) {
-                    currentCallCount = units[prefix].callCount;
-                }
-
-                //announce call sign
-                if (currentCallCount != lastCalledUnit.callCount) {
-                    var str = "现在叫号, " + lastCalledUnit.unitId;
-                    var msg = new SpeechSynthesisUtterance(str);
-                    msg.lang = "zh-CN";
-                    window.speechSynthesis.speak(msg);
-                }
-
-                //display call sign
-                if (currentPrefix && currentPrefix != prefix) {
-                    $scope.panelTypes[currentPrefix] = "panel-info";
-                }
-
-                if (currentCallCount != lastCalledUnit.callCount) {
-                    $scope.lastCalledNumbers[prefix] = lastCalledUnit.unitId;
-                    $scope.panelTypes[prefix] = "panel-primary animate-flicker";
-
-                }
-
-                $scope.currentPrefix = prefix;
-                units[prefix] = lastCalledUnit;
-
-            };
-            var _nextUpdate = function () {
-                $timeout(function () {
-                    _updateData();
-                    _nextUpdate();
-                }, UPDATE_INTERVAL);
-            };
-
-            _updateData();
-            _nextUpdate();
         }
     ]);
 

@@ -79,6 +79,64 @@
 
         };
     }];
+    var speechService = ["$q", function ($q) {
+        return {
+            getVoices: function () {
+                var deferred = $q.defer();
+                var voices = speechSynthesis.getVoices();
+                if (voices.length === 0) {
+                    var intervalId = setInterval(function () {
+                        voices = speechSynthesis.getVoices();
+                        if (voices.length !== 0) {
+                            clearInterval(intervalId);
+                            deferred.resolve(voices);
+                        }
+                    }, 0);
+                } else {
+                    deferred.resolve(voices);
+                }
+                return deferred.promise;
+            },
+            createMsg: function (msg) {
+                return new SpeechSynthesisUtterance(msg);
+            },
+            getNativeVoice: function () {
+                return this.getVoices().then(function (voices) {
+                    var nativeVoice;
+                    voices.some(function (voice) {
+                        if (voice.name === "native" || voice.localService === true) {
+                            nativeVoice = voice;
+                            return true;
+                        }
+                    });
+                    return nativeVoice;
+                });
+            },
+            speak: function (msg) {
+                if (!msg.voice) {
+                    this.getNativeVoice().then(function (nativeVoice) {
+                        msg.voice = nativeVoice;
+                        speechSynthesis.speak(msg);
+                        if (!msg.__watchedStart) {
+                            msg.__watchedStart = true;
+                            msg.addEventListener("start", function () {
+                                speechSynthesis.__started = true;
+                            });
+                            msg.addEventListener("end", function () {
+                                speechSynthesis.__started = false;
+                            });
+                        }
+                        setTimeout(function () {
+                            if (!speechSynthesis.__started) {
+                                speechSynthesis.cancel();
+                                speechSynthesis.speak(msg);
+                            }
+                        }, 500);
+                    })
+                }
+            }
+        }
+    }];
     var audioService = ['$document', function ($document) {
 
         return {
@@ -840,6 +898,8 @@
             }
         };
     }]);
-    ppzServices.service("reservationService", reservationService).service("dataService", dataService).service("pubSubService", pubSubService).service("audioService", audioService).service("notificationService", notificationService);
+    ppzServices.service("reservationService", reservationService).service("dataService", dataService)
+        .service("pubSubService", pubSubService).service("audioService", audioService)
+        .service("notificationService", notificationService).service("speechService", speechService);
 }
 ())

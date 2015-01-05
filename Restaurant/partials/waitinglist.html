@@ -9,13 +9,13 @@
     <button ng-click="stopReservation()" class="btn btn-primary"
             ng-show="restaurant.restaurantSettings.acceptReservation" x-confirm-hint x-modal-content="确认停用“预约功能”吗？">停用预约
     </button>
-    <button ng-click="startReservation()" class="btn btn-primary"
+    <button ng-click="startReservation()" class="btn btn-danger"
             ng-hide="restaurant.restaurantSettings.acceptReservation" x-confirm-hint x-modal-content="确认启用“预约功能”吗？">启用预约
     </button>
     <button ng-click="stopQueue()" class="btn btn-primary" ng-show="restaurant.restaurantSettings.enableQueue"
             x-confirm-hint x-modal-content="确认停用“排队功能”吗？">停用排队
     </button>
-    <button ng-click="startQueue()" class="btn btn-primary" ng-hide="restaurant.restaurantSettings.enableQueue"
+    <button ng-click="startQueue()" class="btn btn-danger" ng-hide="restaurant.restaurantSettings.enableQueue"
             x-confirm-hint x-modal-content="确认启用“排队功能”吗？">启用排队
     </button>
     <button class="btn btn-primary">
