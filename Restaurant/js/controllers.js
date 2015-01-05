@@ -126,6 +126,7 @@
                         tag: "tip"
                     }).then(function (notification) {
                         notification.onclick = function () {
+                            notification.close();
                             console.log("notification");
                             top.window.focus();
                         }
