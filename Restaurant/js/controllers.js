@@ -935,6 +935,7 @@
     ppzRestaurantControllers.controller('printNumberController', ['$scope', '$window', "$rootScope", "$timeout",
         function ($scope, $window, $rootScope, $timeout) {
             $rootScope.excludeHeader = true;
+            $rootScope.disableReservationHint = true;
             $scope.partyTypeDescription = $window.printPartyTypeDescription;
             $scope.unitId = $window.printUnitId;
             $timeout(function () {
