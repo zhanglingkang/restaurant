@@ -116,6 +116,7 @@
                 if (!msg.voice) {
                     this.getNativeVoice().then(function (nativeVoice) {
                         msg.voice = nativeVoice;
+                        console.log("voice:", nativeVoice)
                         speechSynthesis.speak(msg);
                         if (!msg.__watchedStart) {
                             msg.__watchedStart = true;
@@ -127,6 +128,7 @@
                             });
                         }
                         setTimeout(function () {
+                            console.log("voice setTimeout:", speechSynthesis.__started)
                             if (!speechSynthesis.__started) {
                                 speechSynthesis.cancel();
                                 speechSynthesis.speak(msg);
@@ -601,6 +603,22 @@
                 if (reservationTime !== null)
                     reservationTime = Math.round(reservationTime.getTime() / 1000);
                 var reqData = createRequest('addAdhocUserToQueue', {sessionId: $cookies.token, restaurantId: restaurantId, name: name, partyTypeId: parseInt(partyTypeId), 'phone.number': phone, "reservationTime": reservationTime});
+                return http.post(SERVER_URL, reqData);
+            },
+            reserveRoom: function (restaurantId, name, partyTypeId, phone, reservationTime, reservableId, number) {
+                if (reservationTime !== null)
+                    reservationTime = Math.round(reservationTime.getTime() / 1000);
+                var reqData = createRequest('addAdhocUserToQueue', {
+                    sessionId: $cookies.token,
+                    restaurantId: restaurantId,
+                    name: name,
+                    partyTypeId: parseInt(partyTypeId),
+                    'phone.number': phone,
+                    reservationTime: reservationTime,
+                    reservableId: reservableId,
+                    queueType: 3,
+                    number: number
+                });
                 return http.post(SERVER_URL, reqData);
             }
         };

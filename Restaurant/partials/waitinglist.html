@@ -72,6 +72,22 @@
         <div class="form-group">
             <timepicker ng-model="newReserve.time" meridians="['上午','下午']"></timepicker>
         </div>
+        <div class="form-group" ng-if="restaurant.reservableRooms.length!==0">
+            <select class="form-control" name="reservationType" ng-model="newReserve.reservationType">
+                <option ng-repeat="reservationType in reservationTypeArray" value="{{reservationType.value}}">
+                    {{reservationType.text}}
+                </option>
+            </select>
+        </div>
+        <div class="form-group" ng-if="newReserve.reservationType===reservationTypeMap.reservationRoom.value">
+            <select name="reservableId" ng-model="newReserve.reservableId" class="form-control" required>
+                <option ng-repeat="room in restaurant.reservableRooms" value="{{room.reservableId}}">{{room.roomName}}
+                </option>
+            </select>
+        </div>
+        <div class="form-group" ng-if="newReserve.reservationType===reservationTypeMap.reservationRoom.value">
+            <input type="number" placeholder="人数" name="number" ng-model="newReserve.number" class="form-control" required=""/>
+        </div>
         <div class="form-group">
             <button ng-click="addUser(true)" class="btn btn-primary" ng-disabled="!reserveForm.$valid">预约</button>
         </div>

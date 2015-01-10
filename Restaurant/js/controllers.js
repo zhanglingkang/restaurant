@@ -594,12 +594,30 @@
             var publicWindow = null;
             $scope.goBack = function () {
                 window.history.back();
+            }
+            $scope.reservationTypeMap = {
+                reservationDesk: {
+                    text: "预约留台",
+                    value: "1"
+                },
+                reservationRoom: {
+                    text: "预约房间",
+                    value: "2"
+                }
+            }
+            $scope.reservationTypeArray = utilService.getArray($scope.reservationTypeMap)
+            $scope.newReserve = {
+                time: new Date(),
+                typeId: "",
+                reservableId: "",
+                number: "",
+                reservationType: $scope.reservationTypeMap.reservationDesk.value
             };
-
             RestaurantService.getRestaurant($scope.restaurantId).then(function (restaurant) {
                 $scope.partyTypeList = restaurant.partyTypeInfos;
                 $scope.newReserve.typeId = $scope.partyTypeList[0].partyTypeId;
                 $scope.restaurant = restaurant;
+                $scope.newReserve.reservableId = $scope.restaurant.reservableRooms[0] ? $scope.restaurant.reservableRooms[0].reservableId : ""
                 $scope.maxQueueLength = restaurant.restaurantSettings.maxQueueLength;
             }, function (error) {
                 $scope.error = error;
@@ -641,10 +659,7 @@
             Date.prototype.toString = function () {
                 return $filter("date")(this, "yyyy-MM-dd");
             };
-            $scope.newReserve = {
-                time: new Date(),
-                typeId: ""
-            };
+
             var _updateData = function () {
                 RestaurantService.getWaitingList($scope.restaurantId, function (error, allList) {
                     $scope.error = error;
@@ -723,36 +738,50 @@
                     });
                     _updateData();
                 });
-            };
+            }
             $scope.addUser = function (reserve) {
                 var reserveTime = reserve ? $scope.newReserve.time : null;
                 var typeId = $scope.newReserve.typeId;
-                WaitingListService.addUser(
-                    $scope.restaurantId, $scope.newReserve.name, $scope.newReserve.typeId, $scope.newReserve.phone, reserveTime
-                ).success(function (data) {
-                        var newUnit = data.results[0];
-                        if (reserve) {
-                            $scope.reservationList.push(newUnit);
-                        }
-                        else {
-                            //update public window if new unit is inserted into an empty list
-                            if ($scope.waitingList[typeId].length == 0 && publicWindow) {
-                                publicWindow.lastReplacedUnit = newUnit;
-                                publicWindow.lastReplacedUnitPrefix = newUnit.unitId.charAt(0);
-                            }
+                var promise;
+                if ($scope.newReserve.reservationType === $scope.reservationTypeMap.reservationRoom.value) {
+                    typeId = 0
+                    promise = WaitingListService.reserveRoom(
+                        $scope.restaurantId, $scope.newReserve.name, typeId, $scope.newReserve.phone, reserveTime, $scope.newReserve.reservableId, $scope.newReserve.number
+                    )
+                } else {
+                    promise = WaitingListService.addUser(
+                        $scope.restaurantId, $scope.newReserve.name, $scope.newReserve.typeId, $scope.newReserve.phone, reserveTime
+                    )
+                }
 
-                            $scope.waitingList[typeId].push(newUnit);
+                promise.success(function (data) {
+                    var newUnit = data.results[0];
+                    if (reserve) {
+                        $scope.reservationList.push(newUnit);
+                    }
+                    else {
+                        //update public window if new unit is inserted into an empty list
+                        if ($scope.waitingList[typeId].length == 0 && publicWindow) {
+                            publicWindow.lastReplacedUnit = newUnit;
+                            publicWindow.lastReplacedUnitPrefix = newUnit.unitId.charAt(0);
                         }
 
-                        $scope.newReserve = {
-                            time: new Date(),
-                            typeId: $scope.newReserve.typeId
-                        };
-                        $scope.reserveForm.$setPristine();
-//                    $("li[typeId=" + typeId + "]").hide();
-//                    $("li[typeId=" + typeId + "]").slideDown();
-                    })
+                        $scope.waitingList[typeId].push(newUnit);
+                    }
+
+                    $scope.newReserve = {
+                        time: new Date(),
+                        typeId: $scope.newReserve.typeId,
+                        reservableId: $scope.restaurant.reservableRooms[0] ? $scope.restaurant.reservableRooms[0].reservableId : "",
+                        number: "",
+                        reservationType: $scope.reservationTypeMap.reservationDesk.value
+                    };
+                    $scope.reserveForm.$setPristine();
+                })
             };
+            $scope.reserveRoom = function () {
+                var reserveTime = reserve ? $scope.newReserve.time : null;
+            }
 
             $scope.openConfirmation = function (units, idx, type) {
                 var modal = $modal.open({
@@ -824,7 +853,8 @@
             $scope.reservationStatusMap = dataService.reservationStatus;
             // _nextUpdate();
         }
-    ]);
+    ])
+    ;
 
     var confirmationModalController = function ($scope, $modalInstance, queueUnit) {
         $scope.unit = queueUnit;
@@ -1075,4 +1105,6 @@
 
     ppzRestaurantControllers.controller("reservationCtrl", reservationCtrl);
 
-}())
+}
+()
+    )
