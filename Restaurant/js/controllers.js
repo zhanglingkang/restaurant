@@ -1,17 +1,17 @@
 /**
  * Created by Chris on 2/2/14.
  */
-;
+
 (function () {
 
 
-    var ppzRestaurantControllers = angular.module("ppzControllers", []);
-    var reservationCtrl = ["$scope", "reservationService" , "dataService", "$location", "$mdBottomSheet", "RestaurantService" , "queueMap", function ($scope, reservationService, dataService, $location, $mdBottomSheet, RestaurantService, queueMap) {
+    var ppzRestaurantControllers = angular.module("ppzControllers", [])
+    var reservationCtrl = ["$scope", "reservationService" , "dataService", "$location", "$mdBottomSheet", "restaurantService" , "queueMap", function ($scope, reservationService, dataService, $location, $mdBottomSheet, restaurantService, queueMap) {
         $scope.reservationMap = [];
         $scope.restaurantList = [];
 
         angular.forEach(queueMap, function (queue, restaurantId) {
-            RestaurantService.getRestaurant(restaurantId).then(function (restaurant) {
+            restaurantService.getRestaurant(restaurantId).then(function (restaurant) {
                 $scope.restaurantList.push(restaurant);
             });
             $scope.reservationMap[restaurantId] = queue.reservationList.filter(function (item) {
@@ -24,8 +24,8 @@
         };
 
     }];
-    ppzRestaurantControllers.controller('appController', ["$rootScope", "$scope", '$cookies', "$location", "pubSubService" , "$mdBottomSheet", "$mdToast", "reservationService", "utilService", "audioService", "dataService", "notificationService",
-        function ($rootScope, $scope, $cookies, $location, pubSubService, $mdBottomSheet, $mdToast, reservationService, utilService, audioService, dataService, notificationService) {
+    ppzRestaurantControllers.controller('appController', ["$rootScope", "$scope", '$cookies', "$location", "pubSub" , "$mdBottomSheet", "$mdToast", "reservationService", "util", "audioService", "dataService", "notificationService",
+        function ($rootScope, $scope, $cookies, $location, pubSub, $mdBottomSheet, $mdToast, reservationService, util, audioService, dataService, notificationService) {
             /**
              * 任何一个请求都有四种状态：INIT 尚未请求 REQUESTING 请求中 REQUEST_SUCCESSED 请求成功 REQUEST_FAILED 请求失败
              */
@@ -66,9 +66,9 @@
 //                        .hideDelay(0)
                 );
             }
-            pubSubService.subscribe("businessError", tip);
-            pubSubService.subscribe("serverError", tip);
-            pubSubService.subscribe("businessSuccess", tip);
+            pubSub.subscribe("businessError", tip);
+            pubSub.subscribe("serverError", tip);
+            pubSub.subscribe("businessSuccess", tip);
             /**
              * 判断当前用户是否已登录
              */
@@ -114,7 +114,7 @@
             $rootScope.$watch("disableReservationHint", function (value) {
                 if (value) {
                     reservationService.close();
-                    pubSubService.unSubscribe("newReservation", handleNewReservation);
+                    pubSub.unSubscribe("newReservation", handleNewReservation);
                 }
             })
             function handleNewReservation(queueMap) {
@@ -141,7 +141,7 @@
             }
 
             if (!$rootScope.disableReservationHint) {
-                pubSubService.subscribe("newReservation", handleNewReservation);
+                pubSub.subscribe("newReservation", handleNewReservation);
                 if (isLogined()) {
                     reservationService.connect();
                 }
@@ -203,18 +203,18 @@
         }
     ]);
 
-    ppzRestaurantControllers.controller('restaurantListController', ['$scope', 'RestaurantService', "MenuService", "pubSubService",
-        function ($scope, RestaurantService, MenuService, pubSubService) {
+    ppzRestaurantControllers.controller('restaurantListController', ['$scope', 'restaurantService', "menuService", "pubSub",
+        function ($scope, restaurantService, menuService, pubSub) {
             $scope.loading = true;
             $scope.includeHeader = true;
-            RestaurantService.getMyRestaurantList().then(function (data) {
+            restaurantService.getMyRestaurantList().then(function (data) {
                 $scope.loading = false;
                 $scope.restaurantList = data.results;
                 console.log("loading restaurantList");
-                pubSubService.publish("loadedRestaurantList", $scope.restaurantList);
+                pubSub.publish("loadedRestaurantList", $scope.restaurantList);
                 //这里加载菜单式预加载菜单，缓解管理页面的性能问题。
                 $scope.restaurantList.forEach(function (restaurant) {
-                    MenuService.getMenu(restaurant.restaurantId);
+                    menuService.getMenu(restaurant.restaurantId);
                 });
             }, function (error) {
                 $scope.error = error;
@@ -222,13 +222,13 @@
         }
     ]);
 
-    ppzRestaurantControllers.controller('restaurantDetailController', ['$scope', '$routeParams', 'RestaurantService', 'MenuService',
-        function ($scope, $routeParams, RestaurantService, MenuService) {
+    ppzRestaurantControllers.controller('restaurantDetailController', ['$scope', '$routeParams', 'restaurantService', 'menuService',
+        function ($scope, $routeParams, restaurantService, menuService) {
             $scope.goBack = function () {
                 window.history.back();
             }
             $scope.restaurantId = $routeParams.restaurantId;
-            RestaurantService.getRestaurant($scope.restaurantId).then(function (restaurant) {
+            restaurantService.getRestaurant($scope.restaurantId).then(function (restaurant) {
                 $scope.restaurant = restaurant;
                 $scope.newInfo = angular.copy($scope.restaurant);
             }, function (error) {
@@ -244,7 +244,7 @@
             };
             $scope.confirm = function () {
                 $scope.editing = false;
-                RestaurantService.updateRestaurantInfo($scope.restaurantId, $scope.newInfo).then(function () {
+                restaurantService.updateRestaurantInfo($scope.restaurantId, $scope.newInfo).then(function () {
                     $scope.saved = true;
                 }, function () {
                     $scope.saved = false;
@@ -253,8 +253,8 @@
         }
     ]);
 
-    ppzRestaurantControllers.controller('menuController', ['$scope', 'MenuService', '$timeout',
-        function ($scope, MenuService, $timeout) {
+    ppzRestaurantControllers.controller('menuController', ['$scope', 'menuService', '$timeout',
+        function ($scope, menuService, $timeout) {
             /**
              * 表示正在添加菜单类型
              * @type {boolean}
@@ -278,7 +278,7 @@
                 $scope.wantImport = true;
                 if ($scope.importMenuFile.length > 0 && $scope.isExcel()) {
                     $scope.importStatus = $scope.REQUEST_STATUS.REQUESTING;
-                    MenuService.importMenu($scope.importMenuFile[0], $scope.restaurantId).then(
+                    menuService.importMenu($scope.importMenuFile[0], $scope.restaurantId).then(
                         function () {
                             $scope.importStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
                         }, function (data) {
@@ -302,7 +302,7 @@
                     showCover: true,
                     alertContent: "排序中..."
                 });
-                MenuService.sortMenuCategory({
+                menuService.sortMenuCategory({
                     categoryId: data.dragNodeId,
                     previousCategoryId: previousCategoryId
                 }, $scope.menu.restaurantId).then(function (data) {
@@ -338,7 +338,7 @@
                 return menuCategory;
             };
             $scope.refreshMenu = function () {
-                MenuService.getMenu($scope.restaurantId).then(function (data) {
+                menuService.getMenu($scope.restaurantId).then(function (data) {
                     setMenu(data.results[0]);
                 }, function (error) {
                     $scope.error = error;
@@ -402,7 +402,7 @@
             $scope.addStatus = $scope.REQUEST_STATUS.INIT;
             $scope.addMenuCategory = function () {
                 $scope.addStatus = $scope.REQUEST_STATUS.REQUESTING;
-                MenuService.addMenuCategory($scope.categoryForm, $scope.menu.restaurantId).then(function (data) {
+                menuService.addMenuCategory($scope.categoryForm, $scope.menu.restaurantId).then(function (data) {
                     initCategoryForm();
                     $scope.addStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
                     $scope.menu.menuCategories = $scope.menu.menuCategories.concat(data.results);
@@ -415,8 +415,8 @@
         }
     ]);
 
-    ppzRestaurantControllers.controller('menuCategoryController', ['$scope', 'MenuService',
-        function ($scope, MenuService) {
+    ppzRestaurantControllers.controller('menuCategoryController', ['$scope', 'menuService',
+        function ($scope, menuService) {
             var items = [];
             $scope.addingNewItem = false;
             $scope.editing = false;
@@ -429,7 +429,7 @@
 
             $scope.confirmEditCategory = function () {
                 $scope.editStatus = $scope.REQUEST_STATUS.REQUESTING;
-                MenuService.modifyMenuCategory({
+                menuService.modifyMenuCategory({
                     categoryName: $scope.nameModified,
                     categoryDescription: $scope.descriptionModified,
                     categoryId: $scope.category.categoryId
@@ -457,7 +457,7 @@
                         }
                     }
                 });
-                MenuService.sortMenuItem({
+                menuService.sortMenuItem({
                     itemId: data.dragNodeId,
                     previousItemId: previousItemId,
                     categoryId: $scope.category.categoryId
@@ -489,7 +489,7 @@
             $scope.deleteStatus = $scope.REQUEST_STATUS.INIT;
             $scope.removeMenuCategory = function () {
                 $scope.deleteStatus = $scope.REQUEST_STATUS.REQUESTING;
-                MenuService.removeMenuCategory(
+                menuService.removeMenuCategory(
                     $scope.category.categoryId,
                     $scope.menu.restaurantId).then(function () {
                         $scope.editStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
@@ -527,7 +527,7 @@
             $scope.confirmAddItem = function (valid) {
                 if (valid) {
                     $scope.addMenuItemStatus = $scope.REQUEST_STATUS.REQUESTING;
-                    MenuService.addMenuItem(angular.extend($scope.menuItemForm, {
+                    menuService.addMenuItem(angular.extend($scope.menuItemForm, {
                         categoryId: $scope.category.categoryId
                     }), $scope.menu.restaurantId).then(function (data) {
                         $scope.addMenuItemStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
@@ -549,8 +549,8 @@
         }
     ]);
 
-    ppzRestaurantControllers.controller('menuItemController', ['$scope', 'MenuService',
-        function ($scope, MenuService) {
+    ppzRestaurantControllers.controller('menuItemController', ['$scope', 'menuService',
+        function ($scope, menuService) {
             $scope.editing = false;
             $scope.newItem = angular.copy($scope.item);
             $scope.editItem = function () {
@@ -560,7 +560,7 @@
             };
             $scope.confirmEditItem = function () {
                 $scope.editMenuItemStatus = $scope.REQUEST_STATUS.REQUESTING;
-                MenuService.modifyMenuItem({
+                menuService.modifyMenuItem({
                         itemId: $scope.newItem.itemId,
                         itemName: $scope.newItem.itemName,
                         itemDescription: $scope.newItem.itemDescription,
@@ -583,7 +583,7 @@
                 $scope.editing = false;
             };
             $scope.removeItem = function () {
-                MenuService.removeMenuItem({
+                menuService.removeMenuItem({
                     itemId: $scope.item.itemId,
                     categoryId: $scope.category.categoryId
                 }, $scope.menu.restaurantId).then(function () {
@@ -597,8 +597,8 @@
     ;
 
     ppzRestaurantControllers.controller('waitingListController', [
-        '$modal', '$scope', '$routeParams', '$timeout', '$cookies', '$window', '$mdToast', 'RestaurantService', 'WaitingListService', "utilService", "reservationService", "pubSubService", "reservationService", "dataService", "$filter", "speechService",
-        function ($modal, $scope, $routeParams, $timeout, $cookies, $window, $mdToast, RestaurantService, WaitingListService, utilService, reservationService, pubSubService, reservationService, dataService, $filter, speechService) {
+        '$modal', '$scope', '$routeParams', '$timeout', '$cookies', '$window', '$mdToast', 'restaurantService', 'waitingListService', "util", "reservationService", "pubSub", "reservationService", "dataService", "$filter", "speechService",
+        function ($modal, $scope, $routeParams, $timeout, $cookies, $window, $mdToast, restaurantService, waitingListService, util, reservationService, pubSub, reservationService, dataService, $filter, speechService) {
             $scope.restaurantId = $routeParams.restaurantId;
             var UPDATE_INTERVAL = 10000;
             var publicWindow = null;
@@ -615,7 +615,7 @@
                     value: "2"
                 }
             }
-            $scope.reservationTypeArray = utilService.getArray($scope.reservationTypeMap)
+            $scope.reservationTypeArray = util.getArray($scope.reservationTypeMap)
             $scope.newReserve = {
                 time: new Date(),
                 typeId: "",
@@ -623,7 +623,7 @@
                 number: "",
                 reservationType: $scope.reservationTypeMap.reservationDesk.value
             };
-            RestaurantService.getRestaurant($scope.restaurantId).then(function (restaurant) {
+            restaurantService.getRestaurant($scope.restaurantId).then(function (restaurant) {
                 $scope.partyTypeList = restaurant.partyTypeInfos;
                 $scope.newReserve.typeId = $scope.partyTypeList[0].partyTypeId;
                 $scope.restaurant = restaurant;
@@ -633,35 +633,35 @@
                 $scope.error = error;
             });
             $scope.resetWaitingList = function () {
-                RestaurantService.resetWaitingList($scope.restaurantId).success(function () {
+                restaurantService.resetWaitingList($scope.restaurantId).success(function () {
                     _updateData();
                 });
             };
             $scope.setMaxQueue = function (valid) {
                 if (valid) {
-                    RestaurantService.setMaxQueue($scope.restaurantId, $scope.maxQueueLength).success(function () {
+                    restaurantService.setMaxQueue($scope.restaurantId, $scope.maxQueueLength).success(function () {
                         $scope.restaurant.restaurantSettings.maxQueueLength = $scope.maxQueueLength;
                         $scope.modifyMaxQueuePopover.close();
                     });
                 }
             };
             $scope.stopReservation = function () {
-                RestaurantService.acceptReservation($scope.restaurantId, false).success(function () {
+                restaurantService.acceptReservation($scope.restaurantId, false).success(function () {
                     $scope.restaurant.restaurantSettings.acceptReservation = false;
                 });
             };
             $scope.startReservation = function () {
-                RestaurantService.acceptReservation($scope.restaurantId, true).success(function () {
+                restaurantService.acceptReservation($scope.restaurantId, true).success(function () {
                     $scope.restaurant.restaurantSettings.acceptReservation = true;
                 });
             };
             $scope.stopQueue = function () {
-                RestaurantService.enableQueue($scope.restaurantId, false).success(function () {
+                restaurantService.enableQueue($scope.restaurantId, false).success(function () {
                     $scope.restaurant.restaurantSettings.enableQueue = false;
                 });
             };
             $scope.startQueue = function () {
-                RestaurantService.enableQueue($scope.restaurantId, true).success(function () {
+                restaurantService.enableQueue($scope.restaurantId, true).success(function () {
                     $scope.restaurant.restaurantSettings.enableQueue = true;
                 });
             };
@@ -671,7 +671,7 @@
             };
 
             var _updateData = function () {
-                RestaurantService.getWaitingList($scope.restaurantId, function (error, allList) {
+                restaurantService.getWaitingList($scope.restaurantId, function (error, allList) {
                     $scope.error = error;
                     $scope.waitingList = allList.waitingList;
                     $scope.reservationList = allList.reservationList;
@@ -685,16 +685,16 @@
             };
             _updateData();
             $scope.$on("$destroy", function () {
-                pubSubService.unSubscribe("newReservation", _updateData);
+                pubSub.unSubscribe("newReservation", _updateData);
             });
-            pubSubService.subscribe("newReservation", _updateData);
+            pubSub.subscribe("newReservation", _updateData);
             $scope.call = function (unit, unitIdPrefix) {
                 var msg = speechService.createMsg();
                 msg.text = "现在叫号," + unit.unitId;
                 speechService.speak(msg);
-                WaitingListService.callUser($scope.restaurantId, unit.unitId).success(function (data) {
+                waitingListService.callUser($scope.restaurantId, unit.unitId).success(function (data) {
                     unit.callCount = data.results[0].callCount;
-                    pubSubService.publish("businessSuccess", {
+                    pubSub.publish("businessSuccess", {
                         msg: "已发送"
                     });
                 }).error(function (error) {
@@ -734,7 +734,7 @@
                 }, window.location.href);
             };
             $scope.removeReservation = function (unitId) {
-                WaitingListService.removeReservation($scope.restaurantId, unitId).success(function () {
+                waitingListService.removeReservation($scope.restaurantId, unitId).success(function () {
                     $scope.reservationList = $scope.reservationList.filter(function (item) {
                         return item.unitId !== unitId;
                     });
@@ -742,7 +742,7 @@
                 });
             };
             $scope.removeWaiting = function (unitId, key) {
-                WaitingListService.removeWaiting($scope.restaurantId, unitId).success(function () {
+                waitingListService.removeWaiting($scope.restaurantId, unitId).success(function () {
                     $scope.waitingList[key] = $scope.waitingList[key].filter(function (item) {
                         return item.unitId !== unitId;
                     });
@@ -755,11 +755,11 @@
                 var promise;
                 if ($scope.newReserve.reservationType === $scope.reservationTypeMap.reservationRoom.value) {
                     typeId = 0
-                    promise = WaitingListService.reserveRoom(
+                    promise = waitingListService.reserveRoom(
                         $scope.restaurantId, $scope.newReserve.name, typeId, $scope.newReserve.phone, reserveTime, $scope.newReserve.reservableId, $scope.newReserve.number
                     )
                 } else {
-                    promise = WaitingListService.addUser(
+                    promise = waitingListService.addUser(
                         $scope.restaurantId, $scope.newReserve.name, $scope.newReserve.typeId, $scope.newReserve.phone, reserveTime
                     )
                 }
@@ -918,12 +918,12 @@
         }
     ]);
 
-    ppzRestaurantControllers.controller('reviewListController', ['$scope', '$routeParams', '$timeout', 'ReviewService',
-        function ($scope, $routeParams, $timeout, ReviewService) {
+    ppzRestaurantControllers.controller('reviewListController', ['$scope', '$routeParams', '$timeout', 'reviewService',
+        function ($scope, $routeParams, $timeout, reviewService) {
             $scope.loading = true;
             $scope.currentPage = 1;
             $scope.selectPage = function (pageNum) {
-                ReviewService.getReviewList($scope.restaurantId, pageNum - 1, function (error, reviewList) {
+                reviewService.getReviewList($scope.restaurantId, pageNum - 1, function (error, reviewList) {
                     $scope.loading = false;
                     $scope.error = error;
                     $scope.reviewList = reviewList;
@@ -936,8 +936,8 @@
         }
     ]);
 
-    ppzRestaurantControllers.controller('reviewItemController', ['$scope', 'ReviewService',
-        function ($scope, ReviewService) {
+    ppzRestaurantControllers.controller('reviewItemController', ['$scope', 'reviewService',
+        function ($scope, reviewService) {
             $scope.replying = false;
             $scope.reply = function () {
                 if ($scope.replying)
@@ -947,7 +947,7 @@
             $scope.confirmReply = function () {
                 $scope.review.replyMessage = $scope.message;
                 $scope.replying = false;
-                ReviewService.replyReview($scope.restaurantId, $scope.review.reviewIndex, $scope.message, function (error, result) {
+                reviewService.replyReview($scope.restaurantId, $scope.review.reviewIndex, $scope.message, function (error, result) {
                     if (error)
                         $scope.saved = false;
                     else
@@ -975,13 +975,13 @@
     ]);
 
 
-    ppzRestaurantControllers.controller('fileUploader', ['$cookies', '$scope', 'FileUploadService', 'FileUploader',
-        function ($cookies, $scope, FileUploadService, FileUploader) {
+    ppzRestaurantControllers.controller('fileUploader', ['$cookies', '$scope', 'pictureService', 'FileUploader',
+        function ($cookies, $scope, pictureService, FileUploader) {
             var fd = new FormData();
             fd.append('sessionId', $cookies.token);
             fd.append('restaurantId', $scope.restaurantId);
             $scope.uploader = new FileUploader({
-                url: FileUploadService.FILE_SERVER_URL,
+                url: pictureService.FILE_SERVER_URL,
                 formData: [
                     {
                         sessionId: $cookies.token
@@ -1003,7 +1003,7 @@
                 ]
             });
 //        $scope.upload = function () {
-//            FileUploadService.upload($scope.files, $scope.restaurantId);
+//            pictureService.upload($scope.files, $scope.restaurantId);
 //        }
             $scope.fileList = [];
             $scope.uploader.onBeforeUploadItem = function (fileItem) {
@@ -1028,13 +1028,13 @@
                 var results = JSON.parse(response.data).results;
                 $scope.fileList = $scope.fileList.concat(results);
             };
-            FileUploadService.getPictures($scope.restaurantId).then(function (data) {
+            pictureService.getPictures($scope.restaurantId).then(function (data) {
                 angular.forEach(data.results[0].uploadedPictures, function (item, index) {
                     $scope.fileList.push(item);
                 });
             });
             $scope.removePicture = function (file) {
-                FileUploadService.removePicture({
+                pictureService.removePicture({
                     restaurantId: $scope.restaurantId,
                     pictureId: file.pictureId
                 }).then(function () {
@@ -1043,7 +1043,7 @@
                     })
                 });
             }
-//        RestaurantService.getMyRestaurantList().then(function (data) {
+//        restaurantService.getMyRestaurantList().then(function (data) {
 //            data.results[0].uploadedPictures.forEach(function (picture) {
 //                $scope.filePathList.push(picture.filePath);
 //            });
@@ -1051,11 +1051,11 @@
         }
     ]);
     ppzRestaurantControllers.controller('pictureItemController', [
-        '$cookies', '$scope', 'FileUploadService', function ($cookies, $scope, FileUploadService) {
+        '$cookies', '$scope', 'pictureService', function ($cookies, $scope, pictureService) {
             $scope.file.pictureCommentCopy = $scope.file.pictureComment;
             $scope.modifyIntroduce = function (valid) {
                 if (valid) {
-                    FileUploadService.modifyIntroduce({
+                    pictureService.modifyIntroduce({
                         pictureId: $scope.file.pictureId,
                         pictureComment: $scope.file.pictureCommentCopy,
                         restaurantId: $scope.file.restaurantId

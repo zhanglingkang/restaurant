@@ -46,7 +46,7 @@
         });
         return result;
     }];
-    var pubSubService = [function () {
+    var pubSub = [function () {
         /**
          * 这里topics作为map使用,key为topic的Type。value为topic的详情
          * @type {Object}
@@ -165,7 +165,7 @@
             }
         }
     }];
-    var reservationService = ["http", "utilService", "$cookies", "$mdBottomSheet", "pubSubService", function (http, utilService, $cookies, $mdBottomSheet, pubSubService) {
+    var reservationService = ["http", "util", "$cookies", "$mdBottomSheet", "pubSub", function (http, util, $cookies, $mdBottomSheet, pubSub) {
         var eventSource;
         /**
          * key为restaurantId,
@@ -250,7 +250,7 @@
              */
             connect: function () {
                 if (!eventSource || eventSource.readyState === EventSource.CLOSED) {
-                    eventSource = new EventSource(utilService.getUrl("/bbqueue", {
+                    eventSource = new EventSource(util.getUrl("/bbqueue", {
                         command: "pullQueueUnit",
                         sessionId: $cookies.token
                     }));
@@ -263,7 +263,7 @@
                     eventSource.addEventListener("message", function (event) {
                         var data = JSON.parse(event.data);
                         queueMap.addQueue(data.restaurantId, data.queues);
-                        pubSubService.publish("newReservation", queueMap);
+                        pubSub.publish("newReservation", queueMap);
                         console.log("message:");
                     });
                 }
@@ -332,7 +332,7 @@
 
     }]
 
-    ppzServices.factory('http', ['$http', '$q', '$location', '$cookies', "pubSubService", function ($http, $q, $location, $cookies, pubSubService) {
+    ppzServices.factory('http', ['$http', '$q', '$location', '$cookies', "pubSub", function ($http, $q, $location, $cookies, pubSub) {
         return {
             /**
              *
@@ -353,14 +353,14 @@
                                 delete $cookies.username;
                                 $location.path("/login");
                             } else {
-                                pubSubService.publish("businessError", {
+                                pubSub.publish("businessError", {
                                     msg: "操作失败"
                                 });
                             }
                         }
                     }).
                     error(function (data, status, headers) {
-                        pubSubService.publish("serverError", {
+                        pubSub.publish("serverError", {
                             msg: "服务器出错了！，命令：" + config.data.command + ",响应码:" + status
                         });
                         deferred.reject(data);
@@ -487,7 +487,7 @@
         }
     ]);
 
-    ppzServices.service('RestaurantService', ['$http', '$window', '$q', '$cookies', 'http',
+    ppzServices.service('restaurantService', ['$http', '$window', '$q', '$cookies', 'http',
         function ($http, $window, $q, $cookies, http) {
             var getRestaurantListDefered;
             return {
@@ -585,7 +585,7 @@
         }
     ]);
 
-    ppzServices.factory('WaitingListService', ['$http', '$window', '$cookies', "http", function ($http, $window, $cookies, http) {
+    ppzServices.factory('waitingListService', ['$http', '$window', '$cookies', "http", function ($http, $window, $cookies, http) {
         return {
             lastCalledNumber: 0,
             callUser: function (restaurantId, unitId) {
@@ -629,7 +629,7 @@
         };
     }]);
 
-    ppzServices.service('MenuService', ['$http', '$window', '$cookies', 'http', function ($http, $window, $cookies, http) {
+    ppzServices.service('menuService', ['$http', '$window', '$cookies', 'http', function ($http, $window, $cookies, http) {
         var getMenuDefered;
         return {
             _menu: null,
@@ -787,7 +787,7 @@
     }])
     ;
 
-    ppzServices.factory('ReviewService', ['$http', '$window', '$cookies', function ($http, $window, $cookies) {
+    ppzServices.factory('reviewService', ['$http', '$window', '$cookies', function ($http, $window, $cookies) {
         return {
             getReviewList: function (restaurantId, pageNum, callback) {
                 var reqData = createRequest('getRestaurantReviewList', {sessionId: $cookies.token, restaurantId: restaurantId, startIndex: pageNum * 10 + 1, size: 10});
@@ -822,7 +822,7 @@
         };
     }]);
 
-    ppzServices.factory('FileUploadService', ['$http', '$window', '$cookies', 'http', function ($http, $window, $cookies, http) {
+    ppzServices.factory('pictureService', ['$http', '$window', '$cookies', 'http', function ($http, $window, $cookies, http) {
         return {
             FILE_SERVER_URL: FILE_SERVER_URL,
             upload: function (files, restaurantId) {
@@ -922,7 +922,7 @@
         };
     }]);
     ppzServices.service("reservationService", reservationService).service("dataService", dataService)
-        .service("pubSubService", pubSubService).service("audioService", audioService)
+        .service("pubSub", pubSub).service("audioService", audioService)
         .service("notificationService", notificationService).service("speechService", speechService);
 }
 ())

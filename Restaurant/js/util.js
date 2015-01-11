@@ -2,7 +2,7 @@
 (function () {
     var FLOAT_REGEXP = /^\-?\d+((\.|\,)\d+)?$/;
 
-    angular.module("ppzUtils", []).service('utilService', function () {
+    angular.module("ppzUtils", []).service('util', function () {
         return {
             /**
              * @method getArray

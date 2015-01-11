@@ -177,7 +177,7 @@
                 }
             }
         };
-    }).directive("selfPopover", ["$compile", "utilService", function ($compile, utilService) {
+    }).directive("selfPopover", ["$compile", "util", function ($compile, util) {
         /**
          * 此指令相关的属性
          * 1.relatedTarget:可选
@@ -260,7 +260,7 @@
                     if ("object" in attrs) {
                         propertyName = attrs.object + "." + attrs.name;
                     }
-                    utilService.setPropertyValue(scope.$parent, propertyName, externalAPI);
+                    util.setPropertyValue(scope.$parent, propertyName, externalAPI);
                 }
 
             }
