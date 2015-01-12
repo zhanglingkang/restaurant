@@ -1,0 +1,2 @@
+/*! ppz_website 2014-12-18 6:38:47 PM */
+function MenuProvider(a){function b(){}return a("$mdMenu").setDefaults({methods:["placement"],options:b})}goog.provide("ng.material.components.menu"),angular.module("material.components.menu",[]).factory("$mdMenu",MenuProvider),MenuProvider.$inject=["$$interimElementProvider"];
