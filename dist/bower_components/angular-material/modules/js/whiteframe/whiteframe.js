@@ -1,15 +1,2 @@
-/*!
- * Angular Material Design
- * https://github.com/angular/material
- * @license MIT
- * v0.6.1
- */
-(function() {
-'use strict';
-
-/**
- * @ngdoc module
- * @name material.components.whiteframe
- */
-angular.module('material.components.whiteframe', []);
-})();
+/*! ppz_website 2015-01-12 6:59:27 PM */
+!function(){"use strict";angular.module("material.components.whiteframe",[])}();

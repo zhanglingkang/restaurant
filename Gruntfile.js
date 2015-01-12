@@ -28,7 +28,10 @@ module.exports = function (grunt) {
                             expand: true,
                             cwd: 'dist/bower_components',
                             src: '**/*.js',
-                            dest: 'dist/bower_components'
+                            dest: 'dist/bower_components',
+                            filter: function (filepath) {
+                                return filepath.indexOf("src") == -1;
+                            },
                         }
                     ]
                 }

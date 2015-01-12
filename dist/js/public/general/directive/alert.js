@@ -1,2 +1,2 @@
-/*! ppz_website 2015-01-12 6:55:00 PM */
+/*! ppz_website 2015-01-12 6:59:27 PM */
 "use strict";define(function(a){var b=a("app"),c=a("public/local/system");b.directive("selfAlert",["$timeout",function(a){return{restrict:"E",replace:!0,transclude:!0,scope:{show:"=",showType:"=",noAutoHide:"="},templateUrl:c.getTplAbsolutePath("tpl/directive/alert.html"),link:function(b,c,d){var e=($(c),parseInt(d.showTime||0));b.hideAlert=function(){b.show=!1},b.$watch("show",function(){b.show&&!b.noAutoHide&&a(function(){b.show=!1},e||5e3)})}}}])});
