@@ -3,11 +3,12 @@
 define(function (require) {
     var app = require("app")
     var util = require("public/general/util")
-    var pubSub = require("public/local/pub-sub")
+    var pubSub = require("public/general/pub-sub")
     require("public/local/restaurant-service")
     require("./waiting-list-service")
     require("public/local/reservation-service")
     require("public/general/speech-service")
+    require("public/general/directive/popover")
     app.controller('waitingListController', [
         '$modal', '$scope', '$routeParams', '$timeout', '$cookies', '$window',
         '$mdToast', 'restaurantService', 'waitingListService', "reservationService",
@@ -104,7 +105,8 @@ define(function (require) {
             pubSub.subscribe("newReservation", _updateData);
             $scope.call = function (unit, unitIdPrefix) {
                 var msg = speechService.createMsg();
-                msg.text = "现在叫号," + unit.unitId;
+                unitIdPrefix = unitIdPrefix || "预"
+                msg.text = unitIdPrefix + "," + unit.unitId.substring(unitIdPrefix.length)
                 speechService.speak(msg);
                 waitingListService.callUser($scope.restaurantId, unit.unitId).success(function (data) {
                     unit.callCount = data.results[0].callCount;

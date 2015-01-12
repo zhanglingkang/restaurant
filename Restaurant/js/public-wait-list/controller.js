@@ -14,8 +14,8 @@ define(function (require) {
                         $scope.lastCalledNumbers[data.unitIdPrefix] = data.unit.unitId
                         $scope.panelTypes[data.unitIdPrefix] = "panel-primary animate-flicker"
                         $timeout(function () {
-                            $scope.panelTypes[data.unitIdPrefix] = "panel-info"
-                        }, 3000)
+                            $scope.panelTypes[data.unitIdPrefix] = "panel-primary"
+                        }, 10000)
                         break
                 }
                 $scope.$apply()

@@ -1,2 +1,52 @@
-/*! ppz_website 2014-12-18 6:38:47 PM */
-goog.provide("ng.material.components.icon"),goog.require("ng.material.core"),function(){"use strict";function a(){return{restrict:"E",template:'<object class="md-icon"></object>',compile:function(a,b){var c=angular.element(a[0].children[0]);angular.isDefined(b.icon)&&c.attr("data",b.icon)}}}angular.module("material.components.icon",["material.core"]).directive("mdIcon",a)}();
+/*!
+ * Angular Material Design
+ * https://github.com/angular/material
+ * @license MIT
+ * v0.6.1
+ */
+goog.provide('ng.material.components.icon');
+goog.require('ng.material.core');
+(function() {
+'use strict';
+
+/*
+ * @ngdoc module
+ * @name material.components.icon
+ * @description
+ * Icon
+ */
+angular.module('material.components.icon', [
+  'material.core'
+])
+  .directive('mdIcon', mdIconDirective);
+
+/*
+ * @ngdoc directive
+ * @name mdIcon
+ * @module material.components.icon
+ *
+ * @restrict E
+ *
+ * @description
+ * The `<md-icon>` directive is an element useful for SVG icons
+ *
+ * @usage
+ * <hljs lang="html">
+ *  <md-icon icon="/img/icons/ic_access_time_24px.svg">
+ *  </md-icon>
+ * </hljs>
+ *
+ */
+function mdIconDirective() {
+  return {
+    restrict: 'E',
+    template: '<object class="md-icon"></object>',
+    compile: function(element, attr) {
+      var object = angular.element(element[0].children[0]);
+      if(angular.isDefined(attr.icon)) {
+        object.attr('data', attr.icon);
+      }
+    }
+  };
+}
+})();

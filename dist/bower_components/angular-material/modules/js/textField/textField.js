@@ -1,2 +1,198 @@
-/*! ppz_website 2014-12-18 6:38:47 PM */
-!function(){"use strict";function a(a,b,c){return{restrict:"E",replace:!0,scope:{fid:"@?mdFid",label:"@?",value:"=ngModel"},compile:function(d,e){return angular.isUndefined(e.mdFid)&&(e.mdFid=b.nextUid()),{pre:function(a,b,d){var e=c(d.ngDisabled);a.isDisabled=function(){return e(a.$parent)},a.inputType=d.type||"text"},post:a}},template:'<md-input-group tabindex="-1"> <label for="{{fid}}" >{{label}}</label> <md-input id="{{fid}}" ng-disabled="isDisabled()" ng-model="value" type="{{inputType}}"></md-input></md-input-group>'}}function b(){return{restrict:"CE",controller:["$element",function(a){this.setFocused=function(b){a.toggleClass("md-input-focused",!!b)},this.setHasValue=function(b){a.toggleClass("md-input-has-value",b)}}]}}function c(){return{restrict:"E",replace:!0,template:"<input >",require:["^?mdInputGroup","?ngModel"],link:function(a,b,c,d){function e(a){return a=angular.isUndefined(a)?b.val():a,angular.isDefined(a)&&null!==a&&""!==a.toString().trim()}if(d[0]){var f=d[0],g=d[1];a.$watch(a.isDisabled,function(a){b.attr("aria-disabled",!!a),b.attr("tabindex",!!a)}),b.attr("type",c.type||b.parent().attr("type")||"text"),g&&g.$formatters.push(function(a){return f.setHasValue(e(a)),a}),b.on("input",function(){f.setHasValue(e())}).on("focus",function(){f.setFocused(!0)}).on("blur",function(){f.setFocused(!1),f.setHasValue(e())}),a.$on("$destroy",function(){f.setFocused(!1),f.setHasValue(!1)})}}}}angular.module("material.components.textField",["material.core"]).directive("mdInputGroup",b).directive("mdInput",c).directive("mdTextFloat",a),a.$inject=["$mdTheming","$mdUtil","$parse"],c.$inject=["$mdUtil"]}();
+/*!
+ * Angular Material Design
+ * https://github.com/angular/material
+ * @license MIT
+ * v0.6.1
+ */
+(function() {
+'use strict';
+
+/**
+ * @ngdoc module
+ * @name material.components.textField
+ * @description
+ * Form
+ */
+angular.module('material.components.textField', [
+  'material.core'
+])
+  .directive('mdInputGroup', mdInputGroupDirective)
+  .directive('mdInput', mdInputDirective)
+  .directive('mdTextFloat', mdTextFloatDirective);
+
+
+
+/**
+ * @ngdoc directive
+ * @name mdTextFloat
+ * @module material.components.textField
+ *
+ * @restrict E
+ *
+ * @description
+ * Use the `<md-text-float>` directive to quickly construct `Floating Label` text fields
+ *
+ * @param {string} ng-model Model expression used for two-way data binding with the input value.
+ * @param {string} label String value or expression that specifies the input text field label/hint.
+ * @param {string=} type Optional value to define the type of input field. Defaults to string.
+ * @param {string=} md-fid Optional attribute used for accessibility link pairing between the Label and Input elements
+ *
+ * @usage
+ * <hljs lang="html">
+ * <md-text-float label="LastName" ng-model="user.lastName" > </md-text-float>
+ *
+ * <!-- Specify a read-only input field by using the `disabled` attribute -->
+ * <md-text-float label="Company"  ng-model="user.company" ng-disabled="true" > </md-text-float>
+ *
+ * <!-- Specify an input type if desired. -->
+ * <md-text-float label="eMail"    ng-model="user.email" type="email" ></md-text-float>
+ * </hljs>
+ */
+function mdTextFloatDirective($mdTheming, $mdUtil, $parse) {
+  return {
+    restrict: 'E',
+    replace: true,
+    scope : {
+      fid : '@?mdFid',
+      label : '@?',
+      value : '=ngModel'
+    },
+    compile : function(element, attr) {
+
+      if ( angular.isUndefined(attr.mdFid) ) {
+        attr.mdFid = $mdUtil.nextUid();
+      }
+
+      return {
+        pre : function(scope, element, attrs) {
+          var disabledParsed = $parse(attrs.ngDisabled);
+          scope.isDisabled = function() {
+            return disabledParsed(scope.$parent);
+          };
+
+          scope.inputType = attrs.type || "text";
+        },
+        post: $mdTheming
+      };
+    },
+    template:
+    '<md-input-group tabindex="-1">' +
+    ' <label for="{{fid}}" >{{label}}</label>' +
+    ' <md-input id="{{fid}}" ng-disabled="isDisabled()" ng-model="value" type="{{inputType}}"></md-input>' +
+    '</md-input-group>'
+  };
+}
+mdTextFloatDirective.$inject = ["$mdTheming", "$mdUtil", "$parse"];
+
+/*
+ * @private
+ *
+ * @ngdoc directive
+ * @name mdInputGroup
+ * @module material.components.textField
+ * @restrict E
+ * @description
+ * Use the `<md-input-group>` directive as the grouping parent of a `<md-input>` element.
+ *
+ * @usage 
+ * <hljs lang="html">
+ * <md-input-group ng-disabled="isDisabled">
+ *   <label for="{{fid}}">{{someLabel}}</label>
+ *   <md-input id="{{fid}}" type="text" ng-model="someText"></md-input>
+ * </md-input-group>
+ * </hljs>
+ */
+function mdInputGroupDirective() {
+  return {
+    restrict: 'CE',
+    controller: ['$element', function($element) {
+      this.setFocused = function(isFocused) {
+        $element.toggleClass('md-input-focused', !!isFocused);
+      };
+      this.setHasValue = function(hasValue) {
+        $element.toggleClass('md-input-has-value', hasValue );
+      };
+    }]
+  };
+
+}
+
+/*
+ * @private
+ *
+ * @ngdoc directive
+ * @name mdInput
+ * @module material.components.textField
+ *
+ * @restrict E
+ *
+ * @description
+ * Use the `<md-input>` directive as elements within a `<md-input-group>` container
+ *
+ * @usage
+ * <hljs lang="html">
+ * <md-input-group ng-disabled="user.isLocked">
+ *   <label for="i1">FirstName</label>
+ *   <md-input id="i1" ng-model="user.firstName"></md-input>
+ * </md-input-group>
+ * </hljs>
+ */
+function mdInputDirective($mdUtil) {
+  return {
+    restrict: 'E',
+    replace: true,
+    template: '<input >',
+    require: ['^?mdInputGroup', '?ngModel'],
+    link: function(scope, element, attr, ctrls) {
+      if ( !ctrls[0] ) return;
+
+      var inputGroupCtrl = ctrls[0];
+      var ngModelCtrl = ctrls[1];
+
+      scope.$watch(scope.isDisabled, function(isDisabled) {
+        element.attr('aria-disabled', !!isDisabled);
+        element.attr('tabindex', !!isDisabled);
+      });
+      element.attr('type', attr.type || element.parent().attr('type') || "text");
+
+      // When the input value changes, check if it "has" a value, and
+      // set the appropriate class on the input group
+      if (ngModelCtrl) {
+        //Add a $formatter so we don't use up the render function
+        ngModelCtrl.$formatters.push(function(value) {
+          inputGroupCtrl.setHasValue( isNotEmpty(value) );
+          return value;
+        });
+      }
+
+      element
+        .on('input', function() {
+          inputGroupCtrl.setHasValue( isNotEmpty() );
+        })
+        .on('focus', function(e) {
+          // When the input focuses, add the focused class to the group
+          inputGroupCtrl.setFocused(true);
+        })
+        .on('blur', function(e) {
+          // When the input blurs, remove the focused class from the group
+          inputGroupCtrl.setFocused(false);
+          inputGroupCtrl.setHasValue( isNotEmpty() );
+        });
+
+      scope.$on('$destroy', function() {
+        inputGroupCtrl.setFocused(false);
+        inputGroupCtrl.setHasValue(false);
+      });
+
+
+      function isNotEmpty(value) {
+        value = angular.isUndefined(value) ? element.val() : value;
+        return (angular.isDefined(value) && (value!==null) &&
+               (value.toString().trim() !== ""));
+      }
+    }
+  };
+}
+mdInputDirective.$inject = ["$mdUtil"];
+
+})();

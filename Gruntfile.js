@@ -65,6 +65,51 @@ module.exports = function (grunt) {
                         }
                     ]
                 }
+            },
+            transport: {
+                options: {
+                    alias: "<%= pkg.spm.alias %>",
+                    debug: false
+                },
+                js: {
+                    files: [
+                        {
+                            expand: true,
+                            cwd: "./dist/js/",
+                            src: "./**/*.js",
+                            filter: function (filepath) {
+                                return filepath.indexOf("build.js") == -1;
+                            },
+                            dest: "./dist/js"
+                        }
+                    ]
+                }
+            },
+            concat: {
+                options: {
+                    noncmd: true
+                },
+                js: {
+                    files: [
+                        {
+                            src: ["./dist/js/**/*.js"],
+                            dest: "./dist/js/main.js",
+                            filter: function (filepath) {
+                                return !/build|seajs-config|seajs-run/.test(filepath)
+                            }
+                        },
+                        {
+                            src: ["./dist/js/seajs-config.js", "./dist/js/main.js", "./dist/js/seajs-run.js"],
+                            dest: "./dist/js/main.js"
+                        }
+                    ]
+                }
+            },
+            replace: {
+                "index.html": {
+                    file: "./dist/index.html",
+                    replace: ['js/main.min.js']
+                }
             }
         }
     );
@@ -74,6 +119,44 @@ module.exports = function (grunt) {
             grunt.file.delete("./dist");
         }
     });
+    grunt.registerMultiTask("replace", "将指定的文件里标记data-romove属性标签删除掉", function () {
+        var scriptReg = /<script\s+[^>]*data-remove[^>]*>\s*<\/script>/g;
+        var linkReg = /<link\s+[^>]*data-remove[^>]*>/g;
+        var fileContent = grunt.file.read(this.data.file);
+        var replacePosition = -1;
+        var contentToAdd = "";
+        var addLinkContent = "";
+        //找到添加script标签的位置
+        while (scriptReg.exec(fileContent) != null) {
+            replacePosition = scriptReg.lastIndex;
+        }
+        if (replacePosition != -1) {
+            this.data.replace.forEach(function (value, index) {
+                if (/js$/.test(value)) {
+                    contentToAdd += "<script src=\"" + value + "\"></script>";
+                }
+            });
+        }
+        fileContent = fileContent.substring(0, replacePosition) + contentToAdd + fileContent.substring(replacePosition, fileContent.length);
+
+        replacePosition = -1;
+        contentToAdd = "";
+        //找到添加link标签的位置
+        while (linkReg.exec(fileContent) != null) {
+            replacePosition = linkReg.lastIndex;
+        }
+        if (replacePosition != -1) {
+            this.data.replace.forEach(function (value, index) {
+                if (/css$/.test(value)) {
+                    contentToAdd += "<link rel='stylesheet' href='" + value + "'/>";
+                }
+            });
+        }
+        fileContent = fileContent.substring(0, replacePosition) + contentToAdd + fileContent.substring(replacePosition, fileContent.length);
+        fileContent = fileContent.replace(scriptReg, "").replace(linkReg, "");
+        grunt.file.write(this.data.file, fileContent);
+    });
+
 
     grunt.loadNpmTasks("grunt-cmd-transport");
     grunt.loadNpmTasks("grunt-cmd-concat");
@@ -90,6 +173,10 @@ module.exports = function (grunt) {
         "copy",
         "uglify",
         "cssmin",
-        "htmlmin"
+        "htmlmin",
+        "replace",
+        "transport:js",
+        "concat",
+        "replace"
     ]);
 }

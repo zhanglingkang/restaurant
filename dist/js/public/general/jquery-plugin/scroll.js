@@ -1,0 +1,2 @@
+/*! ppz_website 2015-01-12 6:55:00 PM */
+"use strict";define(function(){$.fn.scrollHorizontal=function(a){var b=this;b[0].lastScrollLeft=b[0].scrollLeft,b.scroll(function(){b[0].scrollLeft!==b[0].lastScrollLeft&&(b[0].lastScrollLeft=b[0].scrollLeft,a())})},$.fn.scrollVertical=function(a){var b=this;b[0].lastScrollTop=b[0].scrollTop,b.scroll(function(){b[0].scrollTop!==b[0].lastScrollTop&&(b[0].lastScrollTop=b[0].scrollTop,a())})}});

@@ -2,7 +2,9 @@
 
 define(function (require) {
     var app = require("app")
-    var reservationService = ["httpService", "util", "$cookies", "$mdBottomSheet", "pubSub", function (httpService, util, $cookies, $mdBottomSheet, pubSub) {
+    var util = require("public/general/util")
+    var pubSub = require("public/general/pub-sub")
+    var reservationService = ["httpService", "$cookies", "$mdBottomSheet", function (httpService, $cookies, $mdBottomSheet) {
         var eventSource;
         /**
          * key为restaurantId,
@@ -142,5 +144,5 @@ define(function (require) {
         }
     }
     ]
-    app.controller("reservationService", reservationService)
+    app.service("reservationService", reservationService)
 })

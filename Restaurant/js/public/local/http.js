@@ -47,11 +47,11 @@ define(function (require, exports, module) {
              * @param {Boolean} includeSessionId 默认true
              * @return {Promise} angular的promise对象
              */
-            post: function
-                (config) {
+            post: function (config) {
                 var deferred = $q.defer();
                 var formData = new FormData();
                 var ngConfig = config.config || {};
+                config.data = config.data || {}
                 config.includeSessionId = config.includeSessionId === false ? false : true;
                 if (config.includeSessionId) {
                     config.data.sessionId = $cookies.token;

@@ -1,1 +1,562 @@
-<html> <head></head> <body> <h4> <button class="btn btn-info" ng-click="goBack()"><span class="glyphicon glyphicon-chevron-left"></span></button> <img ng-src="{{newInfo.imageLinkThumbnail}}" style="max-width:60px;max-height:40px"><span class="glyphicon glyphicon-home">&nbsp;{{restaurant.name}}</span></h4> <hr> <div class="row"> <tabset class="col-xs-12"> <tab heading="基本信息"> <hr class="space"> <div class="panel panel-default"> <div class="panel-body"> <form name="basicInforForm" novalidation="" class="row"> <div class="col-xs-12"> <label class="control-label">餐厅图片</label> <br> <img ng-src="{{newInfo.imageLinkPoster}}" style="max-width:400px;max-height:100px"> </div> <hr class="space"> <div class="col-xs-12"> <label class="control-label">描述</label> <input class="form-control" placeholder="描述" ng-model="newInfo.restaurantDescription" ng-disabled="!editing"> </div> <hr class="space"> <div class="col-xs-4"> <label class="control-label">电话</label> <input class="form-control" placeholder="电话" ng-model="newInfo.phone.phone" ng-disabled="!editing"> </div> <div class="col-xs-4"> <label class="control-label">邮件</label> <input class="form-control" placeholder="邮件" ng-model="newInfo.email" ng-disabled="!editing"> </div> <div class="col-xs-4"> <label class="control-label">网址</label> <input class="form-control" placeholder="网址" ng-model="newInfo.website" ng-disabled="!editing"> </div> <hr class="space"> <div class="col-xs-8"> <label class="control-label">地址</label> <input class="form-control" placeholder="地址" ng-model="newInfo.address.street" ng-disabled="!editing"> </div> <div class="col-xs-1"> <label class="control-label">市</label> <input class="form-control" placeholder="地址" ng-model="newInfo.address.city" ng-disabled="!editing"> </div> <div class="col-xs-1"> <label class="control-label">省</label> <input class="form-control" placeholder="地址" ng-model="newInfo.address.state" ng-disabled="!editing"> </div> <div class="col-xs-2"> <label class="control-label">邮编</label> <input class="form-control" placeholder="地址" ng-model="newInfo.address.zipcode" ng-disabled="!editing"> </div> <hr class="space"> <div class="col-xs-4"> <label class="control-label">纬度</label> <input class="form-control" placeholder="纬度" ng-model="newInfo.address.location[1]" disabled="disabled"> </div> <div class="col-xs-4"> <label class="control-label">经度</label> <input class="form-control" placeholder="经度" ng-model="newInfo.address.location[0]" disabled="disabled"> </div> </form> </div> <div class="panel-footer"> <button class="btn btn-primary btn-sm" ng-hide="editing" ng-click="edit()">编辑</button> <span ng-show="editing"> <button class="btn btn-primary btn-sm" ng-click="confirm()">确定</button> <button class="btn btn-primary btn-sm" ng-click="cancel()">取消 </button> </span> </div> </div> </tab> <tab heading="菜单" ng-controller="menuController"> <h2><span ng-show="saved === true">所有改动已同步</span> <span ng-show="saved === false">同步失败，刚才的改动尚未保存，请尝试手动同步</span> <span ng-show="saved === 'saving'">同步中</span></h2> <div class="col-xs-12"> <a ng-click="collapseAll(false);" class="btn btn-primary">全部展开</a> <a ng-click="collapseAll(true);" class="btn btn-primary">全部折叠</a> <a class="btn btn-primary" ng-click="wantImport=false;importStatus=REQUEST_STATUS.INIT;" data-toggle="modal" data-target="#import-menu-modal">导入菜单</a> </div> <div class="modal fade" id="import-menu-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> <div class="modal-dialog"> <div class="modal-content"> <div class="modal-header"> <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button> <h4 class="modal-title" id="myModalLabel">导入菜单</h4> </div> <div class="modal-body"> <form id="import-menu-form" ng-submit="importMenu()" novalidate=""> <div class="form-group"> <label for="userName">导入的excel文件</label> <input type="file" class="form-control" required="" name="userName" id="userName" x-file-model="importMenuFile"> </div> <div class="alert alert-danger" ng-show="importMenuFile.length===0&amp;&amp;wantImport"> 请选择导入的文件 </div> <div class="alert alert-danger" ng-show="importMenuFile.length&gt;0&amp;&amp;!isExcel()&amp;&amp;wantImport"> 请选择excel文件 </div> <div class="alert alert-warning" ng-show="importStatus===REQUEST_STATUS.REQUESTING"> 导入中... </div> <div class="alert alert-success" ng-show="importStatus===REQUEST_STATUS.REQUEST_SUCCESSED"> 导入成功 </div> <div class="alert alert-danger" ng-show="importStatus===REQUEST_STATUS.REQUEST_FAILED"> 导入失败 </div> </form> </div> <div class="modal-footer"> <button type="button" class="btn btn-default" data-dismiss="modal" ng-disabled="importStatus===REQUEST_STATUS.REQUESTING">取消 </button> <button type="submit" class="btn btn-primary" form="import-menu-form" ng-disabled="importStatus===REQUEST_STATUS.REQUESTING"> 确定 </button> </div> </div> </div> </div> <hr class="space"> <div class="col-xs-12"> <div class="panel panel-default"> <form name="newCategoryFormValidation" novalidate="" ng-submit="addMenuCategory(newCategoryFormValidation.$valid)"> <div class="panel-heading" ng-hide="adding"> <span class="glyphicon glyphicon-plus" ng-click="toAddMenuCategory();"></span> </div> <div class="panel-heading" ng-show="adding"> <div class="row"> <div class="col-xs-4"> <input class="form-control" ng-model="categoryForm.categoryName" placeholder="类别名" required="" name="fCategoryName"> <div class="alert alert-danger" ng-show="newCategoryFormValidation.fCategoryName.$dirty &amp;&amp; newCategoryFormValidation.fCategoryName.$error.required"> 请输入类别名 </div> </div> <div class="col-xs-6"> <input class="form-control" ng-model="categoryForm.categoryDescription" placeholder="类别描述"> </div> <div class="col-xs-2"> <div class="pull-right"> <button class="btn btn-primary" ng-click="newCategoryFormValidation.$setPristine();adding=false;"><span class="glyphicon glyphicon-remove pull-right"></span></button> <button class="btn btn-primary" ng-disabled="!newCategoryFormValidation.$valid"><span class="glyphicon glyphicon-ok pull-right"></span></button> </div> </div> <div class="col-xs-12"> <div class="alert alert-success" ng-show="addStatus===REQUEST_STATUS.REQUEST_SUCCESSED"> 添加成功 </div> <div class="alert alert-danger" ng-show="addStatus===REQUEST_STATUS.REQUEST_FAILED"> 添加失败 </div> </div> </div> </div> <template> <div class="panel-body" ng-show="addingNewItem"> <div class="row"> <div class="col-xs-3"> <input class="form-control" ng-model="newCategoryItem.itemName" placeholder="菜名" required="" name="fItemName"> <div class="alert alert-danger" ng-show="newCategoryForm.fItemName.$dirty &amp;&amp; newCategoryForm.fItemName.$error.required"> 请输入菜名 </div> </div> <div class="col-xs-5"> <input class="form-control" ng-model="newCategoryItem.itemDescription" placeholder="描述"> </div> <div class="col-xs-2"> <input class="form-control" ng-model="newCategoryItem.price" placeholder="价格" name="fPrice" required="" smart-float=""> <div class="alert alert-danger" ng-show="newCategoryForm.fPrice.$dirty &amp;&amp; !newCategoryForm.fPrice.$valid"> 请输入正确的价格 </div> </div> <div class="col-xs-2"> <div class="pull-right"> <button class="btn btn-primary" ng-click="cancelAddItem()"><span class="glyphicon glyphicon-remove pull-right"></span></button> <button class="btn btn-primary" ng-click="confirmAddItem()" ng-disabled="!newCategoryForm.$valid"><span class="glyphicon glyphicon-ok pull-right"></span></button> </div> </div> </div> </div> </template> </form> </div> <div data-drag-sort="data-drag-id" x-drag-completed="sortMenuCategory"> <div data-drag-id="{{category.categoryId}}" ng-repeat="category in menu.menuCategories" class="panel panel-default" ng-controller="menuCategoryController"> <div class="panel-heading" ng-click="collapse=!collapse;" ng-init="collapse=true;" ng-hide="editing"> <div class="row"> <div class="col-xs-3"> <a href="" data-parent="menu"> <span>{{category.categoryName}}</span> </a> </div> <div class="small col-xs-7"> <span>{{category.categoryDescription}}</span> </div> <div class="col-xs-2"> <div class="pull-right" x-prevent-spread="click"> <span class="glyphicon glyphicon-edit" ng-click="editCategory()"></span> <span class="glyphicon glyphicon-plus" ng-click="collapse=false;addNewItem()"></span> <span class="glyphicon glyphicon-minus" ng-click="removeMenuCategory()" x-confirm-hint="" x-modal-title="溫馨提示" x-modal-content="确认删除&nbsp;&lt;strong&gt;“{{category.categoryName}}”&lt;/strong&gt;&nbsp;吗？"></span> </div> </div> </div> </div> <div class="panel-heading" draggable="true" x-prevent-spread="dragstart" ng-show="editing"> <div class="row"> <form name="categoryEditForm" novalidate="" x-prevent-spread="click"> <div class="col-xs-3"> <input class="form-control" ng-model="nameModified" name="fName" required=""> <div class="alert alert-danger" ng-show="categoryEditForm.fName.$dirty &amp;&amp; categoryEditForm.fName.$error.required"> 请输入类别名 </div> </div> <div class="small col-xs-7"> <input class="form-control" ng-model="descriptionModified"> </div> <div class="col-xs-2"> <div class="pull-right"> <button class="btn btn-primary" ng-click="cancelEditCategory()"><span class="glyphicon glyphicon-remove pull-right"></span></button> <button class="btn btn-primary" ng-click="confirmEditCategory()" ng-disabled="!categoryEditForm.$valid"><span class="glyphicon glyphicon-ok pull-right"></span></button> </div> </div> <div class="col-xs-12"> <div class="alert alert-warning" ng-show="editStatus===REQUEST_STATUS.REQUEST_SUCCESSED"> 编辑成功 </div> <div class="alert alert-danger" ng-show="editStatus===REQUEST_STATUS.REQUEST_FAILED"> 编辑失败 </div> </div> </form> </div> </div> <ul class="list-group" x-prevent-spread="dragstart" draggable="true" id="{{category.categoryId}}" ng-show="!collapse" data-drag-sort="data-drag-id" x-drag-completed="sortMenuItem"> <li class="list-group-item" data-drag-id="{{item.itemId}}" ng-repeat="item in category.items" ng-controller="menuItemController" ng-hide="item.deleted === true"> <div class="row"> <div class="col-xs-3"> <span ng-hide="editing">{{item.itemName}}</span> <input ng-show="editing" ng-model="newItem.itemName" class="form-control"> </div> <div class="col-xs-6"> <span ng-hide="editing">{{item.itemDescription}}</span> <input ng-show="editing" ng-model="newItem.itemDescription" class="form-control"> </div> <div class="col-xs-1"> <span ng-hide="editing">{{item.price}}</span> <input ng-show="editing" ng-model="newItem.price" class="form-control"> </div> <div class="col-xs-2"> <div class="pull-right" ng-hide="editing"> <span class="glyphicon glyphicon-edit" ng-click="editItem()"></span> <span class="glyphicon glyphicon-minus" ng-click="removeItem($index)" x-confirm-hint="" x-modal-title="溫馨提示" x-modal-content="确认删除&nbsp;&lt;strong&gt;“{{item.itemName}}”&lt;/strong&gt;&nbsp;吗？"></span> </div> <div class="pull-right" ng-show="editing"> <button class="btn btn-primary" ng-click="cancelEditItem()"><span class="glyphicon glyphicon-remove pull-right"></span></button> <button class="btn btn-primary" ng-click="confirmEditItem()"><span class="glyphicon glyphicon-ok pull-right"></span></button> </div> </div> <div class="col-xs-12">     <div class="alert alert-danger" ng-show="editMenuItemStatus===REQUEST_STATUS.REQUEST_FAILED"> 编辑失败 </div> </div> </div> </li> <li class="list-group-item" ng-show="addingNewItem" x-prevent-spread="dragstart" draggable="true"> <div class="row"> <form name="menuItemFormValidation" novalidate="" ng-submit="confirmAddItem(menuItemFormValidation.$valid)"> <div class="col-xs-3"> <input class="form-control" ng-model="menuItemForm.itemName" name="fName" required="" placeholder="菜名"> <div class="alert alert-danger" ng-show="menuItemFormValidation.fName.$dirty &amp;&amp; menuItemFormValidation.fName.$error.required"> 请输入菜名 </div> </div> <div class="col-xs-5"> <input class="form-control" ng-model="menuItemForm.itemDescription" placeholder="描述"> </div> <div class="col-xs-2"> <input class="form-control" ng-model="menuItemForm.price" name="fPrice" required="" placeholder="价格" smart-float=""> <div class="alert alert-danger" ng-show="menuItemFormValidation.fPrice.$dirty &amp;&amp; !menuItemFormValidation.fPrice.$valid"> <div ng-show="!menuItemFormValidation.fPrice.$valid"> 请输入正确的价格 </div> </div> </div> <div class="col-xs-2"> <div class="pull-right"> <button class="btn btn-primary" ng-click="cancelAddItem()"><span class="glyphicon glyphicon-remove pull-right"></span></button> <button class="btn btn-primary" ng-disabled="!menuItemFormValidation.$valid"><span class="glyphicon glyphicon-ok pull-right"></span></button> </div> </div> <div class="col-xs-12"> <div class="alert alert-success" ng-show="addMenuItemStatus===REQUEST_STATUS.REQUEST_SUCCESSED"> 添加成功 </div> <div class="alert alert-danger" ng-show="addMenuItemStatus===REQUEST_STATUS.REQUEST_FAILED"> 添加失败 </div> </div> </form> </div> </li> </ul> </div> </div> </div> </tab> <tab heading="评论"> <hr class="space"> <div ng-controller="reviewListController" class="list-group"> <div ng-repeat="review in reviewList" class="list-group-item" ng-controller="reviewItemController"> <div class="row"> <div class="col-xs-2"> {{review.userId}} </div> <div class="col-xs-5"> {{review.reviewMessage}} </div> <div class="col-xs-2"> {{review.reviewTime * 1000 | date:'medium'}} </div> <div class="col-xs-2"> <rating value="review.rating" readonly="true"></rating> </div> <div class="col-xs-1"> <button class="btn btn-primary btn-sm" ng-click="reply()" ng-show="!review.replyMessage">回复</button> </div> <div class="col-xs-12" ng-show="review.replyMessage"> <hr> 回复信息: {{review.replyMessage}} </div> <div class="col-xs-12" ng-show="replying"> <hr> <form name="replyReviewForm" novalidate=""> <div class="col-xs-10"> <input class="form-control" ng-model="message" name="fMessage" required=""> <div class="alert alert-danger" ng-show="replyReviewForm.fMessage.$dirty &amp;&amp; replyReviewForm.fMessage.$error.required"> 请输入评论 </div> </div> <div class="col-xs-2"> <div class="pull-right"> <button class="btn btn-primary" ng-click="cancelReply()"><span class="glyphicon glyphicon-remove pull-right"></span></button> <button class="btn btn-primary" ng-click="confirmReply()" ng-disabled="!replyReviewForm.$valid"><span class="glyphicon glyphicon-ok pull-right"></span></button> </div> </div> </form> </div> </div> </div> <pagination total-items="restaurant.reviewCount" boundary-links="true" previous-text="‹" next-text="›" first-text="&laquo;" last-text="&raquo;" page="currentPage" on-select-page="selectPage(page)" items-per-page="10"></pagination> </div> </tab> <tab heading="特别推荐" ng-controller="fileUploader"> <hr class="space">     <div class="col-xs-8"> <hr class="space"> <div ng-show="uploader.isHTML5"> <div nv-file-drop="" uploader="uploader" options="{ url: '/foo' }"> <div nv-file-over="" uploader="uploader" over-class="another-file-over-class" class="well my-drop-zone"> 拖拽到这里 </div> </div> </div> <input type="file" nv-file-select="" uploader="uploader" multiple="multiple"> <br> <hr class="space"> <div class="col-xs-12" style="margin-bottom:40px">  <p>上传列表长度: {{ uploader.queue.length }}</p> <table class="table"> <thead> <tr> <th>文件名</th>  <th ng-show="uploader.isHTML5">进度</th> <th>状态</th> <th>图片描述</th>  </tr> </thead> <tbody> <tr ng-repeat="item in uploader.queue"> <td><strong>{{ item.file.name }}</strong>     <div ng-show="uploader.isHTML5" ng-thumb="{ file: item._file, height: 100 }"></div>   </td>  <td ng-show="uploader.isHTML5"> <div class="progress" style="margin-bottom:0"> <div class="progress-bar" role="progressbar" ng-style="{ 'width': item.progress + '%' }"></div> </div> </td> <td class="text-center"><span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span> <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span> <span ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span></td> <td><input type="text" ng-model="item.pictureComment" name="pictureComment" ng-hide="item.isReady || item.isUploading || item.isSuccess"> <span ng-show="item.isReady || item.isUploading || item.isSuccess">{{item.pictureComment}}</span> <div class="alert alert-danger" ng-show="!item.pictureComment&amp;&amp;item.wantUpload"> 请输入图片说明 </div> </td>              </tr> </tbody> </table> <div> <div> 上传进度: <div class="progress" style=""> <div class="progress-bar" role="progressbar" ng-style="{ 'width': uploader.progress + '%' }"></div> </div> </div> <button type="button" class="btn btn-success btn-s" ng-click="uploadAll()" ng-disabled="!uploader.getNotUploadedItems().length"><span class="glyphicon glyphicon-upload"></span> 全部上传 </button> <button type="button" class="btn btn-warning btn-s" ng-click="uploader.cancelAll()" ng-disabled="!uploader.isUploading"><span class="glyphicon glyphicon-ban-circle"></span> 全部取消 </button>     </div>  </div> </div> <div class="col-xs-4" ng-show="filePathList.length!=0"> <label class="control-label">餐厅图片</label> <div class="restaurant-img-list"> <div ng-repeat="file in fileList | orderBy:'uploadTime':true" ng-controller="pictureItemController"> <figure class="recommend"> <img ng-src="{{file.filePath}}" x-view-img=""> <p class="description">{{file.pictureComment}} </p> <x-self-popover data-placement="top" context="parent" related-target=">p" x-style="min-width:200px;min-height:200px;" name="popoverScope" auto-close> <form name="modifyIntroduceFormValidation" novalidate="" ng-submit="modifyIntroduce(modifyIntroduceFormValidation.$valid)"> <textarea rows="3" ng-model="file.pictureCommentCopy" name="pictureComment" required="" style="width:100%"> </textarea> <div class="alert alert-danger" ng-show="modifyIntroduceFormValidation.pictureComment.$dirty&&modifyIntroduceFormValidation.pictureComment.$error.required"> 简介不能为空 </div> <div style="direction:rtl">   <button type="submit" class="btn btn-primary"> 确定</button> </div> </form> </x-self-popover> <span class="glyphicon glyphicon-remove" ng-click="removePicture(file)" x-confirm-hint="" x-modal-title="溫馨提示" x-modal-content="确认删除&nbsp;&lt;strong&gt;“{{file.pictureComment}}”&lt;/strong&gt;&nbsp;吗？"></span> </figure> </div> </div> </div> </tab> </tabset> </div> </body> </html>
+<html>
+<head></head>
+<body>
+<h4>
+    <button class="btn btn-info" ng-click="goBack()"><span class="glyphicon glyphicon-chevron-left"></span></button>
+    <img ng-src="{{newInfo.imageLinkThumbnail}}" style="max-width:60px;max-height: 40px; "/><span
+        class="glyphicon glyphicon-home">&nbsp;{{restaurant.name}}</span></h4>
+<hr/>
+<div class="row">
+<tabset class="col-xs-12">
+<tab heading="基本信息">
+    <hr class="space"/>
+    <div class="panel panel-default">
+        <div class="panel-body">
+            <form name="basicInforForm" novalidation="" class="row">
+                <div class="col-xs-12">
+                    <label class="control-label">餐厅图片</label>
+                    <br/>
+                    <img ng-src="{{newInfo.imageLinkPoster}}" style="max-width:400px;max-height: 100px; "/>
+                </div>
+                <hr class="space"/>
+                <div class="col-xs-12">
+                    <label class="control-label">描述</label>
+                    <input class="form-control" placeholder="描述" ng-model="newInfo.restaurantDescription"
+                           ng-disabled="!editing"/>
+                </div>
+                <hr class="space"/>
+                <div class="col-xs-4">
+                    <label class="control-label">电话</label>
+                    <input class="form-control" placeholder="电话" ng-model="newInfo.phone.phone" ng-disabled="!editing"/>
+                </div>
+                <div class="col-xs-4">
+                    <label class="control-label">邮件</label>
+                    <input class="form-control" placeholder="邮件" ng-model="newInfo.email" ng-disabled="!editing"/>
+                </div>
+                <div class="col-xs-4">
+                    <label class="control-label">网址</label>
+                    <input class="form-control" placeholder="网址" ng-model="newInfo.website" ng-disabled="!editing"/>
+                </div>
+                <hr class="space"/>
+                <div class="col-xs-8">
+                    <label class="control-label">地址</label>
+                    <input class="form-control" placeholder="地址" ng-model="newInfo.address.street"
+                           disabled/>
+                </div>
+                <div class="col-xs-1">
+                    <label class="control-label">市</label>
+                    <input class="form-control" placeholder="地址" ng-model="newInfo.address.city"
+                           disabled/>
+                </div>
+                <div class="col-xs-1">
+                    <label class="control-label">省</label>
+                    <input class="form-control" placeholder="地址" ng-model="newInfo.address.state"
+                           disabled/>
+                </div>
+                <div class="col-xs-2">
+                    <label class="control-label">邮编</label>
+                    <input class="form-control" placeholder="地址" ng-model="newInfo.address.zipcode"
+                           disabled/>
+                </div>
+                <hr class="space"/>
+                <div class="col-xs-4">
+                    <label class="control-label">纬度</label>
+                    <input class="form-control" placeholder="纬度" ng-model="newInfo.address.location[1]" disabled=""/>
+                </div>
+                <div class="col-xs-4">
+                    <label class="control-label">经度</label>
+                    <input class="form-control" placeholder="经度" ng-model="newInfo.address.location[0]" disabled=""/>
+                </div>
+            </form>
+        </div>
+        <div class="panel-footer">
+            <button class="btn btn-primary btn-sm" ng-hide="editing" ng-click="edit()">编辑</button>
+            <span ng-show="editing"> <button class="btn btn-primary btn-sm" ng-click="confirm()">确定</button> <button
+                    class="btn btn-primary btn-sm" ng-click="cancel()">取消
+            </button> </span>
+        </div>
+    </div>
+</tab>
+<tab heading="菜单" ng-controller="menuController">
+<h2><span ng-show="saved === true">所有改动已同步</span> <span ng-show="saved === false">同步失败，刚才的改动尚未保存，请尝试手动同步</span> <span
+        ng-show="saved === 'saving'">同步中</span></h2>
+
+<div class="col-xs-12">
+    <a ng-click="collapseAll(false);" class="btn btn-primary">全部展开</a>
+    <a ng-click="collapseAll(true);" class="btn btn-primary">全部折叠</a>
+    <a class="btn btn-primary" ng-click="wantImport=false;importStatus=REQUEST_STATUS.INIT;" data-toggle="modal"
+       data-target="#import-menu-modal">导入菜单</a>
+</div>
+<div class="modal fade" id="import-menu-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span
+                        class="sr-only">Close</span></button>
+                <h4 class="modal-title" id="myModalLabel">导入菜单</h4>
+            </div>
+            <div class="modal-body">
+                <form id="import-menu-form" ng-submit="importMenu()" novalidate="">
+                    <div class="form-group">
+                        <label for="userName">导入的excel文件</label>
+                        <input type="file" class="form-control" required="" name="userName" id="userName"
+                               x-file-model="importMenuFile"/>
+                    </div>
+                    <div class="alert alert-danger" ng-show="importMenuFile.length===0&amp;&amp;wantImport">
+                        请选择导入的文件
+                    </div>
+                    <div class="alert alert-danger"
+                         ng-show="importMenuFile.length&gt;0&amp;&amp;!isExcel()&amp;&amp;wantImport">
+                        请选择excel文件
+                    </div>
+                    <div class="alert alert-warning" ng-show="importStatus===REQUEST_STATUS.REQUESTING">
+                        导入中...
+                    </div>
+                    <div class="alert alert-success" ng-show="importStatus===REQUEST_STATUS.REQUEST_SUCCESSED">
+                        导入成功
+                    </div>
+                    <div class="alert alert-danger" ng-show="importStatus===REQUEST_STATUS.REQUEST_FAILED">
+                        导入失败
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal"
+                        ng-disabled="importStatus===REQUEST_STATUS.REQUESTING">取消
+                </button>
+                <button type="submit" class="btn btn-primary" form="import-menu-form"
+                        ng-disabled="importStatus===REQUEST_STATUS.REQUESTING"> 确定
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<hr class="space"/>
+<div class="col-xs-12">
+<div class="panel panel-default">
+    <form name="newCategoryFormValidation" novalidate=""
+          ng-submit="addMenuCategory(newCategoryFormValidation.$valid)">
+        <div class="panel-heading" ng-hide="adding">
+            <span class="glyphicon glyphicon-plus" ng-click="toAddMenuCategory();"></span>
+        </div>
+        <div class="panel-heading" ng-show="adding">
+            <div class="row">
+                <div class="col-xs-4">
+                    <input class="form-control" ng-model="categoryForm.categoryName" placeholder="类别名" required=""
+                           name="fCategoryName"/>
+
+                    <div class="alert alert-danger"
+                         ng-show="newCategoryFormValidation.fCategoryName.$dirty &amp;&amp; newCategoryFormValidation.fCategoryName.$error.required">
+                        请输入类别名
+                    </div>
+                </div>
+                <div class="col-xs-6">
+                    <input class="form-control" ng-model="categoryForm.categoryDescription" placeholder="类别描述"/>
+                </div>
+                <div class="col-xs-2">
+                    <div class="pull-right">
+                        <button class="btn btn-primary"
+                                ng-click="newCategoryFormValidation.$setPristine();adding=false;"><span
+                                class="glyphicon glyphicon-remove pull-right"></span></button>
+                        <button class="btn btn-primary" ng-disabled="!newCategoryFormValidation.$valid"><span
+                                class="glyphicon glyphicon-ok pull-right"></span></button>
+                    </div>
+                </div>
+                <div class="col-xs-12">
+                    <div class="alert alert-success" ng-show="addStatus===REQUEST_STATUS.REQUEST_SUCCESSED">
+                        添加成功
+                    </div>
+                    <div class="alert alert-danger" ng-show="addStatus===REQUEST_STATUS.REQUEST_FAILED">
+                        添加失败
+                    </div>
+                </div>
+            </div>
+        </div>
+        <template>
+            <div class="panel-body" ng-show="addingNewItem">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <input class="form-control" ng-model="newCategoryItem.itemName" placeholder="菜名" required=""
+                               name="fItemName"/>
+
+                        <div class="alert alert-danger"
+                             ng-show="newCategoryForm.fItemName.$dirty &amp;&amp; newCategoryForm.fItemName.$error.required">
+                            请输入菜名
+                        </div>
+                    </div>
+                    <div class="col-xs-5">
+                        <input class="form-control" ng-model="newCategoryItem.itemDescription" placeholder="描述"/>
+                    </div>
+                    <div class="col-xs-2">
+                        <input class="form-control" ng-model="newCategoryItem.price" placeholder="价格" name="fPrice"
+                               required="" smart-float=""/>
+
+                        <div class="alert alert-danger"
+                             ng-show="newCategoryForm.fPrice.$dirty &amp;&amp; !newCategoryForm.fPrice.$valid">
+                            请输入正确的价格
+                        </div>
+                    </div>
+                    <div class="col-xs-2">
+                        <div class="pull-right">
+                            <button class="btn btn-primary" ng-click="cancelAddItem()"><span
+                                    class="glyphicon glyphicon-remove pull-right"></span></button>
+                            <button class="btn btn-primary" ng-click="confirmAddItem()"
+                                    ng-disabled="!newCategoryForm.$valid"><span
+                                    class="glyphicon glyphicon-ok pull-right"></span></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </template>
+    </form>
+</div>
+<div data-drag-sort="data-drag-id" x-drag-completed="sortMenuCategory">
+    <div data-drag-id="{{category.categoryId}}" ng-repeat="category in menu.menuCategories"
+         class="panel panel-default" ng-controller="menuCategoryController">
+        <div class="panel-heading" ng-click="collapse=!collapse;" ng-init="collapse=true;" ng-hide="editing">
+            <div class="row">
+                <div class="col-xs-3">
+                    <a href="" data-parent="menu"> <span>{{category.categoryName}}</span> </a>
+                </div>
+                <div class="small col-xs-7">
+                    <span>{{category.categoryDescription}}</span>
+                </div>
+                <div class="col-xs-2">
+                    <div class="pull-right" x-prevent-spread="click">
+                        <span class="glyphicon glyphicon-edit" ng-click="editCategory()"></span>
+                        <span class="glyphicon glyphicon-plus" ng-click="collapse=false;addNewItem()"></span>
+                            <span class="glyphicon glyphicon-minus" ng-click="removeMenuCategory()"
+                                  x-confirm-hint=""
+                                  x-modal-title="溫馨提示"
+                                  x-modal-content="确认删除&nbsp;&lt;strong&gt;“{{category.categoryName}}”&lt;/strong&gt;&nbsp;吗？"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-heading" draggable="true" x-prevent-spread="dragstart" ng-show="editing">
+            <div class="row">
+                <form name="categoryEditForm" novalidate="" x-prevent-spread="click">
+                    <div class="col-xs-3">
+                        <input class="form-control" ng-model="nameModified" name="fName" required=""/>
+
+                        <div class="alert alert-danger"
+                             ng-show="categoryEditForm.fName.$dirty &amp;&amp; categoryEditForm.fName.$error.required">
+                            请输入类别名
+                        </div>
+                    </div>
+                    <div class="small col-xs-7">
+                        <input class="form-control" ng-model="descriptionModified"/>
+                    </div>
+                    <div class="col-xs-2">
+                        <div class="pull-right">
+                            <button class="btn btn-primary" ng-click="cancelEditCategory()"><span
+                                    class="glyphicon glyphicon-remove pull-right"></span></button>
+                            <button class="btn btn-primary" ng-click="confirmEditCategory()"
+                                    ng-disabled="!categoryEditForm.$valid"><span
+                                    class="glyphicon glyphicon-ok pull-right"></span></button>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <div class="alert alert-warning" ng-show="editStatus===REQUEST_STATUS.REQUEST_SUCCESSED">
+                            编辑成功
+                        </div>
+                        <div class="alert alert-danger" ng-show="editStatus===REQUEST_STATUS.REQUEST_FAILED">
+                            编辑失败
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <ul class="list-group" x-prevent-spread="dragstart" draggable="true" id="{{category.categoryId}}"
+            ng-show="!collapse" data-drag-sort="data-drag-id" x-drag-completed="sortMenuItem">
+            <li class="list-group-item" data-drag-id="{{item.itemId}}" ng-repeat="item in category.items"
+                ng-controller="menuItemController" ng-hide="item.deleted === true">
+                <div class="row">
+                    <div class="col-xs-3">
+                        <span ng-hide="editing">{{item.itemName}}</span>
+                        <input ng-show="editing" ng-model="newItem.itemName" class="form-control"/>
+                    </div>
+                    <div class="col-xs-6">
+                        <span ng-hide="editing">{{item.itemDescription}}</span>
+                        <input ng-show="editing" ng-model="newItem.itemDescription" class="form-control"/>
+                    </div>
+                    <div class="col-xs-1">
+                        <span ng-hide="editing">{{item.price}}</span>
+                        <input ng-show="editing" ng-model="newItem.price" class="form-control"/>
+                    </div>
+                    <div class="col-xs-2">
+                        <div class="pull-right" ng-hide="editing">
+                            <span class="glyphicon glyphicon-edit" ng-click="editItem()"></span>
+                                <span class="glyphicon glyphicon-minus" ng-click="removeItem($index)" x-confirm-hint=""
+                                      x-modal-title="溫馨提示"
+                                      x-modal-content="确认删除&nbsp;&lt;strong&gt;“{{item.itemName}}”&lt;/strong&gt;&nbsp;吗？"></span>
+                        </div>
+                        <div class="pull-right" ng-show="editing">
+                            <button class="btn btn-primary" ng-click="cancelEditItem()"><span
+                                    class="glyphicon glyphicon-remove pull-right"></span></button>
+                            <button class="btn btn-primary" ng-click="confirmEditItem()"><span
+                                    class="glyphicon glyphicon-ok pull-right"></span></button>
+                        </div>
+                    </div>
+                    <div class="col-xs-12">
+                        <!--<div class="alert alert-warning"-->
+                        <!--ng-show="editMenuItemStatus===REQUEST_STATUS.REQUEST_SUCCESSED">-->
+                        <!--编辑成功-->
+                        <!--</div>-->
+                        <div class="alert alert-danger"
+                             ng-show="editMenuItemStatus===REQUEST_STATUS.REQUEST_FAILED">
+                            编辑失败
+                        </div>
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item" ng-show="addingNewItem" x-prevent-spread="dragstart" draggable="true">
+                <div class="row">
+                    <form name="menuItemFormValidation" novalidate=""
+                          ng-submit="confirmAddItem(menuItemFormValidation.$valid)">
+                        <div class="col-xs-3">
+                            <input class="form-control" ng-model="menuItemForm.itemName" name="fName" required=""
+                                   placeholder="菜名"/>
+
+                            <div class="alert alert-danger"
+                                 ng-show="menuItemFormValidation.fName.$dirty &amp;&amp; menuItemFormValidation.fName.$error.required">
+                                请输入菜名
+                            </div>
+                        </div>
+                        <div class="col-xs-5">
+                            <input class="form-control" ng-model="menuItemForm.itemDescription" placeholder="描述"/>
+                        </div>
+                        <div class="col-xs-2">
+                            <input class="form-control" ng-model="menuItemForm.price" name="fPrice" required=""
+                                   placeholder="价格"
+                                   smart-float=""/>
+
+                            <div class="alert alert-danger"
+                                 ng-show="menuItemFormValidation.fPrice.$dirty &amp;&amp; !menuItemFormValidation.fPrice.$valid">
+                                <div ng-show="!menuItemFormValidation.fPrice.$valid">
+                                    请输入正确的价格
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-2">
+                            <div class="pull-right">
+                                <button class="btn btn-primary" ng-click="cancelAddItem()"><span
+                                        class="glyphicon glyphicon-remove pull-right"></span></button>
+                                <button class="btn btn-primary" ng-disabled="!menuItemFormValidation.$valid"><span
+                                        class="glyphicon glyphicon-ok pull-right"></span></button>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="alert alert-success"
+                                 ng-show="addMenuItemStatus===REQUEST_STATUS.REQUEST_SUCCESSED">
+                                添加成功
+                            </div>
+                            <div class="alert alert-danger"
+                                 ng-show="addMenuItemStatus===REQUEST_STATUS.REQUEST_FAILED">
+                                添加失败
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </li>
+        </ul>
+    </div>
+</div>
+</div>
+</tab>
+<tab heading="评论">
+    <hr class="space"/>
+    <div ng-controller="reviewListController" class="list-group">
+        <div ng-repeat="review in reviewList" class="list-group-item" ng-controller="reviewItemController">
+            <div class="row">
+                <div class="col-xs-2">
+                    {{review.userId}}
+                </div>
+                <div class="col-xs-5">
+                    {{review.reviewMessage}}
+                </div>
+                <div class="col-xs-2">
+                    {{review.reviewTime * 1000 | date:'medium'}}
+                </div>
+                <div class="col-xs-2">
+                    <rating value="review.rating" readonly="true"></rating>
+                </div>
+                <div class="col-xs-1">
+                    <button class="btn btn-primary btn-sm" ng-click="reply()" ng-show="!review.replyMessage">回复</button>
+                </div>
+                <div class="col-xs-12" ng-show="review.replyMessage">
+                    <hr/>
+                    回复信息: {{review.replyMessage}}
+                </div>
+                <div class="col-xs-12" ng-show="replying">
+                    <hr/>
+                    <form name="replyReviewForm" novalidate="">
+                        <div class="col-xs-10">
+                            <input class="form-control" ng-model="message" name="fMessage" required=""/>
+
+                            <div class="alert alert-danger"
+                                 ng-show="replyReviewForm.fMessage.$dirty &amp;&amp; replyReviewForm.fMessage.$error.required">
+                                请输入评论
+                            </div>
+                        </div>
+                        <div class="col-xs-2">
+                            <div class="pull-right">
+                                <button class="btn btn-primary" ng-click="cancelReply()"><span
+                                        class="glyphicon glyphicon-remove pull-right"></span></button>
+                                <button class="btn btn-primary" ng-click="confirmReply()"
+                                        ng-disabled="!replyReviewForm.$valid"><span
+                                        class="glyphicon glyphicon-ok pull-right"></span></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        <pagination total-items="restaurant.reviewCount" boundary-links="true" previous-text="‹" next-text="›"
+                    first-text="&laquo;" last-text="&raquo;" page="currentPage" on-select-page="selectPage(page)"
+                    items-per-page="10"></pagination>
+    </div>
+</tab>
+<tab heading="特别推荐" ng-controller="fileUploader">
+    <hr class="space"/>
+    <!--<form>-->
+    <!--<input type="file" x-file-model="files" multiple/>-->
+    <!--<button ng-click="upload()">上传</button>-->
+    <!--</form>-->
+    <div class="col-xs-8">
+        <hr class="space"/>
+        <div ng-show="uploader.isHTML5">
+            <div nv-file-drop="" uploader="uploader" options="{ url: '/foo' }">
+                <div nv-file-over="" uploader="uploader" over-class="another-file-over-class" class="well my-drop-zone">
+                    拖拽到这里
+                </div>
+            </div>
+        </div>
+        <input type="file" nv-file-select="" uploader="uploader" multiple=""/>
+        <br/>
+        <hr class="space"/>
+        <div class="col-xs-12" style="margin-bottom: 40px">
+            <!--<h2>餐厅照片上传</h2>-->
+            <p>上传列表长度: {{ uploader.queue.length }}</p>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>文件名</th>
+                    <!--<th ng-show="uploader.isHTML5">大小</th>-->
+                    <th ng-show="uploader.isHTML5">进度</th>
+                    <th>状态</th>
+                    <th>图片描述</th>
+                    <!--<th>操作</th>-->
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="item in uploader.queue">
+                    <td><strong>{{ item.file.name }}</strong>
+                        <!-- Image preview -->
+                        <!--auto height-->
+                        <!--<div ng-thumb="{ file: item.file, width: 100 }"></div>-->
+                        <!--auto width-->
+                        <div ng-show="uploader.isHTML5" ng-thumb="{ file: item._file, height: 100 }"></div>
+                        <!--fixed width and height -->
+                        <!--<div ng-thumb="{ file: item.file, width: 100, height: 100 }"></div>--> </td>
+                    <!--<td ng-show="uploader.isHTML5" nowrap>{{ item.file.size/1024/1024|number:2 }} MB</td>-->
+                    <td ng-show="uploader.isHTML5">
+                        <div class="progress" style="margin-bottom: 0;">
+                            <div class="progress-bar" role="progressbar"
+                                 ng-style="{ 'width': item.progress + '%' }"></div>
+                        </div>
+                    </td>
+                    <td class="text-center"><span ng-show="item.isSuccess"><i class="glyphicon glyphicon-ok"></i></span>
+                        <span ng-show="item.isCancel"><i class="glyphicon glyphicon-ban-circle"></i></span> <span
+                                ng-show="item.isError"><i class="glyphicon glyphicon-remove"></i></span></td>
+                    <td><input type="text" ng-model="item.pictureComment" name="pictureComment"
+                               ng-hide="item.isReady || item.isUploading || item.isSuccess"/> <span
+                            ng-show="item.isReady || item.isUploading || item.isSuccess">{{item.pictureComment}}</span>
+
+                        <div class="alert alert-danger" ng-show="!item.pictureComment&amp;&amp;item.wantUpload">
+                            请输入图片说明
+                        </div>
+                    </td>
+                    <!--<td nowrap>-->
+                    <!--<button type="button" class="btn btn-success btn-xs" ng-click="upload(item)"-->
+                    <!--ng-disabled="item.isReady || item.isUploading || item.isSuccess">-->
+                    <!--<span class="glyphicon glyphicon-upload"></span> 上传-->
+                    <!--</button>-->
+                    <!--<button type="button" class="btn btn-warning btn-xs" ng-click="item.cancel()"-->
+                    <!--ng-disabled="!item.isUploading">-->
+                    <!--<span class="glyphicon glyphicon-ban-circle"></span> 取消-->
+                    <!--</button>-->
+                    <!--&lt;!&ndash;<button type="button" class="btn btn-danger btn-xs" ng-click="item.remove()">&ndash;&gt;
+                    -->
+                    <!--&lt;!&ndash;<span class="glyphicon glyphicon-trash"></span> 删除&ndash;&gt;-->
+                    <!--&lt;!&ndash;</button>&ndash;&gt;-->
+                    <!--</td>-->
+                </tr>
+                </tbody>
+            </table>
+            <div>
+                <div>
+                    上传进度:
+                    <div class="progress" style="">
+                        <div class="progress-bar" role="progressbar"
+                             ng-style="{ 'width': uploader.progress + '%' }"></div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-success btn-s" ng-click="uploadAll()"
+                        ng-disabled="!uploader.getNotUploadedItems().length"><span
+                        class="glyphicon glyphicon-upload"></span> 全部上传
+                </button>
+                <button type="button" class="btn btn-warning btn-s" ng-click="uploader.cancelAll()"
+                        ng-disabled="!uploader.isUploading"><span class="glyphicon glyphicon-ban-circle"></span> 全部取消
+                </button>
+                <!--<button type="button" class="btn btn-danger btn-s" ng-click="uploader.clearQueue()"-->
+                <!--ng-disabled="!uploader.queue.length">-->
+                <!--<span class="glyphicon glyphicon-trash"></span> 全部删除-->
+                <!--</button>-->
+            </div>
+            <!--<p>选择文件</p>-->
+        </div>
+    </div>
+    <div class="col-xs-4" ng-show="filePathList.length!=0">
+        <label class="control-label">餐厅图片</label>
+
+        <div class="restaurant-img-list">
+            <div ng-repeat="file in fileList | orderBy:'uploadTime':true" ng-controller="pictureItemController">
+                <figure class="recommend">
+                    <img ng-src="{{file.filePath}}" x-view-img=""/>
+
+                    <p class="description">{{file.pictureComment}}
+                    </p>
+                    <x-self-popover data-placement="top" context="parent" related-target=">p"
+                                    x-style="min-width:200px;min-height:200px;"
+                                    name="popoverScope" auto-close>
+                        <form name="modifyIntroduceFormValidation" novalidate=""
+                              ng-submit="modifyIntroduce(modifyIntroduceFormValidation.$valid)">
+                            <textarea rows="3" ng-model="file.pictureCommentCopy" name="pictureComment" required=""
+                                      style="width: 100%;"> </textarea>
+
+                            <div class="alert alert-danger"
+                                 ng-show="modifyIntroduceFormValidation.pictureComment.$dirty&&modifyIntroduceFormValidation.pictureComment.$error.required">
+                                简介不能为空
+                            </div>
+                            <div style="direction: rtl">
+                                <!--<button type="button" class="btn btn-default" data-dismiss="modal" ng-disabled="importStatus===REQUEST_STATUS.REQUESTING">取消-->
+                                <!--</button>-->
+                                <button type="submit" class="btn btn-primary"> 确定</button>
+                            </div>
+                        </form>
+                    </x-self-popover>
+
+                    <span class="glyphicon glyphicon-remove" ng-click="removePicture(file)" x-confirm-hint=""
+                          x-modal-title="溫馨提示"
+                          x-modal-content="确认删除&nbsp;&lt;strong&gt;“{{file.pictureComment}}”&lt;/strong&gt;&nbsp;吗？"></span>
+                </figure>
+            </div>
+        </div>
+    </div>
+</tab>
+</tabset>
+</div>
+</body>
+</html>

@@ -3,6 +3,7 @@
 define(function (require) {
     var app = require("app")
     require("./picture-service")
+    require("./picture-item-controller")
     app.controller('fileUploader', ['$cookies', '$scope', 'pictureService', 'FileUploader',
         function ($cookies, $scope, pictureService, FileUploader) {
             var fd = new FormData()

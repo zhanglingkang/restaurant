@@ -1,0 +1,2 @@
+/*! ppz_website 2015-01-12 6:55:00 PM */
+"use strict";define(function(a){var b=a("app");b.directive("formReset",function(){return{restrict:"A",scope:{reset:"="},link:function(a,b){a.$watch("reset",function(){a.reset&&($(b)[0].reset(),a.reset=!1,a.$emit("formReseted"))})}}})});

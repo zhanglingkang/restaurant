@@ -34,7 +34,6 @@ define(function (require) {
             }
             $scope.loginStatus = $scope.REQUEST_STATUS.INIT
             $scope.performLogin = function () {
-                var loginService = loginService
                 $scope.loginHintShow = true
                 $scope.loginStatus = $scope.REQUEST_STATUS.REQUESTING
                 loginService.login($scope.username, $scope.password).then(

@@ -1,0 +1,2 @@
+/*! ppz_website 2015-01-12 6:55:00 PM */
+"use strict";define(function(a){{var b=a("app"),c=a("public/general/util");a("public/local/system")}b.directive("setFile",function(){return{restrict:"A",link:function(a,b,d){var e=$(b);e.bind("change",function(){c.setPropertyValue(a,d.setFile,e[0].files)})}}})});

@@ -4,6 +4,8 @@ define(function (require) {
     var app = require("app")
     require("./menu-service")
     require("./menu-manager-directive")
+    require("./menu-category-controller")
+    require("./menu-item-controller")
     app.controller('menuController', ['$scope', 'menuService', '$timeout',
         function ($scope, menuService, $timeout) {
             /**

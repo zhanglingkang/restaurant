@@ -3,6 +3,19 @@
 define(function (require, exports, module) {
     return {
         /**
+         * @method getArray
+         * @description 将obj的属性值组装成一个数组
+         * @param {Object} obj
+         * @return {Array}
+         */
+        getArray: function (obj) {
+            var result = [];
+            angular.forEach(obj, function (value, key) {
+                result.push(value);
+            });
+            return result;
+        },
+        /**
          * @method serialize 将一个对象序列化为a=1&b=2&c=3&d=4&e=5的格式
          * @param obj {Object}
          */

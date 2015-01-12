@@ -2,7 +2,6 @@
 
 define(function (require) {
     var app = require("app")
-    require("./review-service")
     app.factory('reviewService', [
         '$window', '$cookies', "httpService", function ($window, $cookies, httpService) {
             return {

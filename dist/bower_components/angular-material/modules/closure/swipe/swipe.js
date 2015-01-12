@@ -1,2 +1,215 @@
-/*! ppz_website 2014-12-18 6:38:47 PM */
-goog.provide("ng.material.components.swipe"),function(){"use strict";function a(){return function(a,b){return b||(b="swipeleft swiperight"),function(c,d,e){function f(b){b.srcEvent.stopPropagation(),angular.isFunction(d)&&a.$apply(function(){d(b)})}function g(){return i.on(b,f),function(){i.off(b)}}function h(a,b){var c=b.indexOf("pan")>-1,d=b.indexOf("swipe")>-1;return c&&a.push([Hammer.Pan,{direction:Hammer.DIRECTION_HORIZONTAL}]),d&&a.push([Hammer.Swipe,{direction:Hammer.DIRECTION_HORIZONTAL}]),a}var i=new Hammer(c[0],{recognizers:h([],b)});return e||g(),a.$on("$destroy",function(){i.destroy()}),g}}}function b(a,b){return{restrict:"A",link:d(a,b,"SwipeLeft")}}function c(a,b){return{restrict:"A",link:d(a,b,"SwipeRight")}}function d(a,b,c){return function(d,e,f){var g=c.toLowerCase(),h="md"+c,i=a(f[h])||angular.noop,j=b(d,g),k=function(a){i(d,a)};j(e,function(a){a.type==g&&k()})}}angular.module("material.components.swipe",[]).factory("$mdSwipe",a).directive("mdSwipeLeft",b).directive("mdSwipeRight",c),b.$inject=["$parse","$mdSwipe"],c.$inject=["$parse","$mdSwipe"]}();
+/*!
+ * Angular Material Design
+ * https://github.com/angular/material
+ * @license MIT
+ * v0.6.1
+ */
+goog.provide('ng.material.components.swipe');
+
+(function() {
+'use strict';
+
+
+/**
+ * @ngdoc module
+ * @name material.components.swipe
+ * @description Swipe module!
+ */
+angular.module('material.components.swipe',[])
+  .factory('$mdSwipe', MdSwipeFactory)
+  .directive('mdSwipeLeft', MdSwipeLeftDirective)
+  .directive('mdSwipeRight', MdSwipeRightDirective);
+
+/*
+ * @ngdoc service
+ * @module material.components.swipe
+ * @name $mdSwipe
+ * @description
+ * This service allows directives to easily attach swipe and pan listeners to
+ * the specified element.
+ */
+
+function MdSwipeFactory() {
+  // match expected API functionality
+  var attachNoop = function(){ return angular.noop; };
+
+  /**
+   * SwipeService constructor pre-captures scope and customized event types
+   *
+   * @param scope
+   * @param eventTypes
+   * @returns {*}
+   * @constructor
+   */
+  return function SwipeService(scope, eventTypes) {
+    if ( !eventTypes ) eventTypes = "swipeleft swiperight";
+
+    // publish configureFor() method for specific element instance
+    return function configureFor(element, onSwipeCallback, attachLater ) {
+      var hammertime = new Hammer(element[0], {
+        recognizers : addRecognizers([], eventTypes )
+      });
+
+      // Attach swipe listeners now
+      if ( !attachLater ) attachSwipe();
+
+      // auto-disconnect during destroy
+      scope.$on('$destroy', function() {
+        hammertime.destroy();
+      });
+
+      return attachSwipe;
+
+      // **********************
+      // Internal methods
+      // **********************
+
+      /**
+       * Delegate swipe event to callback function
+       * and ensure $digest is triggered.
+       *
+       * @param ev HammerEvent
+       */
+      function swipeHandler(ev) {
+
+        // Prevent triggering parent hammer listeners
+        ev.srcEvent.stopPropagation();
+
+        if ( angular.isFunction(onSwipeCallback) ) {
+          scope.$apply(function() {
+            onSwipeCallback(ev);
+          });
+        }
+      }
+
+      /**
+       * Enable listeners and return detach() fn
+       */
+      function attachSwipe() {
+        hammertime.on(eventTypes, swipeHandler );
+
+        return function detachSwipe() {
+          hammertime.off( eventTypes );
+        };
+      }
+
+      /**
+       * Add optional recognizers such as panleft, panright
+       */
+      function addRecognizers(list, events) {
+        var hasPanning = (events.indexOf("pan") > -1);
+        var hasSwipe   = (events.indexOf("swipe") > -1);
+
+        if (hasPanning) {
+          list.push([ Hammer.Pan, { direction: Hammer.DIRECTION_HORIZONTAL } ]);
+        }
+        if (hasSwipe) {
+          list.push([ Hammer.Swipe, { direction: Hammer.DIRECTION_HORIZONTAL } ]);
+        }
+
+        return list;
+      }
+
+    };
+  };
+}
+
+/**
+ * @ngdoc directive
+ * @module material.components.swipe
+ * @name mdSwipeLeft
+ *
+ * @restrict A
+ *
+ * @description
+ * The `<div  md-swipe-left="expression">` directive identifies an element on which
+ * HammerJS horizontal swipe left and pan left support will be active. The swipe/pan action
+ * can result in custom activity trigger by evaluating `expression`.
+ *
+ * @param {boolean=} mdNoPan Use of attribute indicates flag to disable detection of `panleft` activity
+ *
+ * @usage
+ * <hljs lang="html">
+ *
+ * <div class="animate-switch-container"
+ *      ng-switch on="data.selectedIndex"
+ *      md-swipe-left="data.selectedIndex+=1;"
+ *      md-swipe-right="data.selectedIndex-=1;" >
+ *
+ * </div>
+ * </hljs>
+ *
+ */
+function MdSwipeLeftDirective($parse, $mdSwipe) {
+  return {
+    restrict: 'A',
+    link :  swipePostLink( $parse, $mdSwipe, "SwipeLeft" )
+  };
+}
+MdSwipeLeftDirective.$inject = ["$parse", "$mdSwipe"];
+
+/**
+ * @ngdoc directive
+ * @module material.components.swipe
+ * @name mdSwipeRight
+ *
+ * @restrict A
+ *
+ * @description
+ * The `<div  md-swipe-right="expression">` directive identifies functionality
+ * that attaches HammerJS horizontal swipe right and pan right support to an element. The swipe/pan action
+ * can result in activity trigger by evaluating `expression`
+ *
+ * @param {boolean=} mdNoPan Use of attribute indicates flag to disable detection of `panright` activity
+ *
+ * @usage
+ * <hljs lang="html">
+ *
+ * <div class="animate-switch-container"
+ *      ng-switch on="data.selectedIndex"
+ *      md-swipe-left="data.selectedIndex+=1;"
+ *      md-swipe-right="data.selectedIndex-=1;" >
+ *
+ * </div>
+ * </hljs>
+ *
+ */
+function MdSwipeRightDirective($parse, $mdSwipe) {
+  return {
+    restrict: 'A',
+    link :  swipePostLink( $parse, $mdSwipe, "SwipeRight" )
+  };
+}
+MdSwipeRightDirective.$inject = ["$parse", "$mdSwipe"];
+
+/**
+ * Factory to build PostLink function specific to Swipe or Pan direction
+ *
+ * @param $parse
+ * @param $mdSwipe
+ * @param name
+ * @returns {Function}
+ */
+function swipePostLink($parse, $mdSwipe, name ) {
+
+  return function(scope, element, attrs) {
+    var direction = name.toLowerCase();
+    var directiveName= "md" + name;
+
+    var parentGetter = $parse(attrs[directiveName]) || angular.noop;
+    var configureSwipe = $mdSwipe(scope, direction);
+    var requestSwipe = function(locals) {
+      // build function to request scope-specific swipe response
+      parentGetter(scope, locals);
+    };
+
+    configureSwipe( element, function onHandleSwipe(ev) {
+      if ( ev.type == direction ) {
+        requestSwipe();
+      }
+    });
+
+  };
+}
+
+})();

@@ -6,8 +6,8 @@ define(function (require) {
     var pubSub = require("public/general/pub-sub")
     require("public/local/reservation-service")
     require("public/general/audio-service")
+    require("public/local/data-service")
     require("public/general/notification-service")
-    require("public/local/notification-service")
     require("./directive")
     app.controller('appController', [
         "$rootScope", "$scope", '$cookies', "$location" , "$mdBottomSheet",
@@ -56,7 +56,7 @@ define(function (require) {
                 return !!($cookies.token && $cookies.token !== "null");
             };
             $scope.$on("$locationChangeStart", function (event, newUrl, oldUrl) {
-                if (!isLogined() && !/login/.test(newUrl)) {
+                if (!$scope.isLogined() && !/login/.test(newUrl)) {
                     $location.path("/login");
                 }
             });
@@ -130,7 +130,7 @@ define(function (require) {
 
             if (!$rootScope.disableReservationHint) {
                 pubSub.subscribe("newReservation", handleNewReservation);
-                if (isLogined()) {
+                if ($scope.isLogined()) {
                     reservationService.connect();
                 }
             }

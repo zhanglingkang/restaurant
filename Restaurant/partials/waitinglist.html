@@ -86,7 +86,8 @@
             </select>
         </div>
         <div class="form-group" ng-if="newReserve.reservationType===reservationTypeMap.reservationRoom.value">
-            <input type="number" placeholder="人数" name="number" ng-model="newReserve.number" class="form-control" required=""/>
+            <input type="number" placeholder="人数" name="number" ng-model="newReserve.number" class="form-control"
+                   required=""/>
         </div>
         <div class="form-group">
             <button ng-click="addUser(true)" class="btn btn-primary" ng-disabled="!reserveForm.$valid">预约</button>
@@ -213,7 +214,8 @@
                             x-confirm-hint="" x-modal-title="溫馨提示"
                             x-modal-content="确定移除{{unit.unitId}}-{{unit.userName}}吗？">移除
                     </button>
-                    <button class="btn btn-primary" ng-click="call(unit)">叫号</button>
+                    <button class="btn btn-primary" ng-click="call(unit)">叫号
+                    </button>
                     <button class="btn btn-info" ng-click="openPrintView(unit)">出票</button>
                     <button class="btn btn-danger"
                             ng-show="unit.reservationStatus===reservationStatusMap.waitConfirm">同意

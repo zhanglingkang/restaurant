@@ -2,6 +2,10 @@
 
 define(function (require) {
     var app = require("app")
+    require("./menu-controller")
+    require("./review-list-controller")
+    require("./review-item-controller")
+    require("./file-uploader-controller")
     require("./menu-service")
     require("public/local/restaurant-service")
     app.controller('restaurantDetailController', ['$scope', '$routeParams', 'restaurantService', 'menuService',

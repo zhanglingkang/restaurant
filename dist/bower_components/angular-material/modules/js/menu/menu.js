@@ -1,2 +1,27 @@
-/*! ppz_website 2014-12-18 6:38:47 PM */
-function MenuProvider(a){function b(){}return a("$mdMenu").setDefaults({methods:["placement"],options:b})}angular.module("material.components.menu",[]).factory("$mdMenu",MenuProvider),MenuProvider.$inject=["$$interimElementProvider"];
+/*!
+ * Angular Material Design
+ * https://github.com/angular/material
+ * @license MIT
+ * v0.6.0
+ */
+
+angular.module('material.components.menu', [
+])
+
+.factory('$mdMenu', MenuProvider);
+
+function MenuProvider($$interimElementProvider) {
+  return $$interimElementProvider('$mdMenu')
+    .setDefaults({
+      methods: ['placement'],
+      options: menuDefaultOptions
+    });
+
+  /* @ngInject */
+  function menuDefaultOptions() {
+
+  }
+}
+MenuProvider.$inject = ["$$interimElementProvider"];
+
+

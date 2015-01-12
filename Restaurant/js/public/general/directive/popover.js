@@ -4,7 +4,7 @@ define(function (require, exports, module) {
 
     var app = require("app");
     var util = require("public/general/util");
-    app.directive("popover", ["$compile", function ($compile) {
+    app.directive("selfPopover", ["$compile", function ($compile) {
         /**
          * 此指令相关的属性
          * 1.relatedTarget:可选
