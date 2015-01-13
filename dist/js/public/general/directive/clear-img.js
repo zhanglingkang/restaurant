@@ -1,2 +1,0 @@
-/*! ppz_website 2015-01-12 6:59:27 PM */
-"use strict";define(function(a){var b=a("app");b.directive("clearImg",function(){return{restrict:"A",scope:{clear:"="},link:function(a,b){a.$watch("clear",function(){a.clear&&($(b)[0].src="",a.clear=!1)})}}})});

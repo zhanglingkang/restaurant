@@ -1,2 +1,0 @@
-/*! ppz_website 2015-01-12 6:59:27 PM */
-"use strict";define(function(a){var b=a("app"),c=a("public/general/pub-sub");b.controller("restaurantListController",["$scope","restaurantService","menuService",function(a,b,d){a.loading=!0,a.includeHeader=!0,b.getMyRestaurantList().then(function(b){a.loading=!1,a.restaurantList=b.results,console.log("loading restaurantList"),c.publish("loadedRestaurantList",a.restaurantList),a.restaurantList.forEach(function(a){d.getMenu(a.restaurantId)})},function(b){a.error=b})}])});

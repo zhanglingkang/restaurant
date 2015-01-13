@@ -1,2 +1,0 @@
-/*! ppz_website 2015-01-12 6:59:27 PM */
-Function.prototype.curryThis=function(){var a=this;return function(){[].unshift.call(arguments,this),a.apply(null,arguments)}},Function.prototype.unCurryThis=function(){var a=this;return function(){a.apply(arguments[0],arguments.slice(1))}};

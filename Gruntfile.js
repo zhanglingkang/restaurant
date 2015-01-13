@@ -31,7 +31,7 @@ module.exports = function (grunt) {
                             dest: 'dist/bower_components',
                             filter: function (filepath) {
                                 return filepath.indexOf("src") == -1;
-                            },
+                            }
                         }
                     ]
                 }
@@ -111,7 +111,7 @@ module.exports = function (grunt) {
             replace: {
                 "index.html": {
                     file: "./dist/index.html",
-                    replace: ['js/main.min.js']
+                    replace: ['js/main.js']
                 }
             }
         }
@@ -174,12 +174,12 @@ module.exports = function (grunt) {
     grunt.registerTask("default", [
         "init",
         "copy",
-        "uglify",
         "cssmin",
         "htmlmin",
         "replace",
         "transport:js",
         "concat",
-        "replace"
+        "replace",
+        "uglify"
     ]);
 }

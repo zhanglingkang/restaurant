@@ -8,6 +8,8 @@ define(function (require) {
     require("./file-uploader-controller")
     require("./menu-service")
     require("public/local/restaurant-service")
+    require("public/general/directive/confirm-hint")
+    require("public/general/directive/prevent-spread")
     app.controller('restaurantDetailController', ['$scope', '$routeParams', 'restaurantService', 'menuService',
         function ($scope, $routeParams, restaurantService, menuService) {
             $scope.goBack = function () {

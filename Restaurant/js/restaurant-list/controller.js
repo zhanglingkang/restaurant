@@ -13,7 +13,7 @@ define(function (require) {
                 $scope.restaurantList = data.results;
                 console.log("loading restaurantList");
                 pubSub.publish("loadedRestaurantList", $scope.restaurantList);
-                //这里加载菜单式预加载菜单，缓解管理页面的性能问题。
+                //这里加载菜单时预加载菜单，缓解管理页面的性能问题。
                 $scope.restaurantList.forEach(function (restaurant) {
                     menuService.getMenu(restaurant.restaurantId);
                 });

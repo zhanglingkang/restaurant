@@ -4,13 +4,13 @@ define(function (require) {
     var app = require("app")
     require("./picture-service")
     require("./picture-item-controller")
-    app.controller('fileUploader', ['$cookies', '$scope', 'pictureService', 'FileUploader',
-        function ($cookies, $scope, pictureService, FileUploader) {
+    app.controller('fileUploader', ['$cookies', '$scope', 'pictureService', 'FileUploader', 'httpService',
+        function ($cookies, $scope, pictureService, FileUploader, httpService) {
             var fd = new FormData()
             fd.append('sessionId', $cookies.token)
             fd.append('restaurantId', $scope.restaurantId)
             $scope.uploader = new FileUploader({
-                url: pictureService.FILE_SERVER_URL,
+                url: httpService.FILE_SERVER_URL,
                 formData: [
                     {
                         sessionId: $cookies.token

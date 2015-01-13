@@ -1,2 +1,0 @@
-/*! ppz_website 2015-01-12 6:59:27 PM */
-"use strict";define(function(a){var b=a("app"),c=$("#modal-view-img");c.modal({show:!1}),b.directive("viewImg",function(){return{restrict:"A",link:function(a,b,d){var e=$(b);e.bind("click",function(){e.attr("src")&&(c.find(".modal-title").html(d.imgTitle),c.find(".modal-body img").attr("src",e.attr("src")),c.modal("show"))})}}})});

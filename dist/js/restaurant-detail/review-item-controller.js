@@ -1,2 +1,0 @@
-/*! ppz_website 2015-01-12 6:59:27 PM */
-"use strict";define(function(a){var b=a("app");a("./review-service"),b.controller("reviewItemController",["$scope","reviewService",function(a,b){a.replying=!1,a.reply=function(){a.replying||(a.replying=!0)},a.confirmReply=function(){a.review.replyMessage=a.message,a.replying=!1,b.replyReview(a.restaurantId,a.review.reviewIndex,a.message).success(function(){a.saved=!0}).error(function(){a.saved=!1})},a.cancelReply=function(){a.review.replyMessage=null,a.replying=!1}}])});

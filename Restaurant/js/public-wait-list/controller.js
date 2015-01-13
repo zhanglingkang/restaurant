@@ -13,7 +13,9 @@ define(function (require) {
                     case "call":
                         $scope.lastCalledNumbers[data.unitIdPrefix] = data.unit.unitId
                         $scope.panelTypes[data.unitIdPrefix] = "panel-primary animate-flicker"
+                        console.time("flicker")
                         $timeout(function () {
+                            console.timeEnd("flicker")
                             $scope.panelTypes[data.unitIdPrefix] = "panel-primary"
                         }, 10000)
                         break

@@ -1,2 +1,0 @@
-/*! ppz_website 2015-01-12 6:59:27 PM */
-"use strict";define(function(a){var b=a("app"),c=["$document",function(){return{create:function(a){var b=new Audio;return a=a||{},angular.forEach(a,function(a,c){b[c]=a}),{play:function(){b.play()},pause:function(){b.pause()}}}}}];b.service("audioService",c)});

@@ -1,2 +1,0 @@
-/*! ppz_website 2015-01-12 6:59:27 PM */
-"use strict";define(function(){var a=seajs.data.cwd+"tpl/";return{getTplAbsolutePath:function(b){return/^\//.test(b)&&(b=b.substring(1)),/^tpl\//.test(b)&&(b=b.substring(4)),a+b}}});

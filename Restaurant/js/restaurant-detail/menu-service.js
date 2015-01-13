@@ -5,25 +5,22 @@ define(function (require) {
     app.service('menuService', [
         '$http', '$window', '$cookies', 'httpService',
         function ($http, $window, $cookies, httpService) {
-            var getMenuDefered;
+            var getMenuPromiseMap = {}
             return {
-                _menu: null,
                 getMenu: function (restaurantId) {
-                    var _this = this;
-                    if (!getMenuDefered) {
-                        getMenuDefered = httpService.post({
+                    var _this = this
+                    if (!getMenuPromiseMap[restaurantId]) {
+                        getMenuPromiseMap[restaurantId] = httpService.post({
                             command: "getRestaurantMenu",
                             data: {
                                 restaurantId: restaurantId
                             }
-                        }).success(function (data) {
-                            _this._menu = data.results[0];
                         }).error(function (error) {
-                            console.log('encounted error in getRestaurantMenu: ' + error);
-                            getMenuDefered = null;
+                            console.log('encounted error in getRestaurantMenu: ' + error)
+                            getMenuPromiseMap[restaurantId] = null
                         })
                     }
-                    return getMenuDefered;
+                    return getMenuPromiseMap[restaurantId]
                 },
                 importMenu: function (file, restaurantId) {
                     return httpService.post({
@@ -42,7 +39,7 @@ define(function (require) {
                 /**
                  *
                  * @param {Object} menuCategoryForm
-                 * @param {string} menuCategoryForm.categoryName;
+                 * @param {string} menuCategoryForm.categoryName
                  * @param {string} menuCategoryForm.categoryDescription
                  * @param {string} restaurantId
                  */
@@ -57,7 +54,7 @@ define(function (require) {
                 /**
                  *
                  * @param {Object} menuCategoryForm
-                 * @param {string} menuCategoryForm.categoryName;
+                 * @param {string} menuCategoryForm.categoryName
                  * @param {string} menuCategoryForm.categoryDescription
                  * @param {string} menuCategoryForm.categoryId
                  * @param {string} restaurantId

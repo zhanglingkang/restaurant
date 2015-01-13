@@ -1,2 +1,0 @@
-/*! ppz_website 2015-01-12 6:59:27 PM */
-"use strict";define(function(a){var b=a("app"),c=function(a,b,c){a.unit=c,a.ok=function(){b.close()},a.cancel=function(){b.dismiss("cancel")}};b.controller("confirmationModalController",c)});
