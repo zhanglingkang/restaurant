@@ -14,7 +14,7 @@ define(function (require) {
                             startIndex: pageNum * 10 + 1, size: 10
                         }
                     }).error(function (error) {
-                        console.log('encounted error in getReviews: ' + error);
+                        console.log('encounted error in getReviews: ' + error)
                     })
                 },
                 replyReview: function (restaurantId, reviewId, message) {
@@ -26,7 +26,7 @@ define(function (require) {
                             replyMessage: message
                         }
                     }).error(function (error) {
-                        console.log('encounted error in getReviews: ' + error);
+                        console.log('encounted error in getReviews: ' + error)
                     })
                 }
             }

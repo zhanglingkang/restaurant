@@ -1,8 +1,13 @@
-<div class="btn-group" layout="row" layout-align="end center">
-    <button type="button" class="btn btn-default" ng-class="{'active':showMode===SHOW_MODE.CALENDAR}">日历</button>
-    <button type="button" class="btn btn-default" ng-class="{'active':showMode===SHOW_MODE.LIST}">列表</button>
-</div>
 <hr class="space"/>
+<div class="btn-group" layout="row" layout-align="end center">
+    <button type="button" class="btn" ng-class="{'btn-success':showMode===SHOW_MODE.CALENDAR}"
+            ng-click="showMode=SHOW_MODE.CALENDAR">日历
+    </button>
+    <button type="button" class="btn" ng-class="{'btn-success':showMode===SHOW_MODE.LIST}"
+            ng-click="showMode=SHOW_MODE.LIST">列表
+    </button>
+</div>
+<!--<hr class="space"/>-->
 <div class="list-group" ng-show="showMode===SHOW_MODE.LIST">
     <div class="list-group-item list-group-item-info">
         <div class="row">
@@ -108,35 +113,44 @@
     </div>
 </div>
 <div ng-show="showMode===SHOW_MODE.CALENDAR">
-    <div class="form-group">
-        <select class="form-control" ng-model="date.year" required name="year">
-            <option ng-repeat='year in yearList' value="{{year}}">
-                {{year}}
-            </option>
-        </select>
+    <div class="reservation-calendar-toolbar" layout="row" layout-margin layout-align="start center">
+        <div>
+            <select class="form-control" ng-model="date.year" required name="year">
+                <option ng-repeat='year in yearList' value="{{year}}">
+                    {{year}}
+                </option>
+            </select>
+        </div>
+        <div>
+            <select class="form-control" ng-model="date.month" required name="month">
+                <option ng-repeat='month in monthList' value="{{month}}">
+                    {{month}}
+                </option>
+            </select>
+        </div>
+        <button class="btn btn-info" ng-click="last()"><span
+                class="glyphicon glyphicon-chevron-left"></span>
+        </button>
+        <button class="btn btn-info" ng-click="next()"><span
+                class="glyphicon glyphicon-chevron-right"></span>
+        </button>
+        <button class="btn btn-info" ng-click="toToday()">
+            今天
+        </button>
     </div>
-    <div class="form-group">
-        <select class="form-control" ng-model="date.month" required name="month">
-            <option ng-repeat='month in monthList' value="{{month}}">
-                {{month}}
-            </option>
-        </select>
-    </div>
-    <button class="btn btn-info" ng-click="last()" tabindex="0"><span class="glyphicon glyphicon-chevron-left"></span>
-    </button>
-    <button class="btn btn-info" ng-click="next()" tabindex="0"><span class="glyphicon glyphicon-chevron-right"></span>
-    </button>
-    <hr class="space"/>
-    <div layout="row">
-        <div flex ng-repeat="weekName in weekNameList">{{weekName}}</div>
-    </div>
-    <div layout="column">
-        <div layout="row" ng-repeat="week in weekList">
-            <div ng-repeat="date in week">
-                <span>{{date.getDate()}}</span>
-                <span>{{date.chineseDate.chineseDay}}</span>
+    <!--<hr class="space"/>-->
+    <div class="reservation-calendar-workzone">
+        <div layout="row">
+            <div flex ng-repeat="weekName in weekNameList">{{weekName}}</div>
+        </div>
+        <div layout="column" class="content">
+            <div layout="row" ng-repeat="week in weekList">
+                <div class="date" flex ng-repeat="chineseDate in week"
+                     ng-class="{'opacity':chineseDate.getMonth()+1!==date.month,'today':chineseDate.isToday()}">
+                    <span>{{chineseDate.getDate()}}</span>
+                    <span>{{chineseDate.getSolarTerm()||chineseDate.getChineseDate()}}</span>
+                </div>
             </div>
         </div>
     </div>
-
 </div>

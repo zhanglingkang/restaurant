@@ -13,31 +13,31 @@ define(function (require) {
     app.controller('restaurantDetailController', ['$scope', '$routeParams', 'restaurantService', 'menuService',
         function ($scope, $routeParams, restaurantService, menuService) {
             $scope.goBack = function () {
-                window.history.back();
+                window.history.back()
             }
-            $scope.restaurantId = $routeParams.restaurantId;
+            $scope.restaurantId = $routeParams.restaurantId
             restaurantService.getRestaurant($scope.restaurantId).then(function (restaurant) {
-                $scope.restaurant = restaurant;
-                $scope.newInfo = angular.copy($scope.restaurant);
+                $scope.restaurant = restaurant
+                $scope.newInfo = angular.copy($scope.restaurant)
             }, function (error) {
-                $scope.error = error;
-            });
-            $scope.editing = false;
+                $scope.error = error
+            })
+            $scope.editing = false
             $scope.edit = function () {
-                $scope.editing = true;
-            };
+                $scope.editing = true
+            }
             $scope.cancel = function () {
-                $scope.newInfo = angular.copy($scope.restaurant);
-                $scope.editing = false;
-            };
+                $scope.newInfo = angular.copy($scope.restaurant)
+                $scope.editing = false
+            }
             $scope.confirm = function () {
-                $scope.editing = false;
+                $scope.editing = false
                 restaurantService.updateRestaurantInfo($scope.restaurantId, $scope.newInfo).then(function () {
-                    $scope.saved = true;
+                    $scope.saved = true
                 }, function () {
-                    $scope.saved = false;
+                    $scope.saved = false
                 })
             }
         }
-    ]);
+    ])
 })

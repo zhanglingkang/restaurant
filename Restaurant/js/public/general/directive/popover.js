@@ -1,9 +1,8 @@
-"use strict";
-
+"use strict"
 define(function (require, exports, module) {
 
-    var app = require("app");
-    var util = require("public/general/util");
+    var app = require("app")
+    var util = require("public/general/util")
     app.directive("selfPopover", ["$compile", function ($compile) {
         /**
          * 此指令相关的属性
@@ -21,28 +20,28 @@ define(function (require, exports, module) {
             terminal: true,
             scope: true,
             link: function (scope, elem, attrs, controller, transclude) {
-                var $elem = $(elem);
-                var targetNode = $elem.parent();
-                var style = attrs.style || "";
-                var template = '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content" ></div></div>';
-                template = template.replace(/(?=class=['"]popover-content['"])/, "style='" + style + "' ");
-                scope.close = false;
+                var $elem = $(elem)
+                var targetNode = $elem.parent()
+                var style = attrs.style || ""
+                var template = '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content" ></div></div>'
+                template = template.replace(/(?=class=['"]popover-content['"])/, "style='" + style + "' ")
+                scope.close = false
                 scope.$watch("close", function () {
                     if (scope.close) {
-                        targetNode.popover('hide');
-                        scope.close = false;
+                        targetNode.popover('hide')
+                        scope.close = false
                     }
-                });
+                })
                 if (attrs.relatedTarget) {
                     if (attrs.context === "parent") {
-                        targetNode = $elem.parent().find(attrs.relatedTarget);
+                        targetNode = $elem.parent().find(attrs.relatedTarget)
                     } else {
-                        targetNode = $(attrs.relatedTarget);
+                        targetNode = $(attrs.relatedTarget)
                     }
                 }
-                $elem.children().addClass("ng-cloak");
-                $elem.remove();
-                targetNode.attr("data-toggle", "popover");
+                $elem.children().addClass("ng-cloak")
+                $elem.remove()
+                targetNode.attr("data-toggle", "popover")
                 targetNode.popover({
                         html: true,
                         content: $elem.html(),
@@ -50,46 +49,46 @@ define(function (require, exports, module) {
                         placement: attrs.placement || "top",
                         template: template
                     }
-                );
+                )
                 targetNode.on("shown.bs.popover", function (event) {
-                    var popoverContent = targetNode.data("bs.popover").$tip.find(".popover-content");
-//                    popoverContent.attr("style", style);
-                    $compile(popoverContent.children())(scope.$parent);
+                    var popoverContent = targetNode.data("bs.popover").$tip.find(".popover-content")
+//                    popoverContent.attr("style", style)
+                    $compile(popoverContent.children())(scope.$parent)
                     if ("autoClose" in attrs) {
-                        $(document).bind("click", autoClose);
+                        $(document).bind("click", autoClose)
                     }
-                    scope.$emit("");
-                });
+                    scope.$emit("")
+                })
                 targetNode.on("hidden.bs.popover", function (event) {
-                    $(document).unbind("click", autoClose);
-                });
+                    $(document).unbind("click", autoClose)
+                })
                 function autoClose(event) {
                     if (targetNode.data("bs.popover")) {
-                        var container = targetNode.data("bs.popover").$tip[0];
+                        var container = targetNode.data("bs.popover").$tip[0]
                         if (container && !$.contains(container, event.target)) {
-                            targetNode.popover("hide");
+                            targetNode.popover("hide")
                         }
                     }
                 }
 
                 scope.$on("closePopover", function (event, popoverName) {
                     if (popoverName === attrs.name) {
-                        targetNode.popover("hide");
+                        targetNode.popover("hide")
                     }
-                });
+                })
                 var externalAPI = {
                     close: function () {
-                        scope.close = true;
+                        scope.close = true
                     }
-                };
+                }
                 if ("name" in attrs) {
-                    var propertyName = attrs.name;
+                    var propertyName = attrs.name
                     if ("object" in attrs) {
-                        propertyName = attrs.object + "." + attrs.name;
+                        propertyName = attrs.object + "." + attrs.name
                     }
-                    util.setPropertyValue(scope.$parent, propertyName, externalAPI);
+                    util.setPropertyValue(scope.$parent, propertyName, externalAPI)
                 }
             }
         }
-    }]);
-});
+    }])
+})

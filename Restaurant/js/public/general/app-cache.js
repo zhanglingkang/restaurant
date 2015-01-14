@@ -1,5 +1,4 @@
-"use strict";
-
+"use strict"
 define(function (require, exports, module) {
     /**
      * applicationCache状态值
@@ -10,4 +9,4 @@ define(function (require, exports, module) {
      * UNCACHED: 0
      * UPDATEREADY: 4
      */
-});
+})

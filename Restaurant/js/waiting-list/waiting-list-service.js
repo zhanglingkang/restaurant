@@ -7,14 +7,14 @@ define(function (require) {
             return {
                 lastCalledNumber: 0,
                 callUser: function (restaurantId, unitId) {
-                    this.lastCalledNumber = unitId;
+                    this.lastCalledNumber = unitId
                     return httpService.post({
                         command: "callUser",
                         data: {
                             restaurantId: restaurantId,
                             unitId: unitId
                         }
-                    });
+                    })
                 },
                 removeReservation: function (restaurantId, unitId) {
                     return httpService.post({
@@ -49,7 +49,7 @@ define(function (require) {
                             reservationTime: reservationTime
 
                         }
-                    });
+                    })
                 },
                 reserveRoom: function (restaurantId, name, partyTypeId, phone, reservationTime, reservableId, number) {
                     if (reservationTime !== null) {

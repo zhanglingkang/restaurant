@@ -1,5 +1,4 @@
-"use strict";
-
+"use strict"
 define(function (require, exports, module) {
     return {
         /**
@@ -9,31 +8,31 @@ define(function (require, exports, module) {
          * @return {Array}
          */
         getArray: function (obj) {
-            var result = [];
+            var result = []
             angular.forEach(obj, function (value, key) {
-                result.push(value);
-            });
-            return result;
+                result.push(value)
+            })
+            return result
         },
         /**
          * @method serialize 将一个对象序列化为a=1&b=2&c=3&d=4&e=5的格式
          * @param obj {Object}
          */
         serialize: function (obj) {
-            var result = "";
+            var result = ""
             var split = "";//参数之间的分隔符
-            obj = obj || {};
+            obj = obj || {}
             for (var key in obj) {
                 if (obj.hasOwnProperty(key)) {
                     if (result) {
-                        split = "&";
+                        split = "&"
                     } else {
-                        result = "";
+                        result = ""
                     }
-                    result += split + key + "=" + obj[key];
+                    result += split + key + "=" + obj[key]
                 }
             }
-            return result;
+            return result
         },
         /**
          * @method 得到附加参数后的url地址。
@@ -41,17 +40,17 @@ define(function (require, exports, module) {
          * @param data {object} get请求的参数
          */
         getUrl: function (url, data) {
-            var serializeValue = this.serialize(data);
+            var serializeValue = this.serialize(data)
             if (serializeValue) {
                 if (url.indexOf("?") === -1) {
-                    url += "?";
+                    url += "?"
                 }
                 if (url.charAt(url.length - 1) != "?") {
-                    url += "&";
+                    url += "&"
                 }
-                url += serializeValue;
+                url += serializeValue
             }
-            return url;
+            return url
         },
         /**
          * @method clone 深克隆一个对象
@@ -59,7 +58,7 @@ define(function (require, exports, module) {
          * @return {Object|Array}
          */
         clone: function (obj) {
-            return JSON.parse(JSON.stringify(obj));
+            return JSON.parse(JSON.stringify(obj))
         },
         /**
          * @method 为对象的属性设置值
@@ -68,15 +67,15 @@ define(function (require, exports, module) {
          * @param value
          */
         setPropertyValue: function (obj, property, value) {
-            var propertyList = property.split(".");
-            var lastPropertyName;
+            var propertyList = property.split(".")
+            var lastPropertyName
             propertyList.forEach(function (value, index) {
                 if (index < propertyList.length - 1) {
-                    obj = obj[value];
+                    obj = obj[value]
                 }
-            });
-            lastPropertyName = propertyList.pop();
-            obj[lastPropertyName] = value;
+            })
+            lastPropertyName = propertyList.pop()
+            obj[lastPropertyName] = value
         },
         /**
          * @method 为对象的属性设置值
@@ -85,15 +84,15 @@ define(function (require, exports, module) {
          * @param value
          */
         getPropertyValue: function (obj, property) {
-            var propertyList = property.split(".");
-            var lastPropertyName;
+            var propertyList = property.split(".")
+            var lastPropertyName
             propertyList.forEach(function (value, index) {
                 if (index < propertyList.length - 1) {
-                    obj = obj[value];
+                    obj = obj[value]
                 }
-            });
-            lastPropertyName = propertyList.pop();
-            return obj[lastPropertyName];
+            })
+            lastPropertyName = propertyList.pop()
+            return obj[lastPropertyName]
         }
-    };
-});
+    }
+})

@@ -1,8 +1,7 @@
 /**
  * 发布订阅模式
  */
-"use strict";
-
+"use strict"
 define(function (require, exports, module) {
     return {
         /**
@@ -10,13 +9,13 @@ define(function (require, exports, module) {
          * @param  {Object}  field angularjs创建的字段校验信息对象
          */
         setFieldValidation: function (field) {
-            field.$valid = true;
-            field.$invalid = false;
+            field.$valid = true
+            field.$invalid = false
             for (var key in field.$error) {
                 if (field.$error.hasOwnProperty(key)) {
                     if (field.$error[key]) {
-                        field.$valid = false;
-                        field.$invalid = true;
+                        field.$valid = false
+                        field.$invalid = true
                     }
                 }
             }
@@ -27,16 +26,16 @@ define(function (require, exports, module) {
          * @param form angularjs创建的表单校验信息对象
          */
         setFormValidataion: function (form) {
-            form.$valid = true;
-            form.$invalid = false;
+            form.$valid = true
+            form.$invalid = false
             for (var key in form) {
                 if (form.hasOwnProperty(key) && key.substring(0, 1) !== "$") {
                     if (form[key].$invalid) {
-                        form.$valid = false;
-                        form.$invalid = true;
+                        form.$valid = false
+                        form.$invalid = true
                     }
                 }
             }
         }
     }
-});
+})

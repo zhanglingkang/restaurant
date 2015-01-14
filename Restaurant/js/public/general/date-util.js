@@ -1,5 +1,4 @@
-"use strict";
-
+"use strict"
 define(function (require, exports, module) {
     return {
         /**
@@ -9,8 +8,8 @@ define(function (require, exports, module) {
          * @return {Date} 日期对象
          */
         parse: function (date) {
-            date = date.replace(/-/g, "/");
-            return new Date(date);
+            date = date.replace(/-/g, "/")
+            return new Date(date)
         }
-    };
-});
+    }
+})

@@ -2,6 +2,7 @@
 
 define(function (require, exports, module) {
     var app = require("app")
+    require("public/general/prototype")
     require("public/local/reservation-controller")
     require("public/local/confirmation-modal-controller")
     require("public/local/http")

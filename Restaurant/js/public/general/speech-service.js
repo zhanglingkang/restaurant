@@ -5,42 +5,42 @@ define(function (require) {
     var speechService = ["$q", function ($q) {
         return {
             getVoices: function () {
-                var deferred = $q.defer();
-                var voices = speechSynthesis.getVoices();
+                var deferred = $q.defer()
+                var voices = speechSynthesis.getVoices()
                 if (voices.length === 0) {
                     var intervalId = setInterval(function () {
-                        voices = speechSynthesis.getVoices();
+                        voices = speechSynthesis.getVoices()
                         if (voices.length !== 0) {
-                            clearInterval(intervalId);
-                            deferred.resolve(voices);
+                            clearInterval(intervalId)
+                            deferred.resolve(voices)
                         }
-                    }, 0);
+                    }, 0)
                 } else {
-                    deferred.resolve(voices);
+                    deferred.resolve(voices)
                 }
-                return deferred.promise;
+                return deferred.promise
             },
             createMsg: function (msg) {
-                return new SpeechSynthesisUtterance(msg);
+                return new SpeechSynthesisUtterance(msg)
             },
             getNativeVoice: function () {
                 return this.getVoices().then(function (voices) {
-                    var nativeVoice;
+                    var nativeVoice
                     voices.some(function (voice) {
                         if (voice.name === "native" || voice.localService === true) {
-                            nativeVoice = voice;
-                            return true;
+                            nativeVoice = voice
+                            return true
                         }
-                    });
-                    return nativeVoice;
-                });
+                    })
+                    return nativeVoice
+                })
             },
             speak: function (msg) {
                 if (!msg.voice) {
                     this.getNativeVoice().then(function (nativeVoice) {
-                        msg.voice = nativeVoice;
+                        msg.voice = nativeVoice
                         console.log("voice:", nativeVoice)
-                        speechSynthesis.speak(msg);
+                        speechSynthesis.speak(msg)
                         msg.onstart = function () {
                             console.log("speech:start", msg)
                         }

@@ -9,7 +9,7 @@ define(function (require) {
                 data: data
             })
         }
-        var getUserInfoDefered;
+        var getUserInfoDefered
         return {
             modifyPassword: function (oldPassword, newPassword) {
                 var data = {
@@ -33,7 +33,7 @@ define(function (require) {
                     getUserInfoDefered = httpService.post({
                         command: "getUserInfo"
                     }).error(function () {
-                        getUserInfoDefered = null;
+                        getUserInfoDefered = null
                     })
                 }
                 return getUserInfoDefered

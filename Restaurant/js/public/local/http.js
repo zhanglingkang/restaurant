@@ -1,12 +1,12 @@
 "use strict"
 
 define(function (require, exports, module) {
-    var SERVER = "//awsjp.ppzapp.com:34952";
-    var SERVER = "//ali.ppzapp.cn:34952";
-    var SERVER_URL = SERVER + "/BBQueue/API";
-    var AUTH_SERVER_URL = SERVER + "/BBQueue/CredentialService";
-    var FILE_SERVER_URL = SERVER + "/FileUploader/upload";
-    var MENU_IMPORT_URL = SERVER + "/FileUploader/menuUpload";
+    var SERVER = "//awsjp.ppzapp.com:34952"
+    var SERVER = "//ali.ppzapp.cn:34952"
+    var SERVER_URL = SERVER + "/BBQueue/API"
+    var AUTH_SERVER_URL = SERVER + "/BBQueue/CredentialService"
+    var FILE_SERVER_URL = SERVER + "/FileUploader/upload"
+    var MENU_IMPORT_URL = SERVER + "/FileUploader/menuUpload"
     var PPZ_CODE = {
         None: 0,
         UserNotFound: 14,
@@ -14,12 +14,11 @@ define(function (require, exports, module) {
         USER_NOT_FOUND: 14,
         SESSION_TIMEOUT: 16,
         PERMISSION_DENIED: 18
-    };
-    var app = require("app");
-    var util = require("public/general/util");
-    var system = require("./system");
-    var pubSub = require("public/general/pub-sub");
-
+    }
+    var app = require("app")
+    var util = require("public/general/util")
+    var system = require("./system")
+    var pubSub = require("public/general/pub-sub")
     /**
      * 根据command、data构造请求参数
      * @param command
@@ -27,7 +26,7 @@ define(function (require, exports, module) {
      * @returns {{data: *, hash: string}}
      */
     function createRequest(command, data) {
-        return {"data": JSON.stringify({"command": command, "inputs": data}), "hash": "pleasedonotcheckmyhashthankyou!!"};
+        return {"data": JSON.stringify({"command": command, "inputs": data}), "hash": "pleasedonotcheckmyhashthankyou!!"}
     }
 
     app.service("httpService", ["$http", "$rootScope", "$q", "$location", "$cookies", function ($http, $rootScope, $q, $location, $cookies) {
@@ -48,13 +47,13 @@ define(function (require, exports, module) {
              * @return {Promise} angular的promise对象
              */
             post: function (config) {
-                var deferred = $q.defer();
-                var formData = new FormData();
-                var ngConfig = config.config || {};
+                var deferred = $q.defer()
+                var formData = new FormData()
+                var ngConfig = config.config || {}
                 config.data = config.data || {}
-                config.includeSessionId = config.includeSessionId === false ? false : true;
+                config.includeSessionId = config.includeSessionId === false ? false : true
                 if (config.includeSessionId) {
-                    config.data.sessionId = $cookies.token;
+                    config.data.sessionId = $cookies.token
                 }
                 if (config.isForm) {
                     angular.extend(ngConfig, {
@@ -62,15 +61,15 @@ define(function (require, exports, module) {
                         headers: {
                             'Content-Type': undefined
                         }
-                    });
+                    })
                     for (var key in config.data) {
-                        formData.append(key, config.data[key]);
+                        formData.append(key, config.data[key])
                     }
-                    config.data = formData;
+                    config.data = formData
                 } else {
-                    config.data = createRequest(config.command, config.data);
+                    config.data = createRequest(config.command, config.data)
                 }
-                config.url = config.url || config.isForm ? FILE_SERVER_URL : SERVER_URL;
+                config.url = config.url || config.isForm ? FILE_SERVER_URL : SERVER_URL
                 $http(angular.extend(ngConfig, {
                     method: "POST",
                     url: config.url,
@@ -82,26 +81,26 @@ define(function (require, exports, module) {
                                 status: status,
                                 response: data,
                                 url: config.command
-                            });
-                            deferred.reject(jsonData);
+                            })
+                            deferred.reject(jsonData)
                         } else {
-                            var jsonData = JSON.parse(data.data);
+                            var jsonData = JSON.parse(data.data)
                             if (jsonData.code == PPZ_CODE.SUCCESS) {
-                                deferred.resolve(jsonData);
+                                deferred.resolve(jsonData)
                             } else {
-                                deferred.reject(jsonData);
+                                deferred.reject(jsonData)
                                 if (jsonData.code == PPZ_CODE.SESSION_TIMEOUT) {
-                                    delete $cookies.token;
-                                    delete $cookies.username;
-                                    $location.path("/login");
+                                    delete $cookies.token
+                                    delete $cookies.username
+                                    $location.path("/login")
                                 } else if (jsonData.code == PPZ_CODE.PERMISSION_DENIED) {
                                     pubSub.publish("businessError", {
                                         msg: "权限不足"
-                                    });
+                                    })
                                 } else {
                                     pubSub.publish("businessError", {
                                         msg: jsonData.message
-                                    });
+                                    })
                                 }
                             }
                         }
@@ -114,16 +113,16 @@ define(function (require, exports, module) {
                         })
                         deferred.reject(data)
                     }
-                );
+                )
                 deferred.promise.success = function (callback) {
-                    deferred.promise.then(callback);
-                    return deferred.promise;
-                };
+                    deferred.promise.then(callback)
+                    return deferred.promise
+                }
                 deferred.promise.error = function (callback) {
-                    deferred.promise.then(null, callback);
-                    return deferred.promise;
-                };
-                return deferred.promise;
+                    deferred.promise.then(null, callback)
+                    return deferred.promise
+                }
+                return deferred.promise
             }
         }
     }

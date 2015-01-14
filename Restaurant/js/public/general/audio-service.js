@@ -12,11 +12,11 @@ define(function (require) {
              * @returns {{play: play, pause: pause}}
              */
             create: function (config) {
-                var audio = new Audio();
-                config = config || {};
+                var audio = new Audio()
+                config = config || {}
                 angular.forEach(config, function (value, key) {
-                    audio[key] = value;
-                });
+                    audio[key] = value
+                })
                 return {
                     play: function () {
                         audio.play()

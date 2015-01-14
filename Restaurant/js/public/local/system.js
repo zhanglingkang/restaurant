@@ -1,7 +1,6 @@
-"use strict";
-
+"use strict"
 define(function (require, exports, module) {
-    var ROOT_DIR = seajs.data.cwd + "tpl/";
+    var ROOT_DIR = seajs.data.cwd + "tpl/"
     return {
         /**
          * @param path {String} tpl相对路径
@@ -9,12 +8,12 @@ define(function (require, exports, module) {
          */
         getTplAbsolutePath: function (path) {
             if (/^\//.test(path)) {
-                path = path.substring(1);
+                path = path.substring(1)
             }
             if (/^tpl\//.test(path)) {
-                path = path.substring(4);
+                path = path.substring(4)
             }
-            return ROOT_DIR + path;
+            return ROOT_DIR + path
         }
-    };
-});
+    }
+})

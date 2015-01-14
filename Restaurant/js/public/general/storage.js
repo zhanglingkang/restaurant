@@ -1,8 +1,7 @@
 /**
  * 本模块提供本地存储、检索的功能。
  */
-"use strict";
-
+"use strict"
 define(function (require, exports, module) {
     return {
         /**
@@ -11,15 +10,15 @@ define(function (require, exports, module) {
          * @param {Any} value
          */
         store: function (key, value) {
-            var valueStr = JSON.stringify(value);
-            sessionStorage.setItem(key, valueStr);
+            var valueStr = JSON.stringify(value)
+            sessionStorage.setItem(key, valueStr)
         },
         /**
          * @method remove 从本地存储中删除键为key的信息。
          * @param {String} key
          */
         remove: function (key) {
-            sessionStorage.removeItem(key);
+            sessionStorage.removeItem(key)
         },
         /**
          * @method has 检索本地存储中是否存在键为key的值
@@ -27,7 +26,7 @@ define(function (require, exports, module) {
          * @return {Boolean}
          */
         has: function (key) {
-            return !!sessionStorage.getItem(key);
+            return !!sessionStorage.getItem(key)
         },
         /**
          * @method get 返回key对应的值，返回的数据类型与存储一致
@@ -35,9 +34,9 @@ define(function (require, exports, module) {
          * @return {Any}
          */
         get: function (key) {
-            var valueStr = sessionStorage.getItem(key);
-            return JSON.parse(valueStr);
+            var valueStr = sessionStorage.getItem(key)
+            return JSON.parse(valueStr)
         }
 
-    };
-});
+    }
+})

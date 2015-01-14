@@ -1,5 +1,4 @@
-"use strict";
-
+"use strict"
 define(function (require, exports, module) {
     var app = require("app")
     app.factory('loginService', ['$http', '$q', "$window", "$cookies", "httpService",
@@ -14,11 +13,11 @@ define(function (require, exports, module) {
                         },
                         includeSessionId: false
                     }).success(function (jsonData) {
-                        var token = jsonData.results[0].sessionId;
-                        $cookies.token = token;
-                        $cookies.username = username;
+                        var token = jsonData.results[0].sessionId
+                        $cookies.token = token
+                        $cookies.username = username
                     }).error(function () {
-                        $cookies.token = null;
+                        $cookies.token = null
                     })
                 },
                 /**
@@ -29,10 +28,10 @@ define(function (require, exports, module) {
                     return httpService.post({
                         command: "logout"
                     }).success(function () {
-                        $cookies.token = null;
-                        callback();
+                        $cookies.token = null
+                        callback()
                     }).error(function (error) {
-                        console.log('encounted error in getMyRestaurantList: ' + error);
+                        console.log('encounted error in getMyRestaurantList: ' + error)
                     })
                 },
                 resetPassword: function (userName, callback, error) {
@@ -42,9 +41,9 @@ define(function (require, exports, module) {
                             userId: userName
                         }
                     }).success(function (data) {
-                        callback(data);
+                        callback(data)
                     }, function (data) {
-                        error(data);
+                        error(data)
                     })
                 }
             }

@@ -1,22 +1,21 @@
-"use strict";
-
+"use strict"
 define(function (require) {
     var app = require("app")
     app.service('restaurantService', ['$http', '$window', '$q', '$cookies', 'httpService',
         function ($http, $window, $q, $cookies, httpService) {
-            var getRestaurantListDefered;
+            var getRestaurantListDefered
             return {
                 getMyRestaurantList: function () {
-                    var _this = this;
+                    var _this = this
                     if (!getRestaurantListDefered) {
                         getRestaurantListDefered = httpService.post({
                             command: "getManagingRestaurants"
-                        });
+                        })
                         getRestaurantListDefered.then(function (data) {
                         }, function (error) {
-                            console.log('businessError:getManagingRestaurants: ' + error);
-                            getRestaurantListDefered = null;
-                        });
+                            console.log('businessError:getManagingRestaurants: ' + error)
+                            getRestaurantListDefered = null
+                        })
                     }
                     return getRestaurantListDefered
                 },
@@ -33,21 +32,21 @@ define(function (require) {
                     })
                 },
                 getRestaurant: function (restaurantId) {
-                    var defer = $q.defer();
+                    var defer = $q.defer()
                     this.getMyRestaurantList().then(function (data) {
                         for (var i = 0; i < data.results.length; ++i) {
                             if (data.results[i].restaurantId === restaurantId) {
-                                defer.resolve(data.results[i]);
-                                break;
+                                defer.resolve(data.results[i])
+                                break
                             }
                         }
                         if (i == data.results.length) {
-                            defer.reject("没找到对应餐厅");
+                            defer.reject("没找到对应餐厅")
                         }
                     }, function (error) {
-                        defer.reject(error);
-                    });
-                    return defer.promise;
+                        defer.reject(error)
+                    })
+                    return defer.promise
                 },
                 /**
                  *
@@ -60,7 +59,7 @@ define(function (require) {
                             restaurantId: restaurantId,
                             acceptReservation: enable
                         }
-                    });
+                    })
                 },
                 enableQueue: function (restaurantId, enable) {
                     return httpService.post({
@@ -100,7 +99,7 @@ define(function (require) {
                             "address.street": info.address.street,
                             "address.zipcode": info.address.zipcode
                         }
-                    });
+                    })
                 },
 
                 getWaitingList: function (restaurantId, callback) {
@@ -110,10 +109,10 @@ define(function (require) {
                             restaurantId: restaurantId
                         }
                     }).success(function (data) {
-                        callback(null, data.results[0]);
+                        callback(null, data.results[0])
                     }).error(function (error) {
-                        console.log('encounted error in queryRestaurantQueue: ' + error);
-                        callback(error);
+                        console.log('encounted error in queryRestaurantQueue: ' + error)
+                        callback(error)
                     })
                 }
             }

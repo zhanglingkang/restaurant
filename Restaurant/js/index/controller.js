@@ -1,5 +1,4 @@
-"use strict";
-
+"use strict"
 define(function (require) {
     var app = require("app")
     var util = require("public/general/util")
@@ -21,7 +20,7 @@ define(function (require) {
                 REQUESTING: 1,
                 REQUEST_SUCCESSED: 2,
                 REQUEST_FAILED: 3
-            };
+            }
             $rootScope.KEY_CODE = {
                 ENTER: 13,
                 BACKSPACE: 8,
@@ -29,10 +28,10 @@ define(function (require) {
                 RIGHT: 39,
                 BOTTOM: 40,
                 LEFT: 37
-            };
-            $rootScope.showCover = false;
-            $rootScope.alertType = "alert-info";
-            $rootScope.alertContent = "";
+            }
+            $rootScope.showCover = false
+            $rootScope.alertType = "alert-info"
+            $rootScope.alertContent = ""
             /**
              *
              * @param {Object} config
@@ -41,25 +40,24 @@ define(function (require) {
              * @param {Boolean} config.showCover
              */
             $rootScope.setAlert = function (config) {
-                $rootScope.showCover = config.showCover || false;
-                $rootScope.alertType = config.alertType || "alert-info";
-                $rootScope.alertContent = config.alertContent || "";
-            };
-
-            pubSub.subscribe("businessError", tip);
-            pubSub.subscribe("serverError", tip);
-            pubSub.subscribe("businessSuccess", tip);
+                $rootScope.showCover = config.showCover || false
+                $rootScope.alertType = config.alertType || "alert-info"
+                $rootScope.alertContent = config.alertContent || ""
+            }
+            pubSub.subscribe("businessError", tip)
+            pubSub.subscribe("serverError", tip)
+            pubSub.subscribe("businessSuccess", tip)
             /**
              * 判断当前用户是否已登录
              */
             $scope.isLogined = function () {
-                return !!($cookies.token && $cookies.token !== "null");
-            };
+                return !!($cookies.token && $cookies.token !== "null")
+            }
             $scope.$on("$locationChangeStart", function (event, newUrl, oldUrl) {
                 if (!$scope.isLogined() && !/login/.test(newUrl)) {
-                    $location.path("/login");
+                    $location.path("/login")
                 }
-            });
+            })
             $scope.showReservationList = function () {
                 var $mdBottomSheetPromise = $mdBottomSheet.show({
                     templateUrl: 'partials/reservationToastList.html',
@@ -67,32 +65,32 @@ define(function (require) {
                     locals: {
                         queueMap: reservationService.getQueueMap()
                     }
-                });
-            };
+                })
+            }
             function getReservationMap(queueMap) {
-                var reservationMap = {};
+                var reservationMap = {}
                 angular.forEach(queueMap, function (queue, restaurantId) {
-                    reservationMap[restaurantId] = queue.reservationList;
-                });
-                return reservationMap;
+                    reservationMap[restaurantId] = queue.reservationList
+                })
+                return reservationMap
             }
 
             function getWaitConfirmReservationNum(queueMap) {
-                var reservationMap = getReservationMap(queueMap);
-                var sum = 0;
+                var reservationMap = getReservationMap(queueMap)
+                var sum = 0
                 angular.forEach(reservationMap, function (reservationList, restaurantId) {
                     reservationList.forEach(function (reservation) {
-                        sum += reservation.reservationStatus === dataService.reservationStatus.waitConfirm ? 1 : 0;
+                        sum += reservation.reservationStatus === dataService.reservationStatus.waitConfirm ? 1 : 0
                     })
-                });
-                return sum;
+                })
+                return sum
             }
 
-            var audio;
+            var audio
             $rootScope.$watch("disableReservationHint", function (value) {
                 if (value) {
-                    reservationService.close();
-                    pubSub.unSubscribe("newReservation", handleNewReservation);
+                    reservationService.close()
+                    pubSub.unSubscribe("newReservation", handleNewReservation)
                 }
             })
 
@@ -102,11 +100,11 @@ define(function (require) {
                         .content(data.msg)
                         .position("right bottom")
 //                        .hideDelay(0)
-                );
+                )
             }
 
             function handleNewReservation(queueMap) {
-                var waitConfirmReservationNum = getWaitConfirmReservationNum(queueMap);
+                var waitConfirmReservationNum = getWaitConfirmReservationNum(queueMap)
                 if (waitConfirmReservationNum > 0) {
                     notificationService.create('预约消息', {
                         body: '一共收到' + waitConfirmReservationNum + '条预约消息',
@@ -114,27 +112,26 @@ define(function (require) {
                         tag: "tip"
                     }).then(function (notification) {
                         notification.onclick = function () {
-                            notification.close();
-                            console.log("notification");
-                            top.window.focus();
+                            notification.close()
+                            console.log("notification")
+                            top.window.focus()
                         }
-                    });
+                    })
                     if (!audio) {
                         audio = audioService.create({
                             src: "img/tip.ogg"
                         })
                     }
-                    audio.play();
+                    audio.play()
                 }
             }
 
             if (!$rootScope.disableReservationHint) {
-                pubSub.subscribe("newReservation", handleNewReservation);
+                pubSub.subscribe("newReservation", handleNewReservation)
                 if ($scope.isLogined()) {
-                    reservationService.connect();
+                    reservationService.connect()
                 }
             }
 
-        }]);
-
-});
+        }])
+})

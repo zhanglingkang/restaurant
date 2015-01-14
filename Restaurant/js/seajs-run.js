@@ -1,4 +1,4 @@
 /**
  * seajs的启动
  */
-seajs.use("main");
+seajs.use("main")

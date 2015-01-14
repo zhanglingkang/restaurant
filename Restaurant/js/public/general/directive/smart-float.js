@@ -9,10 +9,10 @@ define(function (require, exports, module) {
             link: function (scope, elm, attrs, ctrl) {
                 ctrl.$parsers.unshift(function (viewValue) {
                     if (FLOAT_REGEXP.test(viewValue)) {
-                        ctrl.$setValidity('float', true);
-                        return parseFloat(viewValue.replace(',', '.'));
+                        ctrl.$setValidity('float', true)
+                        return parseFloat(viewValue.replace(',', '.'))
                     } else {
-                        ctrl.$setValidity('float', false);
+                        ctrl.$setValidity('float', false)
                         return
                     }
                 })
