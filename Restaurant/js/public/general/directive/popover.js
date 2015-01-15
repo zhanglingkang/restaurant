@@ -53,6 +53,7 @@ define(function (require, exports, module) {
                     }
                 )
                 targetNode.on("show.bs.popover", function (event) {
+                    targetNode.data("bs.popover").$tip.addClass(attrs.class)
                     targetNode.data("bs.popover").$tip.addClass("popover-hidden")
                 })
                 targetNode.on("shown.bs.popover", function (event) {
@@ -65,8 +66,19 @@ define(function (require, exports, module) {
                     setTimeout(function () {
                         //因为bootstrap中.popover.top的margin-top为-10px,.popover.bottom的maigin-top为10px,.popover.left、.popover.right类似
                         var pos = computePosition.getPosition(targetNode.data("bs.popover").$tip[0], targetNode[0], attrs.placement, attrs.container, 1)
-                        targetNode.data("bs.popover").$tip.css(pos)
+                        targetNode.data("bs.popover").$tip.css({
+                            left: pos.left,
+                            top: pos.top
+                        })
+                        if (pos.arrowPosition) {
+                            if (attrs.placement === "top" || attrs.placement === "bottom") {
+                                targetNode.data("bs.popover").$tip.find(".arrow").css({
+                                    left: pos.arrowPosition
+                                })
+                            }
+                        }
                         targetNode.data("bs.popover").$tip.removeClass("popover-hidden")
+
                     }, 0)
                     scope.$apply()
                 })

@@ -58,7 +58,7 @@
                     <div ng-show="showReservationList[chineseDate.getTime()]&&showReservationList[chineseDate.getTime()].replied.length!==0"
                          class="summary pointer ng-hide">
                         <span>已回复{{showReservationList[chineseDate.getTime()].replied.length}}条预约
-                            <x-self-popover data-placement="top" container="body"
+                            <x-self-popover data-placement="top" container="body" class="reservation-list"
                                             auto-close>
                                 <div>
                                     <div class="list-group-item list-group-item-info">

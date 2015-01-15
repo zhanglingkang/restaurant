@@ -261,3 +261,6 @@ md-toast {
 .popover.popover-hidden {
     visibility: hidden;
 }
+.popover.reservation-list{
+    min-width: 800px;
+}

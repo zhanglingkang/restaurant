@@ -28,12 +28,22 @@ define(function (require, exports, module) {
             width: tooltipNode.getClientRects()[0].width,
             height: tooltipNode.getClientRects()[0].height
         }
-
-
+        var container = tooltipNodeContainer === "parent" ? tooltipForNode.offsetParent : document.documentElement
+        var containerSize = {
+            width: container.getClientRects()[0].width,
+            height: container.getClientRects()[0].height
+        }
         switch (position) {
             case "top":
                 tooltipNodePos.left = tooltipForNodePos.left - (tooltipNodeSize.width - tooltipForNodeSize.width) / 2
                 tooltipNodePos.top = tooltipForNodePos.top - tooltipNodeSize.height - arrowSize
+                if (tooltipNodePos.left < 0) {
+                    tooltipForNode.arrowPosition = 0.5 - (0 - tooltipForNodePos.left) / tooltipNodeSize.width
+                    tooltipForNodePos.left = 0
+                } else if (tooltipNodePos.left + tooltipNode.width > container.width) {
+                    tooltipForNode.arrowPosition = 0.5 + (left + tooltipForNode.width - container.width) / tooltipNodeSize.width
+                    tooltipForNode.left = container.width - tooltipForNode.width
+                }
                 break
             case "bottom":
                 tooltipNodePos.left = tooltipForNodePos.left - (tooltipNodeSize.width - tooltipForNodeSize.width) / 2
@@ -48,6 +58,7 @@ define(function (require, exports, module) {
                 tooltipNodePos.top = tooltipForNodePos.top - (tooltipNodeSize.height - tooltipForNodeSize.height) / 2
                 break
         }
+        console.log("width,height:", tooltipNodeSize)
         console.log(tooltipForNodePos)
         console.log({
             left: tooltipNodePos.left + "px",
@@ -55,7 +66,8 @@ define(function (require, exports, module) {
         })
         return {
             left: tooltipNodePos.left + "px",
-            top: tooltipNodePos.top + "px"
+            top: tooltipNodePos.top + "px",
+            arrowPosition: tooltipNodePos.arrowPosition * 100 + "%"
         }
     }
 
