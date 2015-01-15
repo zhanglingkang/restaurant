@@ -3,6 +3,7 @@ define(function (require, exports, module) {
 
     var app = require("app")
     var util = require("public/general/util")
+    var computePosition = require("public/general/compute-position")
     app.directive("selfPopover", ["$compile", function ($compile) {
         /**
          * 此指令相关的属性
@@ -39,6 +40,7 @@ define(function (require, exports, module) {
                         targetNode = $(attrs.relatedTarget)
                     }
                 }
+                attrs.placement = attrs.placement || "top"
                 $elem.children().addClass("ng-cloak")
                 $elem.remove()
                 targetNode.attr("data-toggle", "popover")
@@ -46,18 +48,27 @@ define(function (require, exports, module) {
                         html: true,
                         content: $elem.html(),
                         container: attrs.container,
-                        placement: attrs.placement || "top",
+                        placement: attrs.placement,
                         template: template
                     }
                 )
+                targetNode.on("show.bs.popover", function (event) {
+                    targetNode.data("bs.popover").$tip.addClass("popover-hidden")
+                })
                 targetNode.on("shown.bs.popover", function (event) {
+//                    targetNode.data("bs.popover").$tip.hide()
                     var popoverContent = targetNode.data("bs.popover").$tip.find(".popover-content")
-//                    popoverContent.attr("style", style)
                     $compile(popoverContent.children())(scope.$parent)
                     if ("autoClose" in attrs) {
                         $(document).bind("click", autoClose)
                     }
-                    scope.$emit("")
+                    setTimeout(function () {
+                        //因为bootstrap中.popover.top的margin-top为-10px,.popover.bottom的maigin-top为10px,.popover.left、.popover.right类似
+                        var pos = computePosition.getPosition(targetNode.data("bs.popover").$tip[0], targetNode[0], attrs.placement, attrs.container, 1)
+                        targetNode.data("bs.popover").$tip.css(pos)
+                        targetNode.data("bs.popover").$tip.removeClass("popover-hidden")
+                    }, 0)
+                    scope.$apply()
                 })
                 targetNode.on("hidden.bs.popover", function (event) {
                     $(document).unbind("click", autoClose)

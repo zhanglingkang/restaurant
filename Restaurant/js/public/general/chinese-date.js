@@ -255,8 +255,11 @@ define(function (require, exports, module) {
         getChineseDate: getChineseDate.curryThis(),
         getSolarTerm: getSolarTerm.curryThis(),
         getWeekName: getWeekName.curryThis(),
-        isToday:function(){
-            return this.format("yyyy-MM-dd")===new Date().format("yyyy-MM-dd")
+        isToday: function () {
+            return this.format("yyyy-MM-dd") === new Date().format("yyyy-MM-dd")
+        },
+        isSameDay: function (date) {
+            return this.format("yyyy-MM-dd") === date.format("yyyy-MM-dd")
         }
     }
     dateProto.__proto__ = Date.prototype

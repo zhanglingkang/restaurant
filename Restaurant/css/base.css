@@ -237,9 +237,27 @@ md-toast {
     border-top: 1px solid #ddd;
     min-height: 100px;
 }
-.reservation-calendar-workzone .date.today{
+
+.reservation-calendar-workzone .date.today {
     background-color: #eee;
 }
+
 .reservation-calendar-workzone .date.opacity {
     opacity: 0.5;
+}
+
+.reservation-calendar-workzone .date span {
+    color: #000;
+}
+
+.pointer {
+    cursor: pointer;
+}
+
+.popover {
+    max-width: none;
+}
+
+.popover.popover-hidden {
+    visibility: hidden;
 }

@@ -4,7 +4,7 @@ define(function (require) {
     var app = require("app")
     var ChineseDate = require("public/general/chinese-date")
     app.controller('reservationListController', [
-        "$scope", function ($scope) {
+        "$scope", "$q", function ($scope, $q) {
             var startYear = 2015
             var endYear = new ChineseDate().getFullYear() + 1
             $scope.yearList = []
@@ -37,6 +37,7 @@ define(function (require) {
             })
             $scope.weekList = []
             $scope.showDateList = []
+            $scope.showReservationList = {}//key为日期的时间戳，值为getReservationSummary的返回值
             $scope.SHOW_MODE = {
                 CALENDAR: 1,
                 LIST: 2
@@ -70,17 +71,44 @@ define(function (require) {
                 $scope.date.year = new Date().getFullYear()
                 $scope.date.month = new Date().getMonth() + 1
             }
-            $scope.getReservationSummary = function () {
-                return {
-                    total: "",
-                    replied: "",
-                    noReply: ""
+            function getReservationList() {
+                var defer = $q.defer()
+                if ($scope.reservationList) {
+                    defer.resolve($scope.reservationList)
+                } else {
+                    $scope.$watch("reservationList", function (value) {
+                        if (value) {
+                            defer.resolve($scope.reservationList)
+                        }
+                    })
                 }
+                return defer.promise
+            }
+
+            $scope.getReservationSummary = function (date) {
+                var replied = []
+                var noReply = []
+                return getReservationList().then(function (reservationList) {
+                    reservationList.forEach(function (reservation) {
+                        if (date.isSameDay(new ChineseDate(reservation.reservationInfo.reservationTime * 1000))) {
+                            if (reservation.reservationStatus === $scope.reservationStatusMap.waitConfirm) {
+                                noReply.push(reservation)
+                            } else {
+                                replied.push(reservation)
+                            }
+                        }
+                    })
+                    return {
+                        replied: replied,
+                        noReply: noReply
+                    }
+                })
             }
             $scope.reservationListUrl = "partials/reservation-list.html"
             $scope.$watch("date", function (date) {
                 var count = ChineseDate.getCountOfMonth(date.year, date.month)
                 $scope.showDateList = []
+                $scope.showReservationList = {}
                 for (var i = 1; i <= count; ++i) {
                     $scope.showDateList.push(new ChineseDate(date.year, date.month - 1, i))
                 }
@@ -92,6 +120,11 @@ define(function (require) {
                 for (var i = 1; i <= 7 - weekOrder; ++i) {
                     $scope.showDateList.push(new ChineseDate(date.year, date.month - 1, count + i))
                 }
+                $scope.showDateList.forEach(function (showDate) {
+                    $scope.getReservationSummary(showDate).then(function (reservationSummary) {
+                        $scope.showReservationList[showDate.getTime()] = reservationSummary
+                    })
+                })
             }, true)
             $scope.$watch("showDateList", function () {
                 $scope.weekList = []
@@ -104,5 +137,6 @@ define(function (require) {
 
                 }
             })
-        }])
+        }
+    ])
 })
