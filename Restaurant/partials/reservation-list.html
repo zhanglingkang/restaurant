@@ -59,7 +59,7 @@
                          class="summary pointer ng-hide">
                         <span>已回复{{showReservationList[chineseDate.getTime()].replied.length}}条预约
                             <x-self-popover data-placement="top" container="body" class="reservation-list"
-                                            auto-close>
+                                            auto-close exclude="#modal-hint">
                                 <div>
                                     <div class="list-group-item list-group-item-info">
                                         <ng-include src="'reservation-row-header'"></ng-include>
@@ -77,8 +77,8 @@
                          class="danger summary pointer ng-hide">
                        <span>
                            未回复{{showReservationList[chineseDate.getTime()].noReply.length}}条预约
-                           <x-self-popover data-placement="top" x-style="min-width:200px;min-height:180px;"
-                                           name="acceptPopover" auto-close>
+                           <x-self-popover data-placement="top" class="reservation-list-no-reply"
+                                           auto-close exclude="#modal-hint">
                                <div class="list-group-item list-group-item-info">
                                    <ng-include src="'reservation-row-header'"></ng-include>
                                </div>

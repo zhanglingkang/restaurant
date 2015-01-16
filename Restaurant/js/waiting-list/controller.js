@@ -249,6 +249,7 @@ define(function (require) {
                         comment: acceptReason
                     }).success(function (data) {
                         $scope.submitted = false
+                        $scope.$broadcast("reservationStatusChange")
                         $scope.$broadcast("closePopover", "acceptPopover")
                         reservation.reservationStatus = dataService.reservationStatus.accept
                         reservation.reservationComment = acceptReason
@@ -264,6 +265,7 @@ define(function (require) {
                         comment: refuseReason
                     }).success(function (data) {
                         $scope.submitted = false
+                        $scope.$broadcast("reservationStatusChange")
                         $scope.$broadcast("closePopover", "refusePopover")
                         reservation.reservationStatus = dataService.reservationStatus.refuse
                         reservation.reservationComment = refuseReason

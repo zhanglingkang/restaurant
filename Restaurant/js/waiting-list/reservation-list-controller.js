@@ -31,7 +31,7 @@ define(function (require) {
             }
             $scope.date.year = new ChineseDate().getFullYear()
             $scope.date.month = new ChineseDate().getMonth() + 1
-            console.log($scope.date)
+            
             $scope.weekNameList = ["一", "二", "三", "四", "五", "六", "日"].map(function (value) {
                 return "周" + value
             })
@@ -120,11 +120,7 @@ define(function (require) {
                 for (var i = 1; i <= 7 - weekOrder; ++i) {
                     $scope.showDateList.push(new ChineseDate(date.year, date.month - 1, count + i))
                 }
-                $scope.showDateList.forEach(function (showDate) {
-                    $scope.getReservationSummary(showDate).then(function (reservationSummary) {
-                        $scope.showReservationList[showDate.getTime()] = reservationSummary
-                    })
-                })
+                updateDateReservationList()
             }, true)
             $scope.$watch("showDateList", function () {
                 $scope.weekList = []
@@ -137,6 +133,22 @@ define(function (require) {
 
                 }
             })
+            $scope.$watchCollection("reservationList", function (value) {
+                updateDateReservationList()
+            })
+            $scope.$on("reservationStatusChange", function () {
+                updateDateReservationList()
+            })
+            /**
+             * 更新日期关联的预约列表
+             */
+            function updateDateReservationList() {
+                $scope.showDateList.forEach(function (showDate) {
+                    $scope.getReservationSummary(showDate).then(function (reservationSummary) {
+                        $scope.showReservationList[showDate.getTime()] = reservationSummary
+                    })
+                })
+            }
         }
     ])
 })
