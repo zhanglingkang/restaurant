@@ -235,7 +235,8 @@ md-toast {
 .reservation-calendar-workzone .date {
     border-right: 1px solid #ddd;
     border-top: 1px solid #ddd;
-    min-height: 100px;
+    min-height: 135px;
+    font-family: "微软雅黑";
 }
 
 .reservation-calendar-workzone .date.today {
@@ -263,13 +264,22 @@ md-toast {
 }
 
 .popover.reservation-list {
-    min-width: 800px;
+    min-width: 1200px;
 }
 
 .popover.reservation-list-no-reply {
-    min-width: 990px;
+    min-width: 1200px;
 }
 
 .modal-open {
     overflow-y: auto;
+}
+
+.single-reservation-preview {
+    display: block;
+}
+
+.popover-hidden {
+    left: 0 !important;
+    top: 0 !important;
 }

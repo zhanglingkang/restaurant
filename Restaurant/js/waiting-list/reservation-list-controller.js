@@ -4,7 +4,7 @@ define(function (require) {
     var app = require("app")
     var ChineseDate = require("public/general/chinese-date")
     app.controller('reservationListController', [
-        "$scope", "$q", function ($scope, $q) {
+        "$scope", "$q", "reservationService", "dataService", function ($scope, $q, reservationService, dataService) {
             var startYear = 2015
             var endYear = new ChineseDate().getFullYear() + 1
             $scope.yearList = []
@@ -31,7 +31,7 @@ define(function (require) {
             }
             $scope.date.year = new ChineseDate().getFullYear()
             $scope.date.month = new ChineseDate().getMonth() + 1
-            
+
             $scope.weekNameList = ["一", "二", "三", "四", "五", "六", "日"].map(function (value) {
                 return "周" + value
             })
@@ -85,9 +85,45 @@ define(function (require) {
                 return defer.promise
             }
 
+            $scope.accept = function (valid, reservation, acceptReason) {
+                $scope.submitted = true
+                if (valid) {
+                    reservationService.accept({
+                        restaurantId: reservation.restaurantId,
+                        unitId: reservation.unitId,
+                        comment: acceptReason
+                    }).success(function (data) {
+                        $scope.submitted = false
+                        $scope.$broadcast("reservationStatusChange")
+                        $scope.$broadcast("closePopover", "acceptPopover")
+                        reservation.reservationStatus = dataService.reservationStatus.accept
+                        reservation.reservationComment = acceptReason
+                    })
+                }
+            }
+            $scope.refuse = function (valid, reservation, refuseReason) {
+                $scope.submitted = true
+                if (valid) {
+                    reservationService.refuse({
+                        restaurantId: reservation.restaurantId,
+                        unitId: reservation.unitId,
+                        comment: refuseReason
+                    }).success(function (data) {
+                        $scope.submitted = false
+                        $scope.$broadcast("reservationStatusChange")
+                        $scope.$broadcast("closePopover", "refusePopover")
+                        reservation.reservationStatus = dataService.reservationStatus.refuse
+                        reservation.reservationComment = refuseReason
+                    })
+                }
+            }
             $scope.getReservationSummary = function (date) {
+                var DIRECT_SHOW_LENGTH = 6
                 var replied = []
                 var noReply = []
+                var directShow = []
+                var rest = []
+                var all = []
                 return getReservationList().then(function (reservationList) {
                     reservationList.forEach(function (reservation) {
                         if (date.isSameDay(new ChineseDate(reservation.reservationInfo.reservationTime * 1000))) {
@@ -96,11 +132,20 @@ define(function (require) {
                             } else {
                                 replied.push(reservation)
                             }
+                            directShow.push(reservation)
                         }
                     })
+                    all = directShow
+                    if (directShow.length > DIRECT_SHOW_LENGTH) {
+                        rest = directShow.slice(DIRECT_SHOW_LENGTH - 1)
+                        directShow = directShow.slice(0, DIRECT_SHOW_LENGTH - 1)
+                    }
                     return {
                         replied: replied,
-                        noReply: noReply
+                        noReply: noReply,
+                        directShow: directShow,
+                        rest: rest,
+                        all: all
                     }
                 })
             }

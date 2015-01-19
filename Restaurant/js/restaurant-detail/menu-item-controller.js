@@ -13,7 +13,7 @@ define(function (require) {
                 $scope.editing = true
             }
             $scope.confirmEditItem = function () {
-                $scope.editMenuItemStatus = $scope.REQUEST_STATUS.REQUESTING
+                $scope.editMenuItemStatus = $scope.REQUEST_STATUS.ING
                 menuService.modifyMenuItem({
                         itemId: $scope.newItem.itemId,
                         itemName: $scope.newItem.itemName,
@@ -23,13 +23,13 @@ define(function (require) {
                     }, $scope.menu.restaurantId
                 ).then(
                     function () {
-                        $scope.editMenuItemStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED
+                        $scope.editMenuItemStatus = $scope.REQUEST_STATUS.SUCCESSFUL
                         $scope.item.itemName = $scope.newItem.itemName
                         $scope.item.itemDescription = $scope.newItem.itemDescription
                         $scope.item.price = $scope.newItem.price
                         $scope.editing = false
                     }, function () {
-                        $scope.editMenuItemStatus = $scope.REQUEST_STATUS.REQUEST_FAILED
+                        $scope.editMenuItemStatus = $scope.REQUEST_STATUS.FAILED
                     })
             }
             $scope.cancelEditItem = function () {

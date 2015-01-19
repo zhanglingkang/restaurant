@@ -4,6 +4,8 @@ define(function (require) {
     var app = require("app")
     var util = require("public/general/util")
     var pubSub = require("public/general/pub-sub")
+    var system = require("public/local/system")
+    var ChineseData = require("public/general/chinese-date")
     require("./reservation-list-controller")
     require("public/local/restaurant-service")
     require("./waiting-list-service")
@@ -81,12 +83,16 @@ define(function (require) {
                     $scope.restaurant.restaurantSettings.enableQueue = true
                 })
             }
+            function updateReservationList(reservationList) {
+                $scope.reservationList = $filter("orderBy")(reservationList, 'reservationInfo.reservationTime')
+            }
+
             $scope.waitingList = []
             var _updateData = function () {
                 restaurantService.getWaitingList($scope.restaurantId, function (error, allList) {
                     $scope.error = error
                     $scope.waitingList = allList.waitingList
-                    $scope.reservationList = allList.reservationList
+                    updateReservationList(allList.reservationList)
                     $scope.reservationCompleteList = allList.completeList.filter(function (value) {
                         return !!value.reservationInfo
                     })
@@ -181,6 +187,7 @@ define(function (require) {
                     var newUnit = data.results[0]
                     if (reserve) {
                         $scope.reservationList.push(newUnit)
+                        updateReservationList($scope.reservationList)
                     }
                     else {
                         //update public window if new unit is inserted into an empty list
@@ -224,54 +231,28 @@ define(function (require) {
                 })
             }
             $scope.openPrintView = function (unit, partyType) {
-                var printWindow = $window.open('#/printNumber/' + unit.unitId)
+                var printWindow = $window.open(system.getTplAbsolutePath("printNumber.html"), "", "left=0,top=0")
+                var printPartyTypeDescription
                 if (partyType) {
-                    printWindow.printPartyTypeDescription = partyType.partyTypeDescription
+                    printPartyTypeDescription = partyType.partyTypeDescription
                 } else {
                     var prefix = unit.unitId.charAt(0)
                     for (var i = 0; i < $scope.partyTypeList.length; i++) {
                         var partyType = $scope.partyTypeList[i]
                         if (prefix == partyType.unitIdPrefix) {
-                            printWindow.printPartyTypeDescription = "(预约)" + partyType.partyTypeDescription
+                            printPartyTypeDescription = "(预约)" + partyType.partyTypeDescription
                             break
                         }
                     }
                 }
-                printWindow.printUnitId = unit.unitId
+                printWindow.printData = {
+                    unit: unit,
+                    partyTypeDescription: printPartyTypeDescription,
+                    printTime: new ChineseData
+                }
             }
             $scope.reservationStatusMap = dataService.reservationStatus
-            $scope.accept = function (valid, reservation, acceptReason) {
-                $scope.submitted = true
-                if (valid) {
-                    reservationService.accept({
-                        restaurantId: reservation.restaurantId,
-                        unitId: reservation.unitId,
-                        comment: acceptReason
-                    }).success(function (data) {
-                        $scope.submitted = false
-                        $scope.$broadcast("reservationStatusChange")
-                        $scope.$broadcast("closePopover", "acceptPopover")
-                        reservation.reservationStatus = dataService.reservationStatus.accept
-                        reservation.reservationComment = acceptReason
-                    })
-                }
-            }
-            $scope.refuse = function (valid, reservation, refuseReason) {
-                $scope.submitted = true
-                if (valid) {
-                    reservationService.refuse({
-                        restaurantId: reservation.restaurantId,
-                        unitId: reservation.unitId,
-                        comment: refuseReason
-                    }).success(function (data) {
-                        $scope.submitted = false
-                        $scope.$broadcast("reservationStatusChange")
-                        $scope.$broadcast("closePopover", "refusePopover")
-                        reservation.reservationStatus = dataService.reservationStatus.refuse
-                        reservation.reservationComment = refuseReason
-                    })
-                }
-            }
+
             $scope.reservationStatusMap = dataService.reservationStatus
             // _nextUpdate()
         }

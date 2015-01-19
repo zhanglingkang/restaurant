@@ -13,13 +13,13 @@ define(function (require) {
         "$mdToast", "reservationService", "audioService", "dataService", "notificationService",
         function ($rootScope, $scope, $cookies, $location, $mdBottomSheet, $mdToast, reservationService, audioService, dataService, notificationService) {
             /**
-             * 任何一个请求都有四种状态：INIT 尚未请求 REQUESTING 请求中 REQUEST_SUCCESSED 请求成功 REQUEST_FAILED 请求失败
+             * 任何一个请求都有四种状态：INIT 尚未请求 ING 请求中 SUCCESSFUL 请求成功 FAILED 请求失败
              */
             $rootScope.REQUEST_STATUS = {
                 INIT: 0,
-                REQUESTING: 1,
-                REQUEST_SUCCESSED: 2,
-                REQUEST_FAILED: 3
+                ING: 1,
+                SUCCESSFUL: 2,
+                FAILED: 3
             }
             $rootScope.KEY_CODE = {
                 ENTER: 13,

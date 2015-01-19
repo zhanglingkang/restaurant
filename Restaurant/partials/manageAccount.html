@@ -13,7 +13,7 @@
                 旧密码不能为空
             </div>
             <div class="alert alert-danger"
-                 ng-show="modifyPasswordStatus ===REQUEST_STATUS.REQUEST_FAILED&&submitted">
+                 ng-show="modifyPasswordStatus ===REQUEST_STATUS.FAILED&&submitted">
                 {{failHint}}
             </div>
             <div class="form-group">
@@ -39,7 +39,7 @@
                 两次输入的密码不一致
             </div>
             <div class="alert alert-warning"
-                 ng-show="modifyPasswordStatus ===REQUEST_STATUS.REQUEST_SUCCESSED&&submitted">
+                 ng-show="modifyPasswordStatus ===REQUEST_STATUS.SUCCESSFUL&&submitted">
                 密码修改成功
             </div>
 
@@ -60,7 +60,7 @@
                 请输入合法email
             </div>
             <div class="alert alert-danger"
-                 ng-show="modifyEmailStatus===REQUEST_STATUS.REQUEST_SUCCESSED">
+                 ng-show="modifyEmailStatus===REQUEST_STATUS.SUCCESSFUL">
                 email修改成功
             </div>
             <div class="alert alert-danger"

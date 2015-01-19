@@ -16,12 +16,12 @@ define(function (require) {
                 $scope.submitted = true
                 $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.INIT
                 if (valid && $scope.modifyPasswordForm.newPassword === $scope.modifyPasswordForm.againPassword) {
-                    $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.REQUESTING
+                    $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.ING
                     manageAccountService.modifyPassword($scope.modifyPasswordForm.oldPassword, $scope.modifyPasswordForm.newPassword)
                         .success(function () {
-                            $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED
+                            $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.SUCCESSFUL
                         }).error(function (data) {
-                            $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.REQUEST_FAILED
+                            $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.FAILED
                             if (angular.isObject(data) && data.code == 17) {
                                 $scope.failHint = "旧密码不正确"
                             }
@@ -34,13 +34,13 @@ define(function (require) {
                 $scope.wantModifyEmail = true
                 $scope.modifyEmailStatus = $scope.REQUEST_STATUS.INIT
                 if (valid) {
-                    $scope.modifyEmailStatus = $scope.REQUEST_STATUS.REQUESTING
+                    $scope.modifyEmailStatus = $scope.REQUEST_STATUS.ING
                     manageAccountService.modifyEmail($scope.email).
                         success(function () {
-                            $scope.modifyEmailStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED
+                            $scope.modifyEmailStatus = $scope.REQUEST_STATUS.SUCCESSFUL
                         }).
                         error(function () {
-                            $scope.modifyEmailStatus = $scope.REQUEST_STATUS.REQUEST_FAILED
+                            $scope.modifyEmailStatus = $scope.REQUEST_STATUS.FAILED
                             $scope.modifyEmailHint = "修改email失败"
                         })
                 }

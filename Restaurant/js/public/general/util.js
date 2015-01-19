@@ -1,6 +1,11 @@
 "use strict"
 define(function (require, exports, module) {
     return {
+        isExcel: function (file) {
+            if (file) {
+                return /application\/.*(?:office|excel).*/.test(file.type)
+            }
+        },
         /**
          * @method getArray
          * @description 将obj的属性值组装成一个数组

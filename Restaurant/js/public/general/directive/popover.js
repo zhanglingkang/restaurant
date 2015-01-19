@@ -7,9 +7,8 @@ define(function (require, exports, module) {
     app.directive("selfPopover", ["$compile", function ($compile) {
         /**
          * 此指令相关的属性
-         * - relatedTarget:可选
+         * - relatedTarget:可选 描述：css选择器，当指定relatedTarget时，点击relatedTarget时，出现弹出框,如果没有设置此属性，目标节点为父节点
          *  type string
-         *  描述：css选择器，当指定relatedTarget时，点击relatedTarget时，出现弹出框,如果没有设置此属性，目标节点为父节点
          * - context:选择器的上下文，默认body。可选值parent
          * - autoClose 如果有此属性，点击浮框意外的部分时，自动关闭。
          * - exclude 在autoClose为true时生效，exclude的值为选择器，如果点击元素是exclude选择器对应元素的后代，则浮框不关闭
@@ -58,10 +57,6 @@ define(function (require, exports, module) {
                     targetNode.data("bs.popover").$tip.addClass("popover-hidden")
                 })
                 targetNode.on("shown.bs.popover", function (event) {
-                    targetNode.data("bs.popover").$tip.css({
-                        left: 0,
-                        top: 0
-                    })
                     var popoverContent = targetNode.data("bs.popover").$tip.find(".popover-content")
                     $compile(popoverContent.children())(scope.$parent)
                     if ("autoClose" in attrs) {

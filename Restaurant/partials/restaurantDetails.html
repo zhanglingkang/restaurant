@@ -100,33 +100,33 @@
                 <form id="import-menu-form" ng-submit="importMenu()" novalidate="">
                     <div class="form-group">
                         <label for="userName">导入的excel文件</label>
-                        <input type="file" class="form-control" required="" name="userName" id="userName"
-                               x-file-model="importMenuFile"/>
+                        <input type="file" class="form-control" required=""
+                               ng-model="menuFile"/>
                     </div>
-                    <div class="alert alert-danger" ng-show="importMenuFile.length===0&amp;&amp;wantImport">
+                    <div class="alert alert-danger" ng-show="!menuFile&&wantImport">
                         请选择导入的文件
                     </div>
                     <div class="alert alert-danger"
-                         ng-show="importMenuFile.length&gt;0&amp;&amp;!isExcel()&amp;&amp;wantImport">
+                         ng-show="menuFile&&!isExcel()&&wantImport">
                         请选择excel文件
                     </div>
-                    <div class="alert alert-warning" ng-show="importStatus===REQUEST_STATUS.REQUESTING">
+                    <div class="alert alert-warning" ng-show="importStatus===REQUEST_STATUS.ING">
                         导入中...
                     </div>
-                    <div class="alert alert-success" ng-show="importStatus===REQUEST_STATUS.REQUEST_SUCCESSED">
+                    <div class="alert alert-success" ng-show="importStatus===REQUEST_STATUS.SUCCESSFUL">
                         导入成功
                     </div>
-                    <div class="alert alert-danger" ng-show="importStatus===REQUEST_STATUS.REQUEST_FAILED">
+                    <div class="alert alert-danger" ng-show="importStatus===REQUEST_STATUS.FAILED">
                         导入失败
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal"
-                        ng-disabled="importStatus===REQUEST_STATUS.REQUESTING">取消
+                        ng-disabled="importStatus===REQUEST_STATUS.ING">取消
                 </button>
                 <button type="submit" class="btn btn-primary" form="import-menu-form"
-                        ng-disabled="importStatus===REQUEST_STATUS.REQUESTING"> 确定
+                        ng-disabled="importStatus===REQUEST_STATUS.ING"> 确定
                 </button>
             </div>
         </div>
@@ -164,10 +164,10 @@
                     </div>
                 </div>
                 <div class="col-xs-12">
-                    <div class="alert alert-success" ng-show="addStatus===REQUEST_STATUS.REQUEST_SUCCESSED">
+                    <div class="alert alert-success" ng-show="addStatus===REQUEST_STATUS.SUCCESSFUL">
                         添加成功
                     </div>
-                    <div class="alert alert-danger" ng-show="addStatus===REQUEST_STATUS.REQUEST_FAILED">
+                    <div class="alert alert-danger" ng-show="addStatus===REQUEST_STATUS.FAILED">
                         添加失败
                     </div>
                 </div>
@@ -258,10 +258,10 @@
                         </div>
                     </div>
                     <div class="col-xs-12">
-                        <div class="alert alert-warning" ng-show="editStatus===REQUEST_STATUS.REQUEST_SUCCESSED">
+                        <div class="alert alert-warning" ng-show="editStatus===REQUEST_STATUS.SUCCESSFUL">
                             编辑成功
                         </div>
-                        <div class="alert alert-danger" ng-show="editStatus===REQUEST_STATUS.REQUEST_FAILED">
+                        <div class="alert alert-danger" ng-show="editStatus===REQUEST_STATUS.FAILED">
                             编辑失败
                         </div>
                     </div>
@@ -301,11 +301,11 @@
                     </div>
                     <div class="col-xs-12">
                         <!--<div class="alert alert-warning"-->
-                        <!--ng-show="editMenuItemStatus===REQUEST_STATUS.REQUEST_SUCCESSED">-->
+                        <!--ng-show="editMenuItemStatus===REQUEST_STATUS.SUCCESSFUL">-->
                         <!--编辑成功-->
                         <!--</div>-->
                         <div class="alert alert-danger"
-                             ng-show="editMenuItemStatus===REQUEST_STATUS.REQUEST_FAILED">
+                             ng-show="editMenuItemStatus===REQUEST_STATUS.FAILED">
                             编辑失败
                         </div>
                     </div>
@@ -349,11 +349,11 @@
                         </div>
                         <div class="col-xs-12">
                             <div class="alert alert-success"
-                                 ng-show="addMenuItemStatus===REQUEST_STATUS.REQUEST_SUCCESSED">
+                                 ng-show="addMenuItemStatus===REQUEST_STATUS.SUCCESSFUL">
                                 添加成功
                             </div>
                             <div class="alert alert-danger"
-                                 ng-show="addMenuItemStatus===REQUEST_STATUS.REQUEST_FAILED">
+                                 ng-show="addMenuItemStatus===REQUEST_STATUS.FAILED">
                                 添加失败
                             </div>
                         </div>
@@ -541,7 +541,7 @@
                                 简介不能为空
                             </div>
                             <div style="direction: rtl">
-                                <!--<button type="button" class="btn btn-default" data-dismiss="modal" ng-disabled="importStatus===REQUEST_STATUS.REQUESTING">取消-->
+                                <!--<button type="button" class="btn btn-default" data-dismiss="modal" ng-disabled="importStatus===REQUEST_STATUS.ING">取消-->
                                 <!--</button>-->
                                 <button type="submit" class="btn btn-primary"> 确定</button>
                             </div>

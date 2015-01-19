@@ -16,18 +16,18 @@ define(function (require) {
             };
 
             $scope.confirmEditCategory = function () {
-                $scope.editStatus = $scope.REQUEST_STATUS.REQUESTING;
+                $scope.editStatus = $scope.REQUEST_STATUS.ING;
                 menuService.modifyMenuCategory({
                     categoryName: $scope.nameModified,
                     categoryDescription: $scope.descriptionModified,
                     categoryId: $scope.category.categoryId
                 }, $scope.menu.restaurantId).then(function () {
-                    $scope.editStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
+                    $scope.editStatus = $scope.REQUEST_STATUS.SUCCESSFUL;
                     $scope.category.categoryName = $scope.nameModified;
                     $scope.category.categoryDescription = $scope.descriptionModified;
                     $scope.editing = false;
                 }, function () {
-                    $scope.editStatus = $scope.REQUEST_STATUS.REQUEST_FAILED;
+                    $scope.editStatus = $scope.REQUEST_STATUS.FAILED;
                 });
             };
 
@@ -76,16 +76,16 @@ define(function (require) {
             };
             $scope.deleteStatus = $scope.REQUEST_STATUS.INIT;
             $scope.removeMenuCategory = function () {
-                $scope.deleteStatus = $scope.REQUEST_STATUS.REQUESTING;
+                $scope.deleteStatus = $scope.REQUEST_STATUS.ING;
                 menuService.removeMenuCategory(
                     $scope.category.categoryId,
                     $scope.menu.restaurantId).then(function () {
-                        $scope.editStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
+                        $scope.editStatus = $scope.REQUEST_STATUS.SUCCESSFUL;
                         $scope.menu.menuCategories = $scope.menu.menuCategories.filter(function (category) {
                             return category.categoryId !== $scope.category.categoryId;
                         });
                     }, function () {
-                        $scope.editStatus = $scope.REQUEST_STATUS.REQUEST_FAILED;
+                        $scope.editStatus = $scope.REQUEST_STATUS.FAILED;
                     });
             };
             $scope.$on("collapse", function ($event, collapse) {
@@ -114,15 +114,15 @@ define(function (require) {
             };
             $scope.confirmAddItem = function (valid) {
                 if (valid) {
-                    $scope.addMenuItemStatus = $scope.REQUEST_STATUS.REQUESTING;
+                    $scope.addMenuItemStatus = $scope.REQUEST_STATUS.ING;
                     menuService.addMenuItem(angular.extend($scope.menuItemForm, {
                         categoryId: $scope.category.categoryId
                     }), $scope.menu.restaurantId).then(function (data) {
-                        $scope.addMenuItemStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED;
+                        $scope.addMenuItemStatus = $scope.REQUEST_STATUS.SUCCESSFUL;
                         $scope.category.items = $scope.category.items.concat(data.results);
                         $scope.addingNewItem = false;
                     }, function () {
-                        $scope.addMenuItemStatus = $scope.REQUEST_STATUS.REQUEST_FAILED;
+                        $scope.addMenuItemStatus = $scope.REQUEST_STATUS.FAILED;
                     });
                 }
             };

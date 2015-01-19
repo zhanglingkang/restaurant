@@ -1,8 +1,77 @@
-<div style="width: 250px;">
-    <div class="container-fluid">
-        <div class="panel panel-default col-lg-12">
-            <div class="panel-heading"><h1 class="panel-title" style="font-size:28px">{{partyTypeDescription}}</h1></div>
-            <div class="panel-body"><h3 style="font-size: 50px;text-align: center">{{unitId}}</h3></div>
-        </div>
-    </div>
+<!--<div style="width: 250px;">-->
+<!--<div class="container-fluid">-->
+<!--<div class="panel panel-default col-lg-12">-->
+<!--<div class="panel-heading"><h1 class="panel-title" style="font-size:28px">{{partyTypeDescription}}</h1></div>-->
+<!--<div class="panel-body"><h3 style="font-size: 50px;text-align: center">{{unitId}}</h3></div>-->
+<!--</div>-->
+<!--</div>-->
+<!--</div>-->
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title></title>
+    <style>
+        .title {
+            text-align: center;
+        }
+
+        @media print {
+            .title {
+                font-size: 18pt;
+            }
+
+            .unitId {
+                font-size: 14pt;
+            }
+
+            body {
+                color: black !important;
+                background: white !important;
+                font-family: '微软雅黑', Georgia, 'Times New Roman', serif;
+                font-size: 12pt;
+            }
+
+        }
+    </style>
+</head>
+<body>
+<div id="print-zone">
+
 </div>
+<script type="text/template" id="template">
+    <p class="title">{{partyTypeDescription}}排号单</p>
+    <hr/>
+    <div>
+        <p>手机号码：{{unit.phone}}</p>
+
+        <p>领号日期：{{printTime.format("yyyy-MM-dd")}}</p>
+    </div>
+    <hr/>
+    <div>
+        <strong class="unitId">{{unit.unitId}}</strong>
+
+        <p>你前面还有{{unit.position}}名客人在等待</p>
+    </div>
+    <hr/>
+    <div>
+        <p>*打印时间：{{printTime.format("hh:mm:ss")}}</p>
+
+        <p>*注意叫号</p>
+    </div>
+</script>
+<script>
+    +function () {
+        var template = document.querySelector("#template").innerHTML
+        template = template.replace(/{{(.+)}}/g, function ($0, $1) {
+            console.log(eval("printData." + $1))
+            return eval("printData." + $1)
+        })
+        debugger
+        console.log(template)
+        document.querySelector("#print-zone").innerHTML = template
+        window.print()
+    }()
+</script>
+</body>
+</html>
