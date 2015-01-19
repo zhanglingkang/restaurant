@@ -214,9 +214,9 @@ md-toast {
     background-color: #ebcccc;
 }
 
-.row .btn {
-    margin-bottom: 5px;
-}
+/*.row .btn {*/
+    /*margin-bottom: 5px;*/
+/*}*/
 
 .reservation-calendar-toolbar > * {
     margin-bottom: 5px;

@@ -230,20 +230,30 @@ define(function (require) {
 
                 })
             }
+            function getPartyTypeDescription(partyTypeId) {
+                var partyTypeDescription
+                $scope.partyTypeList.some(function (partyType) {
+                    if (partyType.partyTypeId === partyTypeId) {
+                        partyTypeDescription = partyType.partyTypeDescription
+                        return true
+                    }
+                })
+                return partyTypeDescription
+            }
+
             $scope.openPrintView = function (unit, partyType) {
                 var printWindow = $window.open(system.getTplAbsolutePath("printNumber.html"), "", "left=0,top=0")
                 var printPartyTypeDescription
                 if (partyType) {
                     printPartyTypeDescription = partyType.partyTypeDescription
                 } else {
-                    var prefix = unit.unitId.charAt(0)
-                    for (var i = 0; i < $scope.partyTypeList.length; i++) {
-                        var partyType = $scope.partyTypeList[i]
-                        if (prefix == partyType.unitIdPrefix) {
-                            printPartyTypeDescription = "(预约)" + partyType.partyTypeDescription
-                            break
+                    printPartyTypeDescription = getPartyTypeDescription(unit.partyTypeId)
+                    $scope.reservationList.some(function (reservation, index) {
+                        if (reservation.unitId === unit.unitId) {
+                            unit.position = index
+                            return true
                         }
-                    }
+                    })
                 }
                 printWindow.printData = {
                     unit: unit,
