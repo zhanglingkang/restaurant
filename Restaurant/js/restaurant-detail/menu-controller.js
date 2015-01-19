@@ -2,6 +2,8 @@
 
 define(function (require) {
     var app = require("app")
+    var util = require("public/general/util")
+    require("public/general/directive/ng-model")
     require("./menu-service")
     require("./menu-manager-directive")
     require("./menu-category-controller")
@@ -14,10 +16,10 @@ define(function (require) {
              */
             $scope.adding = false
             /**
-             * 导入的菜单文件列表 元素为File对象
-             * @type {Array}
+             * 导入的菜单文件为File对象
+             * @type {File}
              */
-            $scope.importMenuFile = []
+            $scope.menuFile = null
             /**
              * 当点击了确定按钮欲发送导入请求时为true。
              * @type {boolean}
@@ -25,17 +27,17 @@ define(function (require) {
             $scope.wantImport = false
             $scope.importStatus = $scope.REQUEST_STATUS.INIT
             $scope.isExcel = function () {
-                return /application\/.+office.+/.test($scope.importMenuFile[0].type)
+                return util.isExcel($scope.menuFile)
             }
             $scope.importMenu = function () {
                 $scope.wantImport = true
-                if ($scope.importMenuFile.length > 0 && $scope.isExcel()) {
-                    $scope.importStatus = $scope.REQUEST_STATUS.REQUESTING
-                    menuService.importMenu($scope.importMenuFile[0], $scope.restaurantId).then(
+                if ($scope.menuFile && $scope.isExcel()) {
+                    $scope.importStatus = $scope.REQUEST_STATUS.ING
+                    menuService.importMenu($scope.menuFile, $scope.restaurantId).then(
                         function () {
-                            $scope.importStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED
+                            $scope.importStatus = $scope.REQUEST_STATUS.SUCCESSFUL
                         }, function (data) {
-                            $scope.importStatus = $scope.REQUEST_STATUS.REQUEST_FAILED
+                            $scope.importStatus = $scope.REQUEST_STATUS.FAILED
                         })
                 }
             }
@@ -50,7 +52,7 @@ define(function (require) {
                         }
                     }
                 })
-                $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.REQUESTING
+                $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.ING
                 $scope.setAlert({
                     showCover: true,
                     alertContent: "排序中..."
@@ -59,7 +61,7 @@ define(function (require) {
                     categoryId: data.dragNodeId,
                     previousCategoryId: previousCategoryId
                 }, $scope.menu.restaurantId).then(function (data) {
-                    $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED
+                    $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.SUCCESSFUL
                     var menuCategoryList = []
                     sortList.forEach(function (item, index) {
                         menuCategoryList.push($scope.getMenuCategory(item.id))
@@ -69,7 +71,7 @@ define(function (require) {
                         showCover: false
                     })
                 }, function () {
-                    $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.REQUEST_FAILED
+                    $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.FAILED
                     $scope.setAlert({
                         showCover: true,
                         alertContent: "操作失败"
@@ -155,14 +157,14 @@ define(function (require) {
             $scope.addStatus = $scope.REQUEST_STATUS.INIT
             $scope.addMenuCategory = function (valid) {
                 if (valid) {
-                    $scope.addStatus = $scope.REQUEST_STATUS.REQUESTING
+                    $scope.addStatus = $scope.REQUEST_STATUS.ING
                     menuService.addMenuCategory($scope.categoryForm, $scope.menu.restaurantId).then(function (data) {
                         initCategoryForm()
-                        $scope.addStatus = $scope.REQUEST_STATUS.REQUEST_SUCCESSED
+                        $scope.addStatus = $scope.REQUEST_STATUS.SUCCESSFUL
                         $scope.menu.menuCategories = $scope.menu.menuCategories.concat(data.results)
                         $scope.adding = false
                     }, function () {
-                        $scope.addStatus = $scope.REQUEST_STATUS.REQUEST_FAILED
+                        $scope.addStatus = $scope.REQUEST_STATUS.FAILED
                     })
                 }
             }
