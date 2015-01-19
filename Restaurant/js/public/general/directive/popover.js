@@ -24,6 +24,20 @@ define(function (require, exports, module) {
                 var $elem = $(elem)
                 var targetNode = $elem.parent()
                 var style = attrs.style || ""
+                var tip
+                var interval
+                var observer = new MutationObserver(function (record) {
+                    if (record[0].removedNodes.length > 0 && !$.contains(document.body, targetNode[0])) {
+                        document.removeEventListener("click", autoClose, true)
+                        if (tip) {
+                            tip.remove()
+                        }
+                        clearInterval(interval)
+                    }
+                })
+                observer.observe(targetNode.parent()[0], {
+                    childList: true
+                })
                 var template = '<div class="popover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content" ></div></div>'
                 template = template.replace(/(?=class=['"]popover-content['"])/, "style='" + style + "' ")
                 scope.close = false
@@ -53,6 +67,7 @@ define(function (require, exports, module) {
                     }
                 )
                 targetNode.on("show.bs.popover", function (event) {
+                    tip = targetNode.data("bs.popover").$tip
                     targetNode.data("bs.popover").$tip.addClass(attrs.class)
                     targetNode.data("bs.popover").$tip.addClass("popover-hidden")
                 })
@@ -66,8 +81,8 @@ define(function (require, exports, module) {
                     setTimeout(function () {
                         updateTooltipPos()
                     }, 0)
-                    var interval = setInterval(function () {
-                        if (!targetNode.data("bs.popover").$tip || !targetNode.data("bs.popover").$tip[0] || !$.contains(document.body, targetNode.data("bs.popover").$tip[0])) {
+                    interval = setInterval(function () {
+                        if (!$.contains(document.body, targetNode) || !targetNode.data("bs.popover").$tip || !targetNode.data("bs.popover").$tip[0] || !$.contains(document.body, targetNode.data("bs.popover").$tip[0])) {
                             clearInterval(interval)
                             return
                         }
@@ -91,9 +106,20 @@ define(function (require, exports, module) {
                     if (targetNode.data("bs.popover")) {
                         var container = targetNode.data("bs.popover").$tip[0]
                         if (container && !$.contains(container, event.target)) {
-                            if (!attrs.exclude || !$.contains($(attrs.exclude)[0], event.target)) {
+                            if (!attrs.exclude) {
                                 targetNode.popover("hide")
+                            } else {
+                                var isException = false
+                                $(attrs.exclude).each(function (index, value) {
+                                    if ($.contains(value, event.target)) {
+                                        isException = true
+                                    }
+                                })
+                                if (!isException) {
+                                    targetNode.popover("hide")
+                                }
                             }
+
                         }
                     }
                     if ($.contains(targetNode[0], event.target) || targetNode[0] === event.target) {
@@ -141,5 +167,6 @@ define(function (require, exports, module) {
 
             }
         }
-    }])
+    }
+    ])
 })

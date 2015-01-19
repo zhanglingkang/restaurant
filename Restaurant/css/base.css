@@ -206,6 +206,14 @@ md-toast {
     position: fixed !important;
 }
 
+.default {
+    background-color: #333434;
+}
+
+.info {
+    background-color: #027ca7;
+}
+
 .success {
     background-color: #d0e9c6;
 }
@@ -215,7 +223,7 @@ md-toast {
 }
 
 /*.row .btn {*/
-    /*margin-bottom: 5px;*/
+/*margin-bottom: 5px;*/
 /*}*/
 
 .reservation-calendar-toolbar > * {
@@ -251,6 +259,18 @@ md-toast {
     color: #000;
 }
 
+.reservation-calendar-workzone .date .solar {
+    font-size: 2rem;
+}
+
+.reservation-calendar-workzone .date .lunar {
+    font-size: 1.2rem;
+}
+
+.reservation-calendar-workzone .date header {
+    margin-bottom: 2px;
+}
+
 .pointer {
     cursor: pointer;
 }
@@ -277,6 +297,7 @@ md-toast {
 
 .single-reservation-preview {
     display: block;
+    margin-bottom: 1px;
 }
 
 .popover-hidden {
