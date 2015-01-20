@@ -63,7 +63,8 @@
                                 ng-repeat="reservation in showReservationList[chineseDate.getTime()].directShow">
                             {{reservation.userName}}{{reservation.reservationInfo.reservationTime*1000|date:'H:mm'}}
                                <x-self-popover data-placement="top" container="body" class="reservation-list"
-                                               auto-close exclude="#modal-hint">
+                                               auto-close exclude="#modal-hint" need-observe
+                                               observe-context="body">
                                    <ng-include src="'reservation-list'"></ng-include>
                                </x-self-popover>
                           </span>
@@ -73,13 +74,15 @@
                         <span class="pointer" ng-if="showReservationList[chineseDate.getTime()].rest.length!==0">
                             另外{{showReservationList[chineseDate.getTime()].rest.length}}个
                             <x-self-popover data-placement="top"
-                                            auto-close exclude="#modal-hint,.reservation-list">
+                                            auto-close exclude="#modal-hint,.reservation-list" watch-size need-observe
+                                            observe-context="body">
                                 <span class="single-reservation-preview pointer"
                                       ng-class="{'success':reservation.reservationStatus===reservationStatusMap.accept,'danger':reservation.reservationStatus===reservationStatusMap.refuse}"
                                       ng-repeat="reservation in showReservationList[chineseDate.getTime()].rest">
                             {{reservation.userName}}{{reservation.reservationInfo.reservationTime*1000|date:'H:mm'}}
                                      <x-self-popover data-placement="top" container="body" class="reservation-list"
-                                                     auto-close exclude="#modal-hint">
+                                                     auto-close exclude="#modal-hint" need-observe
+                                                     observe-context="body">
                                          <ng-include src="'reservation-list'"></ng-include>
                                      </x-self-popover>
                           </span>
@@ -88,23 +91,23 @@
                     </div>
 
                     <!--<div ng-show="showReservationList[chineseDate.getTime()]&&showReservationList[chineseDate.getTime()].replied.length!==0"-->
-                         <!--class="summary pointer ng-hide">-->
-                        <!--<span class="ng-hide">-->
-                            <!--已回复{{showReservationList[chineseDate.getTime()].replied.length}}条预约-->
-                            <!--<x-self-popover data-placement="top" container="body" class="reservation-list"-->
-                                            <!--auto-close exclude="#modal-hint">-->
-                                <!--<div>-->
-                                    <!--<div class="list-group-item list-group-item-info">-->
-                                        <!--<ng-include src="'reservation-row-header'"></ng-include>-->
-                                    <!--</div>-->
-                                    <!--<div ng-repeat='unit in showReservationList[chineseDate.getTime()].replied'-->
-                                         <!--class="list-group-item"-->
-                                         <!--ng-class="{'success':unit.reservationStatus===reservationStatusMap.accept,'danger':unit.reservationStatus===reservationStatusMap.refuse}">-->
-                                        <!--<ng-include src="'reservation-row'"></ng-include>-->
-                                    <!--</div>-->
-                                <!--</div>-->
-                            <!--</x-self-popover>-->
-                        <!--</span>-->
+                    <!--class="summary pointer ng-hide">-->
+                    <!--<span class="ng-hide">-->
+                    <!--已回复{{showReservationList[chineseDate.getTime()].replied.length}}条预约-->
+                    <!--<x-self-popover data-placement="top" container="body" class="reservation-list"-->
+                    <!--auto-close exclude="#modal-hint">-->
+                    <!--<div>-->
+                    <!--<div class="list-group-item list-group-item-info">-->
+                    <!--<ng-include src="'reservation-row-header'"></ng-include>-->
+                    <!--</div>-->
+                    <!--<div ng-repeat='unit in showReservationList[chineseDate.getTime()].replied'-->
+                    <!--class="list-group-item"-->
+                    <!--ng-class="{'success':unit.reservationStatus===reservationStatusMap.accept,'danger':unit.reservationStatus===reservationStatusMap.refuse}">-->
+                    <!--<ng-include src="'reservation-row'"></ng-include>-->
+                    <!--</div>-->
+                    <!--</div>-->
+                    <!--</x-self-popover>-->
+                    <!--</span>-->
                     <!--</div>-->
                     <!--<div ng-show="showReservationList[chineseDate.getTime()]&&showReservationList[chineseDate.getTime()].noReply.length!==0"-->
                     <!--class="danger summary pointer ng-hide">-->
