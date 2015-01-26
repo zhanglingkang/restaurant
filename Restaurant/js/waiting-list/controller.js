@@ -176,9 +176,11 @@ define(function (require) {
                 if (valid) {
                     $scope.waitForm.partyTypeId = partyTypeId
                     waitingListService.addWaitUser($scope.waitForm).success(function (data) {
-                        $scope.waitingList[partyTypeId].push(data.results[0])
+                        var unit = data.results[0]
+                        $scope.waitingList[partyTypeId].push(unit)
                         initWaitForm()
                         $scope.waitFormValidation.$setPristine()
+                        $scope.openPrintView(unit, getPartyType(partyTypeId))
                     })
                 }
             }
@@ -227,14 +229,18 @@ define(function (require) {
                 })
             }
             function getPartyTypeDescription(partyTypeId) {
-                var partyTypeDescription
+                return getPartyType(partyTypeId).partyTypeDescription
+            }
+
+            function getPartyType(partyTypeId) {
+                var result
                 $scope.partyTypeList.some(function (partyType) {
                     if (partyType.partyTypeId === partyTypeId) {
-                        partyTypeDescription = partyType.partyTypeDescription
+                        result = partyType
                         return true
                     }
                 })
-                return partyTypeDescription
+                return result
             }
 
             $scope.openPrintView = function (unit, partyType) {

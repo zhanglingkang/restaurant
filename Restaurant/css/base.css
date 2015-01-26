@@ -243,6 +243,7 @@ md-toast {
 .reservation-calendar-workzone {
     padding-left: 10px;
     padding-right: 10px;
+    margin-bottom: 10px;
 }
 
 .reservation-calendar-workzone .content {
@@ -257,7 +258,11 @@ md-toast {
 }
 
 .reservation-calendar-workzone .date.today {
-    background-color: #eee;
+    background-color: #8FA2CC;
+}
+
+.reservation-calendar-workzone .date.before-today {
+    background-color: rgb(244, 243, 227);
 }
 
 .reservation-calendar-workzone .date.opacity {
@@ -312,6 +317,11 @@ md-toast {
 
 .modal-open {
     overflow-y: auto;
+}
+
+.user-name {
+    min-width: 60px;
+    display: inline-block;
 }
 
 .single-reservation-preview {

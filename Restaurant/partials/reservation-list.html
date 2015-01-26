@@ -52,7 +52,7 @@
         <div layout="column" class="content">
             <div layout="row" ng-repeat="week in weekList">
                 <div class="date" flex ng-repeat="chineseDate in week"
-                     ng-class="{'opacity':chineseDate.getMonth()+1!==date.month,'today':chineseDate.isToday()}">
+                     ng-class="{'opacity':chineseDate.getMonth()+1!==date.month,'today':chineseDate.isToday(),'before-today':chineseDate.isBeforeToday()}">
                     <header>
                         <span class="solar">{{chineseDate.getDate()}}</span>
                         <span class="lunar">{{chineseDate.getSolarTerm()||chineseDate.getChineseDate()}}</span>
@@ -61,7 +61,7 @@
                           <span class="single-reservation-preview pointer"
                                 ng-class="{'success':reservation.reservationStatus===reservationStatusMap.accept,'danger':reservation.reservationStatus===reservationStatusMap.refuse}"
                                 ng-repeat="reservation in showReservationList[chineseDate.getTime()].directShow">
-                            {{reservation.userName}}{{reservation.reservationInfo.reservationTime*1000|date:'H:mm'}}
+                            <span class="user-name">{{reservation.userName}}</span>{{reservation.reservationInfo.reservationTime*1000|date:'H:mm'}}
                                <x-self-popover data-placement="top" container="body" class="reservation-list"
                                                auto-close exclude="#modal-hint" need-observe
                                                observe-context="body">
@@ -79,7 +79,7 @@
                                 <span class="single-reservation-preview pointer"
                                       ng-class="{'success':reservation.reservationStatus===reservationStatusMap.accept,'danger':reservation.reservationStatus===reservationStatusMap.refuse}"
                                       ng-repeat="reservation in showReservationList[chineseDate.getTime()].rest">
-                            {{reservation.userName}}{{reservation.reservationInfo.reservationTime*1000|date:'H:mm'}}
+                            <span class="user-name">{{reservation.userName}}</span>{{reservation.reservationInfo.reservationTime*1000|date:'H:mm'}}
                                      <x-self-popover data-placement="top" container="body" class="reservation-list"
                                                      auto-close exclude="#modal-hint" need-observe
                                                      observe-context="body">

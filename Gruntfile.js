@@ -1,7 +1,7 @@
 module.exports = function (grunt) {
 
-    var fs = require("fs");
-    // Project configuration.
+    var fs = require("fs")
+    var crc = require('crc')
     grunt.initConfig({
             pkg: grunt.file.readJSON("package.json"),
             copy: {
@@ -69,6 +69,7 @@ module.exports = function (grunt) {
                     ]
                 }
             },
+
             transport: {
                 options: {
                     alias: "<%= pkg.spm.alias %>",
@@ -108,6 +109,13 @@ module.exports = function (grunt) {
                     ]
                 }
             },
+            routeChange: {
+                "route": {
+                    file: [
+                        "./dist/js/route.js"
+                    ]
+                }
+            },
             replace: {
                 "index.html": {
                     file: "./dist/index.html",
@@ -121,7 +129,20 @@ module.exports = function (grunt) {
         if (grunt.file.exists("./dist")) {
             grunt.file.delete("./dist");
         }
-    });
+    })
+    grunt.registerMultiTask("routeChange", "route.js文件中引用的模板路径加md5戳", function () {
+        this.data.file.forEach(function (file) {
+            var fileContent = grunt.file.read(file)
+            var pathReg = /templateUrl\s*:\s*['"](.+)['"]/g
+            fileContent = fileContent.replace(pathReg, function (matchPart, $1) {
+                var summary = crc.crc32(fs.readFileSync("./dist/" + $1, "utf-8")).toString(16)
+                console.log(summary)
+                return matchPart.replace(/\.html/, ".html?" + summary)
+            })
+            grunt.file.write(file, fileContent)
+        })
+
+    })
     grunt.registerMultiTask("replace", "将指定的文件里标记data-romove属性标签删除掉", function () {
         var scriptReg = /<script\s+[^>]*data-remove[^>]*>\s*<\/script>/g;
         var linkReg = /<link\s+[^>]*data-remove[^>]*>/g;
@@ -174,6 +195,7 @@ module.exports = function (grunt) {
     grunt.registerTask("default", [
         "init",
         "copy",
+        "routeChange",
         "cssmin",
         "htmlmin",
         "replace",

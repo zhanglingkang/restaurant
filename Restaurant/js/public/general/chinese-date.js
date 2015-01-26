@@ -260,6 +260,12 @@ define(function (require, exports, module) {
         },
         isSameDay: function (date) {
             return this.format("yyyy-MM-dd") === date.format("yyyy-MM-dd")
+        },
+        isBeforeToday: function () {
+            return this.format("yyyy-MM-dd") < new Date().format("yyyy-MM-dd")
+        },
+        isAfterToday: function () {
+            return this.format("yyyy-MM-dd") > new Date().format("yyyy-MM-dd")
         }
     }
     dateProto.__proto__ = Date.prototype
