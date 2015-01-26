@@ -271,6 +271,10 @@ md-toast {
     margin-bottom: 2px;
 }
 
+.break {
+    word-break: break-all;
+}
+
 .pointer {
     cursor: pointer;
 }
@@ -284,7 +288,13 @@ md-toast {
 }
 
 .popover.reservation-list {
-    min-width: 1200px;
+    min-width: 100vw;
+}
+
+@media (min-width: 1200px) {
+    .popover.reservation-list {
+        min-width: 1200px;
+    }
 }
 
 .popover.reservation-list-no-reply {
