@@ -68,7 +68,7 @@ h4, h1 {
 
 /* patch to bootstrap*/
 
-#reserve-panel {
+#reserve-panel, .wait-panel {
     border: 1px #dddddd solid;
     margin: 0 15px 20px;
     background: #d9edf7;
@@ -76,6 +76,15 @@ h4, h1 {
 
 #reserve-panel.form-inline .form-control {
     width: 100%;
+}
+
+.wait-panel {
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.wait-panel .btn {
+    margin-left: 10px;
 }
 
 @keyframes flickerAnimation {

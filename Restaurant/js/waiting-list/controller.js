@@ -34,19 +34,12 @@ define(function (require) {
                 }
             }
             $scope.reservationTypeArray = util.getArray($scope.reservationTypeMap)
-            $scope.newReserve = {
-                time: new Date(),
-                typeId: "",
-                reservableId: "",
-                number: "",
-                reservationType: $scope.reservationTypeMap.reservationDesk.value
-            }
+
             restaurantService.getRestaurant($scope.restaurantId).then(function (restaurant) {
                 $scope.partyTypeList = restaurant.partyTypeInfos
-                $scope.newReserve.typeId = $scope.partyTypeList[0].partyTypeId
                 $scope.restaurant = restaurant
-                $scope.newReserve.reservableId = $scope.restaurant.reservableRooms[0] ? $scope.restaurant.reservableRooms[0].reservableId : ""
                 $scope.maxQueueLength = restaurant.restaurantSettings.maxQueueLength
+                initReservationForm()
             }, function (error) {
                 $scope.error = error
             })
@@ -84,6 +77,7 @@ define(function (require) {
                 })
             }
             function updateReservationList(reservationList) {
+                reservationList = reservationList || $scope.reservationList
                 $scope.reservationList = $filter("orderBy")(reservationList, 'reservationInfo.reservationTime')
             }
 
@@ -168,51 +162,53 @@ define(function (require) {
                     _updateData()
                 })
             }
-            $scope.addUser = function (reserve) {
-                var reserveTime = reserve ? $scope.newReserve.time : null
-                var typeId = $scope.newReserve.typeId
-                var promise
-                if ($scope.newReserve.reservationType === $scope.reservationTypeMap.reservationRoom.value) {
-                    typeId = 0
-                    promise = waitingListService.reserveRoom(
-                        $scope.restaurantId, $scope.newReserve.name, typeId, $scope.newReserve.phone, reserveTime, $scope.newReserve.reservableId, $scope.newReserve.number
-                    )
-                } else {
-                    promise = waitingListService.addUser(
-                        $scope.restaurantId, $scope.newReserve.name, $scope.newReserve.typeId, $scope.newReserve.phone, reserveTime
-                    )
+            function initWaitForm() {
+                $scope.waitForm = {
+                    name: "",
+                    "phone.number": "",
+                    partyTypeId: "",
+                    restaurantId: $scope.restaurantId
                 }
+            }
 
-                promise.success(function (data) {
-                    var newUnit = data.results[0]
-                    if (reserve) {
-                        $scope.reservationList.push(newUnit)
-                        updateReservationList($scope.reservationList)
-                    }
-                    else {
-                        //update public window if new unit is inserted into an empty list
-                        if ($scope.waitingList[typeId].length == 0 && publicWindow) {
-                            publicWindow.lastReplacedUnit = newUnit
-                            publicWindow.lastReplacedUnitPrefix = newUnit.unitId.charAt(0)
-                        }
+            initWaitForm()
+            $scope.addWaitUser = function (valid, partyTypeId) {
+                if (valid) {
+                    $scope.waitForm.partyTypeId = partyTypeId
+                    waitingListService.addWaitUser($scope.waitForm).success(function (data) {
+                        $scope.waitingList[partyTypeId].push(data.results[0])
+                        initWaitForm()
+                        $scope.waitFormValidation.$setPristine()
+                    })
+                }
+            }
+            function initReservationForm() {
+                $scope.reservationForm = {
+                    restaurantId: $scope.restaurantId,
+                    name: "",
+                    "phone.number": "",
+                    partyTypeId: $scope.partyTypeList[0].partyTypeId,
+                    reservationTime: new Date(),
+                    reservationType: $scope.reservationTypeMap.reservationDesk.value,
+                    reservableId: $scope.restaurant.reservableRooms[0] ? $scope.restaurant.reservableRooms[0].reservableId : "",
+                    number: "",
+                    queueType: 3
+                }
+            }
 
-                        $scope.waitingList[typeId].push(newUnit)
-                    }
-
-                    $scope.newReserve = {
-                        time: new Date(),
-                        typeId: $scope.newReserve.typeId,
-                        reservableId: $scope.restaurant.reservableRooms[0] ? $scope.restaurant.reservableRooms[0].reservableId : "",
-                        number: "",
-                        reservationType: $scope.reservationTypeMap.reservationDesk.value
-                    }
-                    $scope.reserveForm.$setPristine()
+            $scope.addReservationUser = function () {
+                var reservationForm = angular.copy($scope.reservationForm)
+                if (reservationForm.reservationType === $scope.reservationTypeMap.reservationRoom.value) {
+                    reservationForm.partyTypeId = 0
+                }
+                delete reservationForm.reservationType
+                waitingListService.addReservationUser(reservationForm).success(function (data) {
+                    $scope.reservationList.push(data.results[0])
+                    initReservationForm()
+                    $scope.reservationFormValidation.$setPristine()
+                    updateReservationList()
                 })
             }
-            $scope.reserveRoom = function () {
-                var reserveTime = reserve ? $scope.newReserve.time : null
-            }
-
             $scope.openConfirmation = function (units, idx, type) {
                 var modal = $modal.open({
                     templateUrl: 'confirmationModal.html',
@@ -261,8 +257,6 @@ define(function (require) {
                     printTime: new ChineseData
                 }
             }
-            $scope.reservationStatusMap = dataService.reservationStatus
-
             $scope.reservationStatusMap = dataService.reservationStatus
             // _nextUpdate()
         }
