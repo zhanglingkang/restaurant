@@ -1,0 +1,111 @@
+<hr class="space"> <div class="btn-group" layout="row" layout-align="end center"> <button type="button" class="btn" ng-class="{'btn-success':showMode===SHOW_MODE.CALENDAR}" ng-click="showMode=SHOW_MODE.CALENDAR">日历 </button> <button type="button" class="btn" ng-class="{'btn-success':showMode===SHOW_MODE.LIST}" ng-click="showMode=SHOW_MODE.LIST">列表 </button> </div>  <div class="list-group" ng-show="showMode===SHOW_MODE.LIST"> <div class="list-group-item list-group-item-info"> <ng-include src="'reservation-row-header'"></ng-include> </div> <div ng-repeat="unit in reservationList" class="list-group-item" ng-class="{'success':unit.reservationStatus===reservationStatusMap.accept,'danger':unit.reservationStatus===reservationStatusMap.refuse}"> <ng-include src="'reservation-row'"></ng-include> </div> </div> <div ng-show="showMode===SHOW_MODE.CALENDAR"> <div class="reservation-calendar-toolbar" layout="row" layout-margin layout-align="start center"> <div> <select class="form-control" ng-model="date.year" required name="year"> <option ng-repeat="year in yearList" value="{{year}}"> {{year}} </option> </select> </div> <div> <select class="form-control" ng-model="date.month" required name="month"> <option ng-repeat="month in monthList" value="{{month}}"> {{month}} </option> </select> </div> <button class="btn btn-info" ng-click="last()"><span class="glyphicon glyphicon-chevron-left"></span> </button> <button class="btn btn-info" ng-click="next()"> <span class="glyphicon glyphicon-chevron-right"></span> </button> <button class="btn btn-info" ng-click="toToday()"> 今天 </button> </div>  <div class="reservation-calendar-workzone"> <div layout="row"> <div flex ng-repeat="weekName in weekNameList">{{weekName}}</div> </div> <div layout="column" class="content"> <div layout="row" ng-repeat="week in weekList"> <div class="date" flex ng-repeat="chineseDate in week" ng-class="{'opacity':chineseDate.getMonth()+1!==date.month,'today':chineseDate.isToday(),'before-today':chineseDate.isBeforeToday()}"> <header> <span class="solar">{{chineseDate.getDate()}}</span> <span class="lunar">{{chineseDate.getSolarTerm()||chineseDate.getChineseDate()}}</span> </header> <div> <span class="single-reservation-preview pointer" ng-class="{'success':reservation.reservationStatus===reservationStatusMap.accept,'danger':reservation.reservationStatus===reservationStatusMap.refuse}" ng-repeat="reservation in showReservationList[chineseDate.getTime()].directShow" layout="row"> <span flex>{{reservation.userName}}</span> <span flex>{{reservation.reservationInfo.reservationTime*1000|date:'HH:mm'}}</span> <span flex>{{reservation.reservationInfo.headCount}}人</span> <x-self-popover data-placement="top" container="body" class="reservation-list" auto-close exclude="#modal-hint" need-observe observe-context="body"> <ng-include src="'reservation-list'"></ng-include> </x-self-popover> </span> </div> <div> <span class="pointer" ng-if="showReservationList[chineseDate.getTime()].rest.length!==0"> 另外{{showReservationList[chineseDate.getTime()].rest.length}}个 <x-self-popover data-placement="top" auto-close exclude="#modal-hint,.reservation-list" watch-size need-observe observe-context="body"> <span class="single-reservation-preview pointer" ng-class="{'success':reservation.reservationStatus===reservationStatusMap.accept,'danger':reservation.reservationStatus===reservationStatusMap.refuse}" ng-repeat="reservation in showReservationList[chineseDate.getTime()].rest"> <span class="user-name">{{reservation.userName}}</span>{{reservation.reservationInfo.reservationTime*1000|date:'H:mm'}} <x-self-popover data-placement="top" container="body" class="reservation-list" auto-close exclude="#modal-hint" need-observe observe-context="body"> <ng-include src="'reservation-list'"></ng-include> </x-self-popover> </span> </x-self-popover> </span> </div> </div> </div> </div> </div> </div> <script type="text/ng-template" id="reservation-list"><div>
+        <div class="list-group-item list-group-item-info">
+            <ng-include src="'reservation-row-header'"></ng-include>
+        </div>
+        <div ng-repeat='unit in [reservation]'
+             class="list-group-item"
+             ng-class="{'success':unit.reservationStatus===reservationStatusMap.accept,'danger':unit.reservationStatus===reservationStatusMap.refuse}">
+            <ng-include src="'reservation-row'"></ng-include>
+        </div>
+    </div></script><script type="text/ng-template" id="reservation-row"><div class="row">
+        <div class="col-md-1">
+            {{unit.unitId}}
+        </div>
+        <div class="col-md-1">
+            {{unit.userName}}
+        </div>
+        <div class="col-md-1">
+            {{unit.reservationInfo.headCount}}
+        </div>
+        <div class="col-md-1 break">
+            {{unit.phone}}
+        </div>
+        <div class="col-md-1">
+            {{unit.reservationInfo.reservationTime * 1000 | date:'yy-MM-dd hh:mm'}}
+        </div>
+        <div class="col-md-2">
+            {{unit.reservationComment}}
+        </div>
+        <div class="col-md-1">
+            {{unit.callCount}}
+        </div>
+        <div class='col-md-4'>
+            <button class="btn btn-danger"
+                    ng-click="removeReservation(unit.unitId)"
+                    x-confirm-hint="" x-modal-title="溫馨提示"
+                    x-modal-content="确定移除{{unit.unitId}}-{{unit.userName}}吗？">移除
+            </button>
+            <button class="btn btn-primary" ng-click="call(unit)">叫号
+            </button>
+            <button class="btn btn-info" ng-click="openPrintView(unit)">出票</button>
+            <button class="btn btn-danger"
+                    ng-show="unit.reservationStatus===reservationStatusMap.waitConfirm">同意
+                <x-self-popover data-placement="top" x-style="min-width:200px;min-height:180px;"
+                                name="acceptPopover" auto-close>
+                    <form name="acceptReservationFormValidation" novalidate=""
+                          ng-submit="accept(acceptReservationFormValidation.$valid,unit,acceptReason)">
+                        <textarea class="form-control" ng-model="acceptReason" name="acceptReason"
+                                  required=""
+                                  style="width: 100%;">
+                        </textarea>
+
+                        <div class="alert alert-danger"
+                             ng-show="submitted&&acceptReservationFormValidation.acceptReason.$error.required">
+                            请填写相关回复
+                        </div>
+                        <div style="float: right;margin-top:5px;">
+                            <input type="submit" class="btn btn-primary" value="确定"/>
+                        </div>
+                    </form>
+                </x-self-popover>
+            </button>
+            <button class="btn btn-primary"
+                    ng-show="unit.reservationStatus===reservationStatusMap.waitConfirm">
+                拒绝
+                <x-self-popover data-placement="top" x-style="min-width:200px;min-height:180px;"
+                                name="refusePopover" auto-close>
+                    <form name="refuseReservationFormValidation" novalidate=""
+                          ng-submit="refuse(refuseReservationFormValidation.$valid,unit,refuseReason)">
+                        <textarea class="form-control" ng-model="refuseReason" name="refuseReason"
+                                  required=""
+                                  style="width: 100%;">
+                        </textarea>
+
+                        <div class="alert alert-danger"
+                             ng-show="submitted&&refuseReservationFormValidation.refuseReason.$error.required">
+                            请填写拒绝原因
+                        </div>
+                        <div style="float: right;margin-top:5px;">
+                            <input type="submit" class="btn btn-primary" value="确定"/>
+                        </div>
+                    </form>
+                </x-self-popover>
+
+            </button>
+        </div>
+    </div></script><script type="text/ng-template" id="reservation-row-header"><div class="row">
+        <div class="col-md-1">
+            座号
+        </div>
+        <div class="col-md-1">
+            用户名
+        </div>
+        <div class="col-md-1">
+            人数
+        </div>
+        <div class="col-md-1">
+            电话
+        </div>
+        <div class="col-md-1">
+            预约时间
+        </div>
+        <div class="col-md-2">
+            预约回复
+        </div>
+        <div class="col-md-1">
+            叫号次数
+        </div>
+        <div class='col-md-4'>
+            操作
+        </div>
+    </div></script>
