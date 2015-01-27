@@ -7,6 +7,8 @@ define(function (require) {
     app.controller('loginController', [
         '$scope', 'loginService', '$window', '$location', '$cookies', 'reservationService',
         function ($scope, loginService, $window, $location, $cookies, reservationService) {
+            loginService.resetPassword = loginService.resetPassword.setRequestStatus($scope, "resetStatus")
+            loginService.login = loginService.login.setRequestStatus($scope, "loginStatus")
             $scope.getUserName = function () {
                 return $cookies.username
             }
@@ -23,11 +25,7 @@ define(function (require) {
             $scope.resetPassword = function (valid) {
                 $scope.submitted = true
                 if (valid) {
-                    $scope.resetStatus = $scope.REQUEST_STATUS.ING
-                    loginService.resetPassword($scope.resetPasswordForm.userName, function (data) {
-                        $scope.resetStatus = $scope.REQUEST_STATUS.SUCCESSFUL
-                    }, function (data) {
-                        $scope.resetStatus = $scope.REQUEST_STATUS.FAILED
+                    loginService.resetPassword($scope.resetPasswordForm.userName).error(function (data) {
                         $scope.resetHint = data.message
                     })
                 }
@@ -35,16 +33,13 @@ define(function (require) {
             $scope.loginStatus = $scope.REQUEST_STATUS.INIT
             $scope.performLogin = function () {
                 $scope.loginHintShow = true
-                $scope.loginStatus = $scope.REQUEST_STATUS.ING
                 loginService.login($scope.username, $scope.password).then(
                     function (result) {
-                        $scope.loginStatus = $scope.REQUEST_STATUS.SUCCESSFUL
                         console.log("login result " + result)
                         console.log("token " + $cookies.token)
                         $location.path("/myRestaurants")
                         reservationService.connect()
                     }, function (result) {
-                        $scope.loginStatus = $scope.REQUEST_STATUS.FAILED
                         console.log("login failed " + result)
                     }
                 )

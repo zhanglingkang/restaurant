@@ -56,7 +56,7 @@ define(function (require) {
                  * @param {string} reservationForm['phone.number']
                  * @param {Date} reservationForm.reservationTime
                  * @param {string} reservationForm.queueType 值为3
-                 * @param {number} reservationForm.number 预约人数
+                 * @param {number} reservationForm.headCount 预约人数
                  * @returns {*}
                  */
                 addReservationUser: function (reservationForm) {

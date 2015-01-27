@@ -8,6 +8,11 @@ define(function (require) {
                 waitConfirm: 1,
                 accept: 2,
                 refuse: 3
+            },
+            queueType: {
+                wait: 1,
+                reserveParty: 2,
+                reserveRoom: 3
             }
         }
         var API = {

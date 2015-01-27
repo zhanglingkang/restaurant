@@ -20,8 +20,8 @@ define(function (require, exports, module) {
                 //在一次拖拽过程中，除了被拖拽元素之外的其他元素的先后顺序是不会变化的。所以判断此次拖拽是否发生了元素重排只需要判断被拖拽元素的位置是否改变
                 var dragNode;//被拖拽的节点，每次拖拽结束置为空
                 var originalPosition = -1;//
-                var selector = "[" + attrs.dragSort + "]"
-                $elem.delegate(selector, "dragstart", function (event) {
+                var selector = ">[" + attrs.dragSort + "]"
+                $elem.on("dragstart", selector, function (event) {
                     var rawEvent = event.originalEvent
                     dragNode = event.currentTarget
                     originalPosition = getPosition(dragNode)
@@ -31,7 +31,7 @@ define(function (require, exports, module) {
                     //rawEvent.dataTransfer.setDragImage(rawEvent.target, 0, 0)
                     rawEvent.dataTransfer.effectAllowed = "move"
                 })
-                $elem.delegate(selector, "dragover", function (event) {
+                $elem.on("dragover", selector, function (event) {
                     var goalNode
                     //如果被拖拽的节点是$elem的子元素，执行下面的逻辑
                     if (dragNode) {
@@ -43,7 +43,7 @@ define(function (require, exports, module) {
                         $(goalNode)[where](dragNode)
                     }
                 })
-                $elem.delegate(selector, "dragend", function (event) {
+                $elem.on("dragend", selector, function (event) {
                     var sortList = []
                     $(dragNode).removeClass("moving")
                     //如果发生了顺序重排或者强制认为只要拖拽即发生顺序重拍
@@ -56,7 +56,11 @@ define(function (require, exports, module) {
                             })
                         })
                         scope.$apply(function () {
-                            scope.dragCompleted(sortList, attrs.dragParam, dragNode.getAttribute(attrs.dragSort))
+                            scope.dragCompleted({
+                                sortList: sortList,
+                                dragParam: attrs.dragParam,
+                                dragNodeId: dragNode.getAttribute(attrs.dragSort)
+                            })
                         })
                     }
                     dragNode = null

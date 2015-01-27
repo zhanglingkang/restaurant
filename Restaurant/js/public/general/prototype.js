@@ -11,6 +11,35 @@ Function.prototype.unCurryThis = function () {
         return self.apply(arguments[0], arguments.slice(1))
     }
 }
+Function.prototype.before = function (self, fun) {
+    return function () {
+        if (fun.apply(this, arguments)) {
+            var result = self.apply(this, arguments)
+        }
+        return result
+    }
+}.curryThis()
+Function.prototype.after = function (self, fun) {
+    return function () {
+        var result = self.apply(this, arguments)
+        fun.lastResult = result
+        fun.apply(this, arguments)
+        return result
+    }
+}.curryThis()
+Function.prototype.setRequestStatus = function (self, $scope, prototype) {
+    return self.before(function () {
+        $scope[prototype] = $scope.REQUEST_STATUS.ING
+        return true
+    }).after(function () {
+        arguments.callee.lastResult.then(function () {
+            $scope[prototype] = $scope.REQUEST_STATUS.SUCCESSFUL
+        }, function () {
+            $scope[prototype] = $scope.REQUEST_STATUS.FAILED
+        })
+        return arguments[arguments.length - 1]
+    })
+}.curryThis()
 Date.prototype.toString = function () {
     return this.format("yyyy-MM-dd")
 }

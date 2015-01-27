@@ -56,6 +56,15 @@
             </alert>
         </div>
         <div class="form-group">
+            <input type="number" placeholder="人数" name="number" ng-model="reservationForm.headCount"
+                   class="form-control"
+                   required=""/>
+            <alert type="'danger'"
+                   ng-show="reservationFormValidation.number.$dirty && !reservationFormValidation.number.$valid">
+                请输入正确的人数
+            </alert>
+        </div>
+        <div class="form-group">
             <input type="text" class="form-control" datepicker-popup="yyyy-MM-dd"
                    ng-model="reservationForm.reservationTime"
                    placeholder="日期"
@@ -83,10 +92,6 @@
                 <option ng-repeat="room in restaurant.reservableRooms" value="{{room.reservableId}}">{{room.roomName}}
                 </option>
             </select>
-        </div>
-        <div class="form-group" ng-if="reservationForm.reservationType===reservationTypeMap.reservationRoom.value">
-            <input type="number" placeholder="人数" name="number" ng-model="reservationForm.number" class="form-control"
-                   required=""/>
         </div>
         <div class="form-group">
             <button ng-click="addReservationUser()" class="btn btn-primary"

@@ -5,11 +5,14 @@ define(function (require) {
     var util = require("public/general/util")
     require("public/general/directive/ng-model")
     require("./menu-service")
-    require("./menu-manager-directive")
     require("./menu-category-controller")
     require("./menu-item-controller")
+    require("public/general/directive/drag-sort")
     app.controller('menuController', ['$scope', 'menuService', '$timeout',
         function ($scope, menuService, $timeout) {
+            menuService.importMenu = menuService.importMenu.setRequestStatus($scope, "importStatus")
+            menuService.sortMenuCategory = menuService.sortMenuCategory.setRequestStatus($scope, "sortMenuCategoryStatus")
+            menuService.addMenuCategory = menuService.addMenuCategory.setRequestStatus($scope, "addStatus")
             /**
              * 表示正在添加菜单类型
              * @type {boolean}
@@ -32,13 +35,7 @@ define(function (require) {
             $scope.importMenu = function () {
                 $scope.wantImport = true
                 if ($scope.menuFile && $scope.isExcel()) {
-                    $scope.importStatus = $scope.REQUEST_STATUS.ING
-                    menuService.importMenu($scope.menuFile, $scope.restaurantId).then(
-                        function () {
-                            $scope.importStatus = $scope.REQUEST_STATUS.SUCCESSFUL
-                        }, function (data) {
-                            $scope.importStatus = $scope.REQUEST_STATUS.FAILED
-                        })
+                    menuService.importMenu($scope.menuFile, $scope.restaurantId)
                 }
             }
             $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.INIT
@@ -52,7 +49,6 @@ define(function (require) {
                         }
                     }
                 })
-                $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.ING
                 $scope.setAlert({
                     showCover: true,
                     alertContent: "排序中..."
@@ -61,7 +57,6 @@ define(function (require) {
                     categoryId: data.dragNodeId,
                     previousCategoryId: previousCategoryId
                 }, $scope.menu.restaurantId).then(function (data) {
-                    $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.SUCCESSFUL
                     var menuCategoryList = []
                     sortList.forEach(function (item, index) {
                         menuCategoryList.push($scope.getMenuCategory(item.id))
@@ -71,7 +66,6 @@ define(function (require) {
                         showCover: false
                     })
                 }, function () {
-                    $scope.sortMenuCategoryStatus = $scope.REQUEST_STATUS.FAILED
                     $scope.setAlert({
                         showCover: true,
                         alertContent: "操作失败"
@@ -157,14 +151,10 @@ define(function (require) {
             $scope.addStatus = $scope.REQUEST_STATUS.INIT
             $scope.addMenuCategory = function (valid) {
                 if (valid) {
-                    $scope.addStatus = $scope.REQUEST_STATUS.ING
                     menuService.addMenuCategory($scope.categoryForm, $scope.menu.restaurantId).then(function (data) {
                         initCategoryForm()
-                        $scope.addStatus = $scope.REQUEST_STATUS.SUCCESSFUL
                         $scope.menu.menuCategories = $scope.menu.menuCategories.concat(data.results)
                         $scope.adding = false
-                    }, function () {
-                        $scope.addStatus = $scope.REQUEST_STATUS.FAILED
                     })
                 }
             }

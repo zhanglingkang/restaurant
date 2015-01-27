@@ -3,8 +3,10 @@
 define(function (require) {
     var app = require("app")
     require("./service")
-    app.controller('manageAccountController', ['$cookies', '$scope', 'manageAccountService',
-        function ($cookies, $scope, manageAccountService) {
+    app.controller('manageAccountController', ['$cookies', '$scope', 'manageAccountService', 'httpService',
+        function ($cookies, $scope, manageAccountService, httpService) {
+            manageAccountService.modifyPassword = manageAccountService.modifyPassword.setRequestStatus($scope, "modifyPasswordStatus")
+            manageAccountService.modifyEmail = manageAccountService.modifyPassword.setRequestStatus($scope, "modifyPasswordStatus")
             $scope.submitted = false
             $scope.modifyPasswordForm = {
                 oldPassword: "",
@@ -14,15 +16,10 @@ define(function (require) {
             $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.INIT
             $scope.modifyPassword = function (valid) {
                 $scope.submitted = true
-                $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.INIT
                 if (valid && $scope.modifyPasswordForm.newPassword === $scope.modifyPasswordForm.againPassword) {
-                    $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.ING
                     manageAccountService.modifyPassword($scope.modifyPasswordForm.oldPassword, $scope.modifyPasswordForm.newPassword)
-                        .success(function () {
-                            $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.SUCCESSFUL
-                        }).error(function (data) {
-                            $scope.modifyPasswordStatus = $scope.REQUEST_STATUS.FAILED
-                            if (angular.isObject(data) && data.code == 17) {
+                        .error(function (data) {
+                            if (angular.isObject(data) && data.code == httpService.PPZ_CODE.OLD_PASSWORD_ERROR) {
                                 $scope.failHint = "旧密码不正确"
                             }
                         })
@@ -32,15 +29,9 @@ define(function (require) {
             $scope.wantModifyEmail = false
             $scope.modifyEmail = function (valid) {
                 $scope.wantModifyEmail = true
-                $scope.modifyEmailStatus = $scope.REQUEST_STATUS.INIT
                 if (valid) {
-                    $scope.modifyEmailStatus = $scope.REQUEST_STATUS.ING
                     manageAccountService.modifyEmail($scope.email).
-                        success(function () {
-                            $scope.modifyEmailStatus = $scope.REQUEST_STATUS.SUCCESSFUL
-                        }).
                         error(function () {
-                            $scope.modifyEmailStatus = $scope.REQUEST_STATUS.FAILED
                             $scope.modifyEmailHint = "修改email失败"
                         })
                 }

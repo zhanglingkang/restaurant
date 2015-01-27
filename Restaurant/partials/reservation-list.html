@@ -60,8 +60,11 @@
                     <div>
                           <span class="single-reservation-preview pointer"
                                 ng-class="{'success':reservation.reservationStatus===reservationStatusMap.accept,'danger':reservation.reservationStatus===reservationStatusMap.refuse}"
-                                ng-repeat="reservation in showReservationList[chineseDate.getTime()].directShow">
-                            <span class="user-name">{{reservation.userName}}</span>{{reservation.reservationInfo.reservationTime*1000|date:'H:mm'}}
+                                ng-repeat="reservation in showReservationList[chineseDate.getTime()].directShow"
+                                layout="row">
+                              <span flex>{{reservation.userName}}</span>
+                              <span flex>{{reservation.reservationInfo.reservationTime*1000|date:'HH:mm'}}</span>
+                              <span flex>{{reservation.reservationInfo.headCount}}人</span>
                                <x-self-popover data-placement="top" container="body" class="reservation-list"
                                                auto-close exclude="#modal-hint" need-observe
                                                observe-context="body">
@@ -89,43 +92,6 @@
                             </x-self-popover>
                         </span>
                     </div>
-
-                    <!--<div ng-show="showReservationList[chineseDate.getTime()]&&showReservationList[chineseDate.getTime()].replied.length!==0"-->
-                    <!--class="summary pointer ng-hide">-->
-                    <!--<span class="ng-hide">-->
-                    <!--已回复{{showReservationList[chineseDate.getTime()].replied.length}}条预约-->
-                    <!--<x-self-popover data-placement="top" container="body" class="reservation-list"-->
-                    <!--auto-close exclude="#modal-hint">-->
-                    <!--<div>-->
-                    <!--<div class="list-group-item list-group-item-info">-->
-                    <!--<ng-include src="'reservation-row-header'"></ng-include>-->
-                    <!--</div>-->
-                    <!--<div ng-repeat='unit in showReservationList[chineseDate.getTime()].replied'-->
-                    <!--class="list-group-item"-->
-                    <!--ng-class="{'success':unit.reservationStatus===reservationStatusMap.accept,'danger':unit.reservationStatus===reservationStatusMap.refuse}">-->
-                    <!--<ng-include src="'reservation-row'"></ng-include>-->
-                    <!--</div>-->
-                    <!--</div>-->
-                    <!--</x-self-popover>-->
-                    <!--</span>-->
-                    <!--</div>-->
-                    <!--<div ng-show="showReservationList[chineseDate.getTime()]&&showReservationList[chineseDate.getTime()].noReply.length!==0"-->
-                    <!--class="danger summary pointer ng-hide">-->
-                    <!--<span class="ng-hide">-->
-                    <!--未回复{{showReservationList[chineseDate.getTime()].noReply.length}}条预约-->
-                    <!--<x-self-popover data-placement="top" class="reservation-list-no-reply"-->
-                    <!--auto-close exclude="#modal-hint">-->
-                    <!--<div class="list-group-item list-group-item-info">-->
-                    <!--<ng-include src="'reservation-row-header'"></ng-include>-->
-                    <!--</div>-->
-                    <!--<div ng-repeat='unit in showReservationList[chineseDate.getTime()].noReply'-->
-                    <!--class="list-group-item"-->
-                    <!--ng-class="{'success':unit.reservationStatus===reservationStatusMap.accept,'danger':unit.reservationStatus===reservationStatusMap.refuse}">-->
-                    <!--<ng-include src="'reservation-row'"></ng-include>-->
-                    <!--</div>-->
-                    <!--</x-self-popover>-->
-                    <!--</span>-->
-                    <!--</div>-->
                 </div>
             </div>
         </div>
@@ -152,11 +118,14 @@
         <div class="col-md-1">
             {{unit.userName}}
         </div>
+        <div class="col-md-1">
+            {{unit.reservationInfo.headCount}}
+        </div>
         <div class="col-md-1 break">
             {{unit.phone}}
         </div>
-        <div class="col-md-2">
-            {{unit.reservationInfo.reservationTime * 1000 | date:'medium'}}
+        <div class="col-md-1">
+            {{unit.reservationInfo.reservationTime * 1000 | date:'yy-MM-dd hh:mm'}}
         </div>
         <div class="col-md-2">
             {{unit.reservationComment}}
@@ -229,9 +198,12 @@
             用户名
         </div>
         <div class="col-md-1">
+            人数
+        </div>
+        <div class="col-md-1">
             电话
         </div>
-        <div class="col-md-2">
+        <div class="col-md-1">
             预约时间
         </div>
         <div class="col-md-2">

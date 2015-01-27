@@ -72,16 +72,14 @@ h4, h1 {
     border: 1px #dddddd solid;
     margin: 0 15px 20px;
     background: #d9edf7;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 #reserve-panel.form-inline .form-control {
     width: 100%;
 }
 
-.wait-panel {
-    padding-top: 10px;
-    padding-bottom: 10px;
-}
 
 .wait-panel .btn {
     margin-left: 10px;
@@ -325,7 +323,6 @@ md-toast {
 }
 
 .single-reservation-preview {
-    display: block;
     margin-bottom: 1px;
 }
 

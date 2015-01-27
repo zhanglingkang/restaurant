@@ -167,7 +167,8 @@ define(function (require) {
                     name: "",
                     "phone.number": "",
                     partyTypeId: "",
-                    restaurantId: $scope.restaurantId
+                    restaurantId: $scope.restaurantId,
+                    queueType: dataService.queueType.wait
                 }
             }
 
@@ -193,8 +194,7 @@ define(function (require) {
                     reservationTime: new Date(),
                     reservationType: $scope.reservationTypeMap.reservationDesk.value,
                     reservableId: $scope.restaurant.reservableRooms[0] ? $scope.restaurant.reservableRooms[0].reservableId : "",
-                    number: "",
-                    queueType: 3
+                    headCount: ""
                 }
             }
 
@@ -202,6 +202,10 @@ define(function (require) {
                 var reservationForm = angular.copy($scope.reservationForm)
                 if (reservationForm.reservationType === $scope.reservationTypeMap.reservationRoom.value) {
                     reservationForm.partyTypeId = 0
+                    reservationForm.queueType = dataService.queueType.reserveRoom
+                } else {
+                    reservationForm.queueType = dataService.queueType.reserveParty
+                    delete reservationForm.reservableId
                 }
                 delete reservationForm.reservationType
                 waitingListService.addReservationUser(reservationForm).success(function (data) {
