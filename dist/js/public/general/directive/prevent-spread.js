@@ -1,0 +1,2 @@
+/*! ppz_website 2015-01-27 5:27:15 PM */
+"use strict";define("public/general/directive/prevent-spread",["app"],function(a){var b=a("app");b.directive("preventSpread",function(){return{restrict:"A",link:function(a,b,c){var d=$(b);d.bind(c.preventSpread,function(a){a.stopPropagation()})}}})});

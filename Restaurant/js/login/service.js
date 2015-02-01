@@ -34,16 +34,12 @@ define(function (require, exports, module) {
                         console.log('encounted error in getMyRestaurantList: ' + error)
                     })
                 },
-                resetPassword: function (userName, callback, error) {
+                resetPassword: function (userName) {
                     return httpService.post({
                         command: "requestUserPasswordReset",
                         data: {
                             userId: userName
                         }
-                    }).success(function (data) {
-                        callback(data)
-                    }, function (data) {
-                        error(data)
                     })
                 }
             }

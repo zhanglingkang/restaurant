@@ -1,0 +1,2 @@
+/*! ppz_website 2015-01-27 5:27:15 PM */
+"use strict";define("public/general/directive/trigger-click",["app"],function(a){var b=a("app");b.directive("triggerClick",function(){return{restrict:"A",link:function(a,b,c){var d=$(b);d.bind("click",function(){$(c.triggerClick).click()})}}})});

@@ -1,5 +1,3 @@
-<div class="row">{{error}}</div>
-
 <div class="row">
     <button class="btn btn-info" ng-click="goBack()"><span class="glyphicon glyphicon-chevron-left"></span></button>
     <button class="btn btn-primary" ng-click="openPublicWaitListWindow()">打开大荧幕</button>
@@ -41,62 +39,93 @@
 </div>
 
 <div class="row">
-    <form id="reserve-panel" class="form-inline col-xs-12" name="reserveForm" novalidate>
+    <form id="reserve-panel" class="form-inline col-xs-12" name="reservationFormValidation" novalidate>
         <div class="form-group">
-            <input placeholder="用户名" class="form-control" ng-model="newReserve.name" required name="fUser"/>
-            <alert type="'danger'" ng-show="reserveForm.fUser.$dirty && !reserveForm.fUser.$valid">
+            <input placeholder="用户名" class="form-control" ng-model="reservationForm.name" required name="fUser"/>
+            <alert type="'danger'"
+                   ng-show="reservationFormValidation.fUser.$dirty && !reservationFormValidation.fUser.$valid">
                 请输入用户名
             </alert>
         </div>
         <div class="form-group">
-            <select class="form-control" ng-model="newReserve.typeId" required name="fType">
-                <option ng-repeat='partyType in partyTypeList' value="{{partyType.partyTypeId}}">
-                    {{partyType.partyTypeDescription}}
-                </option>
-            </select>
-        </div>
-        <div class="form-group">
-            <input class="form-control" ng-model="newReserve.phone" placeholder="电话号码" required name="fPhone"/>
-            <alert type="'danger'" ng-show="reserveForm.fPhone.$dirty && !reserveForm.fPhone.$valid">
+            <input class="form-control" ng-model="reservationForm['phone.number']" placeholder="电话号码" required
+                   name="fPhone"/>
+            <alert type="'danger'"
+                   ng-show="reservationFormValidation.fPhone.$dirty && !reservationFormValidation.fPhone.$valid">
                 请输入有效的电话号码
             </alert>
         </div>
         <div class="form-group">
-            <button ng-click="addUser(false)" class="btn btn-primary" ng-disabled="!reserveForm.$valid">排队</button>
+            <input type="number" placeholder="人数" name="number" ng-model="reservationForm.headCount"
+                   class="form-control"
+                   required=""/>
+            <alert type="'danger'"
+                   ng-show="reservationFormValidation.number.$dirty && !reservationFormValidation.number.$valid">
+                请输入正确的人数
+            </alert>
         </div>
         <div class="form-group">
-            <input type="text" class="form-control" datepicker-popup="yyyy-MM-dd" ng-model="newReserve.time"
+            <input type="text" class="form-control" datepicker-popup="yyyy-MM-dd"
+                   ng-model="reservationForm.reservationTime"
                    placeholder="日期"
                    show-weeks="false" current-text="今天" toggle-weeks-text="显示周序" clear-text="清除" close-text="关闭"/>
         </div>
         <div class="form-group">
-            <timepicker ng-model="newReserve.time" meridians="['上午','下午']"></timepicker>
+            <timepicker ng-model="reservationForm.reservationTime" meridians="['上午','下午']"></timepicker>
         </div>
         <div class="form-group" ng-if="restaurant.reservableRooms.length!==0">
-            <select class="form-control" name="reservationType" ng-model="newReserve.reservationType">
+            <select class="form-control" name="reservationType" ng-model="reservationForm.reservationType">
                 <option ng-repeat="reservationType in reservationTypeArray" value="{{reservationType.value}}">
                     {{reservationType.text}}
                 </option>
             </select>
         </div>
-        <div class="form-group" ng-if="newReserve.reservationType===reservationTypeMap.reservationRoom.value">
-            <select name="reservableId" ng-model="newReserve.reservableId" class="form-control" required>
+        <div class="form-group" ng-if="reservationForm.reservationType===reservationTypeMap.reservationDesk.value">
+            <select class="form-control" ng-model="reservationForm.partyTypeId" required name="fType">
+                <option ng-repeat='partyType in partyTypeList' value="{{partyType.partyTypeId}}">
+                    {{partyType.partyTypeDescription}}
+                </option>
+            </select>
+        </div>
+        <div class="form-group" ng-if="reservationForm.reservationType===reservationTypeMap.reservationRoom.value">
+            <select name="reservableId" ng-model="reservationForm.reservableId" class="form-control" required>
                 <option ng-repeat="room in restaurant.reservableRooms" value="{{room.reservableId}}">{{room.roomName}}
                 </option>
             </select>
         </div>
-        <div class="form-group" ng-if="newReserve.reservationType===reservationTypeMap.reservationRoom.value">
-            <input type="number" placeholder="人数" name="number" ng-model="newReserve.number" class="form-control"
-                   required=""/>
-        </div>
         <div class="form-group">
-            <button ng-click="addUser(true)" class="btn btn-primary" ng-disabled="!reserveForm.$valid">预约</button>
+            <button ng-click="addReservationUser()" class="btn btn-primary"
+                    ng-disabled="!reservationFormValidation.$valid">
+                预约
+            </button>
         </div>
         <hr class='space'/>
     </form>
 </div>
+<div class="row">
+    <form class="wait-panel form-inline col-xs-12" name="waitFormValidation" novalidate>
+        <div class="form-group">
+            <input placeholder="用户名" class="form-control" ng-model="waitForm.name" required name="name"/>
+            <alert type="'danger'" ng-show="waitFormValidation.name.$dirty && !waitFormValidation.name.$valid">
+                请输入用户名
+            </alert>
+        </div>
+        <div class="form-group">
+            <input class="form-control" ng-model="waitForm['phone.number']" placeholder="电话号码" required name="phone"/>
+            <alert type="'danger'" ng-show="waitFormValidation.phone.$dirty && !waitFormValidation.phone.$valid">
+                请输入有效的电话号码
+            </alert>
+        </div>
+        <button class="btn btn-info" ng-repeat="partyType in partyTypeList"
+                ng-click="addWaitUser(waitFormValidation.$valid,partyType.partyTypeId)"
+                ng-disabled="!waitFormValidation.$valid">
+            {{partyType.partyTypeDescription}}
+        </button>
+
+    </form>
+</div>
 <div class='row'>
-    <tabset class='col-lg-12'>
+    <tabset class='col-md-12'>
         <tab ng-repeat='(seg, units) in waitingList'
              heading='{{partyTypeList[seg - 1].partyTypeDescription}} ({{units.length}}人等候)'
              typeId='{{partyTypeList[seg-1].partyTypeId}}'>
@@ -104,44 +133,44 @@
             <div class="list-group">
                 <div class="list-group-item list-group-item-info">
                     <div class="row">
-                        <div class="col-lg-1">
+                        <div class="col-md-1">
                             座号
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             用户名
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             电话
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-md-3">
                             排队时间
                         </div>
-                        <div class="col-lg-1">
+                        <div class="col-md-1">
                             叫号次数
                         </div>
-                        <div class='col-lg-3'>
+                        <div class='col-md-3'>
                             操作
                         </div>
                     </div>
                 </div>
                 <div ng-repeat='unit in units' class="list-group-item">
                     <div class="row">
-                        <div class="col-lg-1">
+                        <div class="col-md-1">
                             {{unit.unitId}}
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             {{unit.userName}}
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2 break">
                             {{unit.phone}}
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-md-3">
                             {{unit.createTime * 1000 | date:'medium'}}
                         </div>
-                        <div class="col-lg-1">
+                        <div class="col-md-1">
                             {{unit.callCount}}
                         </div>
-                        <div class='col-lg-3 '>
+                        <div class='col-md-3 '>
                             <!--<button class="btn btn-primary"  ng-click="remove(units, $index)">移除</button>-->
                             <button class="btn btn-danger"
                                     ng-click="removeWaiting(unit.unitId,seg)"
@@ -170,39 +199,39 @@
             <div class="list-group">
                 <div class="list-group-item list-group-item-info">
                     <div class="row">
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             座号
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             用户名
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             电话
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             完成时间
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             叫号次数
                         </div>
                     </div>
                 </div>
                 <div ng-repeat='unit in waitingCompleteList' class="list-group-item">
                     <div class="row">
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             {{unit.unitId}}
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             {{unit.userName}}
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             {{unit.phone}}
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             {{unit.completeTime * 1000 | date:'medium'}}
                         </div>
 
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             {{unit.callCount}}
                         </div>
                     </div>
@@ -215,44 +244,44 @@
             <div class="list-group">
                 <div class="list-group-item list-group-item-info">
                     <div class="row">
-                        <div class="col-lg-1">
+                        <div class="col-md-1">
                             座号
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             用户名
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             电话
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             完成时间
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-md-3">
                             预约回复
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             叫号次数
                         </div>
                     </div>
                 </div>
                 <div ng-repeat='unit in reservationCompleteList' class="list-group-item">
                     <div class="row">
-                        <div class="col-lg-1">
+                        <div class="col-md-1">
                             {{unit.unitId}}
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             {{unit.userName}}
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             {{unit.phone}}
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             {{unit.completeTime * 1000 | date:'medium'}}
                         </div>
-                        <div class="col-lg-3">
+                        <div class="col-md-3">
                             {{unit.reservationComment}}
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-md-2">
                             {{unit.callCount}}
                         </div>
                     </div>

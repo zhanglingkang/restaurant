@@ -234,7 +234,7 @@
                 </div>
             </div>
         </div>
-        <div class="panel-heading" draggable="true" x-prevent-spread="dragstart" ng-show="editing">
+        <div class="panel-heading" ng-show="editing">
             <div class="row">
                 <form name="categoryEditForm" novalidate="" x-prevent-spread="click">
                     <div class="col-xs-3">
@@ -268,7 +268,7 @@
                 </form>
             </div>
         </div>
-        <ul class="list-group" x-prevent-spread="dragstart" draggable="true" id="{{category.categoryId}}"
+        <ul class="list-group" x-prevent-spread="dragstart dragend" id="{{category.categoryId}}"
             ng-show="!collapse" data-drag-sort="data-drag-id" x-drag-completed="sortMenuItem">
             <li class="list-group-item" data-drag-id="{{item.itemId}}" ng-repeat="item in category.items"
                 ng-controller="menuItemController" ng-hide="item.deleted === true">
@@ -311,7 +311,7 @@
                     </div>
                 </div>
             </li>
-            <li class="list-group-item" ng-show="addingNewItem" x-prevent-spread="dragstart" draggable="true">
+            <li class="list-group-item" ng-show="addingNewItem">
                 <div class="row">
                     <form name="menuItemFormValidation" novalidate=""
                           ng-submit="confirmAddItem(menuItemFormValidation.$valid)">

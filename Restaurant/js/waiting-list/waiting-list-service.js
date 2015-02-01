@@ -35,39 +35,36 @@ define(function (require) {
                         }
                     })
                 },
-                addUser: function (restaurantId, name, partyTypeId, phone, reservationTime) {
-                    if (reservationTime !== null) {
-                        reservationTime = Math.round(reservationTime.getTime() / 1000)
-                    }
+                addUser: function (form) {
                     return httpService.post({
                         command: "addAdhocUserToQueue",
-                        data: {
-                            restaurantId: restaurantId,
-                            name: name,
-                            partyTypeId: parseInt(partyTypeId),
-                            "phone.number": phone,
-                            reservationTime: reservationTime
-
-                        }
+                        data: form
                     })
                 },
-                reserveRoom: function (restaurantId, name, partyTypeId, phone, reservationTime, reservableId, number) {
-                    if (reservationTime !== null) {
-                        reservationTime = Math.round(reservationTime.getTime() / 1000)
+                /**
+                 *
+                 * @param waitForm
+                 */
+                addWaitUser: function (waitForm) {
+                    return this.addUser(waitForm)
+                },
+                /**
+                 * @param {Object} reservationForm
+                 * @param {string} reservationForm.restaurantId
+                 * @param {string} reservationForm.name 用户名
+                 * @param {string} reservationForm.partyTypeId 餐位Id 如果预约类型为房间,partyTypeId为0
+                 * @param {string} reservationForm['phone.number']
+                 * @param {Date} reservationForm.reservationTime
+                 * @param {string} reservationForm.queueType 值为3
+                 * @param {number} reservationForm.headCount 预约人数
+                 * @returns {*}
+                 */
+                addReservationUser: function (reservationForm) {
+                    if (reservationForm.reservationTime instanceof Date) {
+                        reservationForm.reservationTime = Math.round(reservationForm.reservationTime.getTime() / 1000)
                     }
-                    return httpService.post({
-                        command: "addAdhocUserToQueue",
-                        data: {
-                            restaurantId: restaurantId,
-                            name: name,
-                            partyTypeId: parseInt(partyTypeId),
-                            "phone.number": phone,
-                            reservationTime: reservationTime,
-                            queueType: 3,
-                            number: number
-
-                        }
-                    })
+                    reservationForm.partyTypeId = parseInt(reservationForm.partyTypeId)
+                    return this.addUser(reservationForm)
                 }
             }
         }])

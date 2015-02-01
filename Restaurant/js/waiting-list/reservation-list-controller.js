@@ -3,6 +3,7 @@
 define(function (require) {
     var app = require("app")
     var ChineseDate = require("public/general/chinese-date")
+    require("public/general/filter/width")
     app.controller('reservationListController', [
         "$scope", "$q", "reservationService", "dataService", function ($scope, $q, reservationService, dataService) {
             var startYear = 2015

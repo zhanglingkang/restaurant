@@ -8,17 +8,18 @@ define(function (require, exports, module) {
     var FILE_SERVER_URL = SERVER + "/FileUploader/upload"
     var MENU_IMPORT_URL = SERVER + "/FileUploader/menuUpload"
     var PPZ_CODE = {
-        None: 0,
-        UserNotFound: 14,
         SUCCESS: 0,//code为0表示请求成功
         USER_NOT_FOUND: 14,
         SESSION_TIMEOUT: 16,
-        PERMISSION_DENIED: 18
+        LOGIN_FAIL: 17,
+        PERMISSION_DENIED: 18,
+        OLD_PASSWORD_ERROR: 24
     }
     var app = require("app")
     var util = require("public/general/util")
     var system = require("./system")
     var pubSub = require("public/general/pub-sub")
+
     /**
      * 根据command、data构造请求参数
      * @param command
@@ -35,6 +36,7 @@ define(function (require, exports, module) {
             AUTH_SERVER_URL: AUTH_SERVER_URL,
             FILE_SERVER_URL: FILE_SERVER_URL,
             MENU_IMPORT_URL: MENU_IMPORT_URL,
+            PPZ_CODE: PPZ_CODE,
             /**
              * @method post 向php服务器发送httpPOST请求。
              * @param {Object} config

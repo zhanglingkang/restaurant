@@ -5,6 +5,7 @@ define(function (require) {
     require("./menu-service")
     app.controller('menuItemController', ['$scope', 'menuService',
         function ($scope, menuService) {
+            menuService.modifyMenuItem = menuService.modifyMenuItem.setRequestStatus($scope, "editMenuItemStatus")
             $scope.editing = false
             $scope.newItem = angular.copy($scope.item)
             $scope.editItem = function () {
@@ -13,7 +14,6 @@ define(function (require) {
                 $scope.editing = true
             }
             $scope.confirmEditItem = function () {
-                $scope.editMenuItemStatus = $scope.REQUEST_STATUS.ING
                 menuService.modifyMenuItem({
                         itemId: $scope.newItem.itemId,
                         itemName: $scope.newItem.itemName,
@@ -23,13 +23,10 @@ define(function (require) {
                     }, $scope.menu.restaurantId
                 ).then(
                     function () {
-                        $scope.editMenuItemStatus = $scope.REQUEST_STATUS.SUCCESSFUL
                         $scope.item.itemName = $scope.newItem.itemName
                         $scope.item.itemDescription = $scope.newItem.itemDescription
                         $scope.item.price = $scope.newItem.price
                         $scope.editing = false
-                    }, function () {
-                        $scope.editMenuItemStatus = $scope.REQUEST_STATUS.FAILED
                     })
             }
             $scope.cancelEditItem = function () {

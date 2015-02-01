@@ -68,14 +68,21 @@ h4, h1 {
 
 /* patch to bootstrap*/
 
-#reserve-panel {
+#reserve-panel, .wait-panel {
     border: 1px #dddddd solid;
     margin: 0 15px 20px;
     background: #d9edf7;
+    padding-top: 10px;
+    padding-bottom: 10px;
 }
 
 #reserve-panel.form-inline .form-control {
     width: 100%;
+}
+
+
+.wait-panel .btn {
+    margin-left: 10px;
 }
 
 @keyframes flickerAnimation {
@@ -234,6 +241,7 @@ md-toast {
 .reservation-calendar-workzone {
     padding-left: 10px;
     padding-right: 10px;
+    margin-bottom: 10px;
 }
 
 .reservation-calendar-workzone .content {
@@ -248,7 +256,11 @@ md-toast {
 }
 
 .reservation-calendar-workzone .date.today {
-    background-color: #eee;
+    background-color: #8FA2CC;
+}
+
+.reservation-calendar-workzone .date.before-today {
+    background-color: rgb(244, 243, 227);
 }
 
 .reservation-calendar-workzone .date.opacity {
@@ -271,6 +283,10 @@ md-toast {
     margin-bottom: 2px;
 }
 
+.break {
+    word-break: break-all;
+}
+
 .pointer {
     cursor: pointer;
 }
@@ -284,7 +300,13 @@ md-toast {
 }
 
 .popover.reservation-list {
-    min-width: 1200px;
+    min-width: 100vw;
+}
+
+@media (min-width: 1200px) {
+    .popover.reservation-list {
+        min-width: 1200px;
+    }
 }
 
 .popover.reservation-list-no-reply {
@@ -295,8 +317,12 @@ md-toast {
     overflow-y: auto;
 }
 
+.user-name {
+    min-width: 60px;
+    display: inline-block;
+}
+
 .single-reservation-preview {
-    display: block;
     margin-bottom: 1px;
 }
 

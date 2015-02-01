@@ -4,5 +4,4 @@ requirement.txt
 node_modules
 *.zip
 .idea
-dist
 ppzapp_website.iml
