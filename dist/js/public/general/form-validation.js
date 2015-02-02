@@ -1,2 +1,2 @@
-/*! ppz_website 2015-01-27 5:27:15 PM */
+/*! ppz_website 2015-02-02 10:07:15 AM */
 "use strict";define("public/general/form-validation",[],function(){return{setFieldValidation:function(a){a.$valid=!0,a.$invalid=!1;for(var b in a.$error)a.$error.hasOwnProperty(b)&&a.$error[b]&&(a.$valid=!1,a.$invalid=!0)},setFormValidataion:function(a){a.$valid=!0,a.$invalid=!1;for(var b in a)a.hasOwnProperty(b)&&"$"!==b.substring(0,1)&&a[b].$invalid&&(a.$valid=!1,a.$invalid=!0)}}});

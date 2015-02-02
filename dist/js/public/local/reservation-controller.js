@@ -1,2 +1,2 @@
-/*! ppz_website 2015-01-27 5:27:15 PM */
+/*! ppz_website 2015-02-02 10:07:15 AM */
 "use strict";define("public/local/reservation-controller",["app"],function(a){var b=a("app"),c=["$scope","reservationService","dataService","$location","$mdBottomSheet","restaurantService","queueMap",function(a,b,c,d,e,f,g){a.reservationMap=[],a.restaurantList=[],angular.forEach(g,function(b,d){f.getRestaurant(d).then(function(b){a.restaurantList.push(b)}),a.reservationMap[d]=b.reservationList.filter(function(a){return a.reservationStatus===c.reservationStatus.waitConfirm})}),a.viewReservationDetail=function(a){d.path("/waitinglist/"+a.restaurantId),e.hide()}}];b.controller("reservationCtrl",c)});

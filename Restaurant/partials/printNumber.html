@@ -17,7 +17,7 @@
         }
 
         @page {
-            margin: 2mm;
+            margin: 0mm;
         }
 
         @media print {
@@ -33,9 +33,12 @@
                 color: black !important;
                 background: white !important;
                 font-family: '微软雅黑', Georgia, 'Times New Roman', serif;
-                font-size: 8pt;
+                font-size: 10pt;
             }
 
+            footer {
+                margin-bottom: 1cm;
+            }
         }
     </style>
 </head>
@@ -47,22 +50,24 @@
     <p class="title">{{partyTypeDescription}}排号单</p>
     <hr/>
     <div>
+        <p>用户名：{{unit.userName}}</p>
+
         <p>手机号码：{{unit.phone}}</p>
 
-        <p>领号日期：{{printTime.format("yyyy-MM-dd")}}</p>
+        <p>领号时间：{{printTime.format("yyyy-MM-dd hh:mm")}}</p>
     </div>
     <hr/>
     <div>
         <strong class="unitId">{{unit.unitId}}</strong>
 
-        <p>你前面还有{{unit.position}}名客人在等待</p>
+        <p>你前面还有<strong>{{unit.position}}</strong>名客人在等待</p>
     </div>
     <hr/>
-    <div>
-        <p>*打印时间：{{printTime.format("hh:mm:ss")}}</p>
+    <footer>
+        <!--<p>*打印时间：{{printTime.format("hh:mm:ss")}}</p>-->
 
         <p>*注意叫号</p>
-    </div>
+    </footer>
 </script>
 <script>
     +function () {
