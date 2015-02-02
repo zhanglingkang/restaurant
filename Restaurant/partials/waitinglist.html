@@ -105,13 +105,13 @@
 <div class="row">
     <form class="wait-panel form-inline col-xs-12" name="waitFormValidation" novalidate>
         <div class="form-group">
-            <input placeholder="用户名" class="form-control" ng-model="waitForm.name" required name="name"/>
+            <input placeholder="用户名" class="form-control" ng-model="waitForm.name" name="name"/>
             <alert type="'danger'" ng-show="waitFormValidation.name.$dirty && !waitFormValidation.name.$valid">
                 请输入用户名
             </alert>
         </div>
         <div class="form-group">
-            <input class="form-control" ng-model="waitForm['phone.number']" placeholder="电话号码" required name="phone"/>
+            <input class="form-control" ng-model="waitForm['phone.number']" placeholder="电话号码" name="phone"/>
             <alert type="'danger'" ng-show="waitFormValidation.phone.$dirty && !waitFormValidation.phone.$valid">
                 请输入有效的电话号码
             </alert>
