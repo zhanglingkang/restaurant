@@ -1,19 +1,21 @@
-<!DOCTYPE html> <html> <head lang="en"> <meta charset="UTF-8"> <title></title> <style>.title{text-align:center}@page{margin:2mm}@media print{.title{font-size:1.5rem}.unitId{font-size:1.2rem}html,body{color:#000!important;background:#fff!important;font-family:'微软雅黑',Georgia,'Times New Roman',serif;font-size:8pt}}</style></head><body> <div id="print-zone"> </div> <script type="text/template" id="template"><p class="title">{{partyTypeDescription}}排号单</p>
+<!DOCTYPE html> <html> <head lang="en"> <meta charset="UTF-8"> <title></title> <style>.title{text-align:center}@page{margin:0}@media print{.title{font-size:1.5rem}.unitId{font-size:1.2rem}html,body{color:#000!important;background:#fff!important;font-family:'微软雅黑',Georgia,'Times New Roman',serif;font-size:10pt}footer{margin-bottom:1cm}}</style></head><body> <div id="print-zone"> </div> <script type="text/template" id="template"><p class="title">{{partyTypeDescription}}排号单</p>
     <hr/>
     <div>
+        <p>用户名：{{unit.userName}}</p>
+
         <p>手机号码：{{unit.phone}}</p>
 
-        <p>领号日期：{{printTime.format("yyyy-MM-dd")}}</p>
+        <p>领号时间：{{printTime.format("yyyy-MM-dd hh:mm")}}</p>
     </div>
     <hr/>
     <div>
         <strong class="unitId">{{unit.unitId}}</strong>
 
-        <p>你前面还有{{unit.position}}名客人在等待</p>
+        <p>你前面还有<strong>{{unit.position}}</strong>名客人在等待</p>
     </div>
     <hr/>
-    <div>
-        <p>*打印时间：{{printTime.format("hh:mm:ss")}}</p>
+    <footer>
+        <!--<p>*打印时间：{{printTime.format("hh:mm:ss")}}</p>-->
 
         <p>*注意叫号</p>
-    </div></script><script>+function(){var template=document.querySelector("#template").innerHTML;template=template.replace(/{{(.+)}}/g,function($0,$1){return console.log(eval("printData."+$1)),eval("printData."+$1)}),console.log(template),document.querySelector("#print-zone").innerHTML=template,setTimeout(function(){print(),close()})}();</script></body></html>
+    </footer></script><script>+function(){var template=document.querySelector("#template").innerHTML;template=template.replace(/{{(.+)}}/g,function($0,$1){return console.log(eval("printData."+$1)),eval("printData."+$1)}),console.log(template),document.querySelector("#print-zone").innerHTML=template,setTimeout(function(){print(),close()})}();</script></body></html>
