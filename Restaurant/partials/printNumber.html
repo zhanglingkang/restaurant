@@ -52,7 +52,7 @@
     <div>
         <p>用户名：{{unit.userName}}</p>
 
-        <p>手机号码：{{unit.phone}}</p>
+        <p>手机号码：{{unit.phone||""}}</p>
 
         <p>领号时间：{{printTime.format("yyyy-MM-dd hh:mm")}}</p>
     </div>

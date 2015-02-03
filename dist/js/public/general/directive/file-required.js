@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-02 10:07:15 AM */
+/*! ppz_website 2015-02-03 11:00:22 AM */
 "use strict";define("public/general/directive/file-required",["app","public/general/form-validation"],function(a){var b=a("app"),c=a("public/general/form-validation");b.directive("fileRequired",function(){return{restrict:"A",link:function(a,b){var d=$(b),e=angular.element(b).parent("form").scope(),f=d.parents("form").attr("name"),g=d.attr("name"),h=e[f][g],i=h.$error;i.required=!0,c.setFieldValidation(h),c.setFormValidataion(e[f]),d.bind("change",function(){var a=d[0].files[0];e.$apply(function(){e[f][g].$error.required=a?!1:!0,c.setFieldValidation(h),c.setFormValidataion(e[f])})})}}})});

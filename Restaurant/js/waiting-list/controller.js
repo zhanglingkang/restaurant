@@ -135,11 +135,11 @@ define(function (require) {
                 }
                 for (var i = 0; i < data.partyTypes.length; i++) {
                     var party = data.partyTypes[i]
-                    var frontUnit = "--"
+                    var unit = null
                     if ($scope.waitingList[i + 1].length > 0) {
-                        frontUnit = $scope.waitingList[i + 1][0].unitId
+                        unit = $scope.waitingList[i + 1][0]
                     }
-                    data.lastCalledNumbers[party.unitIdPrefix] = frontUnit
+                    data.lastCalledNumbers[party.unitIdPrefix] = unit
                 }
                 publicWindow.postMessage({
                     type: "initData",

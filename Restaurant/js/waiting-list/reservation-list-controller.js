@@ -43,7 +43,7 @@ define(function (require) {
                 CALENDAR: 1,
                 LIST: 2
             }
-            $scope.showMode = $scope.SHOW_MODE.CALENDAR
+            $scope.showMode = $scope.SHOW_MODE.LIST
             $scope.last = function () {
                 if ($scope.date.month > 1) {
                     $scope.date.month -= 1

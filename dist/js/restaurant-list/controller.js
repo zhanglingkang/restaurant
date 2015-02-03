@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-02 10:07:15 AM */
+/*! ppz_website 2015-02-03 11:00:22 AM */
 "use strict";define("restaurant-list/controller",["app","public/general/pub-sub"],function(a){var b=a("app"),c=a("public/general/pub-sub");b.controller("restaurantListController",["$scope","restaurantService","menuService",function(a,b,d){a.loading=!0,a.includeHeader=!0,b.getMyRestaurantList().then(function(b){a.loading=!1,a.restaurantList=b.results,console.log("loading restaurantList"),c.publish("loadedRestaurantList",a.restaurantList),a.restaurantList.forEach(function(a){d.getMenu(a.restaurantId)})},function(b){a.error=b})}])});

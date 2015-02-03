@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-02 10:07:15 AM */
+/*! ppz_website 2015-02-03 11:00:22 AM */
 "use strict";define("public/general/audio-service",["app"],function(a){var b=a("app"),c=["$document",function(){return{create:function(a){var b=new Audio;return a=a||{},angular.forEach(a,function(a,c){b[c]=a}),{play:function(){b.play()},pause:function(){b.pause()}}}}}];b.service("audioService",c)});

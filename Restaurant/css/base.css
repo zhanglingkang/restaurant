@@ -50,7 +50,7 @@ h4, h1 {
 
 .public-alert > div {
     margin: auto;
-    font-size: 14px;
+    font-size: 1.4rem;
 }
 
 .btn-primary {
@@ -79,7 +79,6 @@ h4, h1 {
 #reserve-panel.form-inline .form-control {
     width: 100%;
 }
-
 
 .wait-panel .btn {
     margin-left: 10px;
@@ -141,7 +140,7 @@ h4, h1 {
 }
 
 .panel-title {
-    font-size: 40px;
+    font-size: 4rem;
 }
 
 .login-hint {
@@ -329,4 +328,8 @@ md-toast {
 .popover-hidden {
     left: 0 !important;
     top: 0 !important;
+}
+
+#waiting-list-container {
+    font-size: 1.6rem
 }
