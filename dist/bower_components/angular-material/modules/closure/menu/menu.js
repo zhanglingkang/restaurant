@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-03 11:00:22 AM */
+/*! ppz_website 2015-02-05 3:20:31 PM */
 function MenuProvider(a){function b(){}return a("$mdMenu").setDefaults({methods:["placement"],options:b})}goog.provide("ng.material.components.menu"),angular.module("material.components.menu",[]).factory("$mdMenu",MenuProvider),MenuProvider.$inject=["$$interimElementProvider"];

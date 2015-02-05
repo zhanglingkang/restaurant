@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-03 11:00:22 AM */
+/*! ppz_website 2015-02-05 3:20:31 PM */
 "use strict";define("restaurant-detail/picture-item-controller",["app","./picture-service"],function(a){var b=a("app");a("./picture-service"),b.controller("pictureItemController",["$cookies","$scope","pictureService",function(a,b,c){b.file.pictureCommentCopy=b.file.pictureComment,b.modifyIntroduce=function(a){a&&c.modifyIntroduce({pictureId:b.file.pictureId,pictureComment:b.file.pictureCommentCopy,restaurantId:b.file.restaurantId}).then(function(){b.file.pictureComment=b.file.pictureCommentCopy,b.popoverScope.close()},function(){})}}])});
