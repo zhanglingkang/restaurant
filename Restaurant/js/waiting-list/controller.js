@@ -176,12 +176,14 @@ define(function (require) {
             $scope.addWaitUser = function (valid, partyTypeId) {
                 if (valid) {
                     $scope.waitForm.partyTypeId = partyTypeId
-                    waitingListService.addWaitUser($scope.waitForm).success(function (data) {
+                    var printWindow = $scope.openTempPrintView("printWindow")
+                    var promise = waitingListService.addWaitUser($scope.waitForm).success(function (data) {
                         var unit = data.results[0]
                         $scope.waitingList[partyTypeId].push(unit)
                         initWaitForm()
+                        printWindow.printData = getPrintData(data.results[0], getPartyType(partyTypeId))
+                        printWindow.requestPrint && printWindow.requestPrint()
                         $scope.waitFormValidation.$setPristine()
-                        $scope.openPrintView(unit, getPartyType(partyTypeId))
                     })
                 }
             }
@@ -247,8 +249,22 @@ define(function (require) {
                 return result
             }
 
-            $scope.openPrintView = function (unit, partyType) {
-                var printWindow = $window.open(system.getTplAbsolutePath("printNumber.html"), "", "left=0,top=0")
+            $scope.openTempPrintView = function (windowName) {
+                return  $window.open(system.getTplAbsolutePath("printNumber.html"), windowName, "left=0,top=0")
+            }
+            /**
+             *
+             * @param unit
+             * @param partyType
+             * @param windowName 打印窗口的名字，默认为空
+             * @returns {*}
+             */
+            $scope.openPrintView = function (unit, partyType, windowName) {
+                windowName = windowName || ""
+                var printWindow = $window.open(system.getTplAbsolutePath("printNumber.html"), windowName, "left=0,top=0")
+                printWindow.printData = getPrintData(unit, partyType)
+            }
+            function getPrintData(unit, partyType) {
                 var printPartyTypeDescription
                 if (partyType) {
                     printPartyTypeDescription = partyType.partyTypeDescription
@@ -261,12 +277,13 @@ define(function (require) {
                         }
                     })
                 }
-                printWindow.printData = {
+                return  {
                     unit: unit,
                     partyTypeDescription: printPartyTypeDescription,
                     printTime: new ChineseData
                 }
             }
+
             $scope.reservationStatusMap = dataService.reservationStatus
             // _nextUpdate()
         }

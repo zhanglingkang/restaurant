@@ -27,7 +27,17 @@
                 <hr class="space"/>
                 <div class="col-xs-4">
                     <label class="control-label">电话</label>
-                    <input class="form-control" placeholder="电话" ng-model="newInfo.phone.phone" ng-disabled="!editing"/>
+
+                    <div class="row">
+                        <div class="col-xs-4">
+                            <input class="form-control" placeholder="电话区号" ng-model="newInfo.phone.area"
+                                   ng-disabled="!editing"/>
+                        </div>
+                        <div class="col-xs-8">
+                            <input class="form-control" placeholder="电话" ng-model="newInfo.phone.phone"
+                                   ng-disabled="!editing"/>
+                        </div>
+                    </div>
                 </div>
                 <div class="col-xs-4">
                     <label class="control-label">邮件</label>

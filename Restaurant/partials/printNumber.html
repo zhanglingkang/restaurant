@@ -70,19 +70,29 @@
     </footer>
 </script>
 <script>
-    +function () {
-        var template = document.querySelector("#template").innerHTML
-        template = template.replace(/{{(.+)}}/g, function ($0, $1) {
-            console.log(eval("printData." + $1))
-            return eval("printData." + $1)
-        })
-        console.log(template)
-        document.querySelector("#print-zone").innerHTML = template
-        setTimeout(function () {
-            print()
-            close()
-        })
-    }()
+    /**
+     * 打印本页内容，即使多次调用也只会调用window.print一次，多次调用无副作用
+     * 调用前如果window.printData已经就绪，则会成功调用print方法
+     */
+    function requestPrint() {
+        if (!requestPrint.successful) {
+            try {
+                var template = document.querySelector("#template").innerHTML
+                template = template.replace(/{{(.+)}}/g, function ($0, $1) {
+                    return eval("printData." + $1)
+                })
+                document.querySelector("#print-zone").innerHTML = template
+                setTimeout(function () {
+                    requestPrint.successful = true
+                    print()
+                    close()
+                })
+            } catch (e) {
+                console.log(e)
+            }
+        }
+    }
+    requestPrint()
 </script>
 </body>
 </html>
