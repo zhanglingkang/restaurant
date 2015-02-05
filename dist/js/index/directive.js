@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-05 3:20:31 PM */
+/*! ppz_website 2015-02-05 3:57:11 PM */
 "use strict";define("index/directive",["app"],function(a){var b=a("app");b.directive("deleteDatePicker",[function(){return{restrict:"A",link:function(a){a.$on("$locationChangeStart",function(){$("body .datetimepicker").remove()})}}}])});

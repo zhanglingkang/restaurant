@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-05 3:20:31 PM */
+/*! ppz_website 2015-02-05 3:57:11 PM */
 "use strict";define("public/local/data-service",["app"],function(a){var b=a("app"),c=[function(){var a={reservationStatus:{waitConfirm:1,accept:2,refuse:3},queueType:{wait:1,reserveParty:2,reserveRoom:3}},b={getText:function(a){var b;return util.getArray(this).some(function(c){return c.value===a?(b=c.text,!0):void 0}),b}};return angular.forEach(a,function(a){a.__proto__=b}),a}];b.service("dataService",c)});

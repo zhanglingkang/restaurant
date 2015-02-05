@@ -1,11 +1,11 @@
-<div class="container-fluid">
-    <div layout="row">
+<div layout="column" style="max-height: 100vh">
+    <div layout="row" style="max-height: 90vh">
         <div flex ng-repeat="partyType in partyTypes" class="panel col-lg-5"
              ng-class="panelTypes[partyType.unitIdPrefix]"
              style="padding: 0px; margin:0px 20px 20px 0px">
             <div class="panel-heading"><h1 class="panel-title">{{partyType.partyTypeDescription}}</h1></div>
             <div class="panel-body" ng-animate="'animate'">
-                <h1 style="font-size: 22rem;text-align: center">
+                <h1 style="font-size: 20rem;text-align: center">
                     {{lastCalledNumbers[partyType.unitIdPrefix].unitId||"--"}}</h1>
             </div>
             <div class="panel-footer text-center" style="font-size: 8rem;">
@@ -14,5 +14,8 @@
             </div>
 
         </div>
+    </div>
+    <div layout="row" layout-align="end">
+        <img src="img/91.png">
     </div>
 </div>
