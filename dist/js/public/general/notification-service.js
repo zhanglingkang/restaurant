@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-05 3:57:11 PM */
+/*! ppz_website 2015-02-10 10:45:23 AM */
 "use strict";define("public/general/notification-service",["app"],function(a){var b=a("app"),c=["$q",function(a){return{create:function(b,c){var d=a.defer();return"granted"===Notification.permission?d.resolve(new Notification(b,c)):"denied"!==Notification.permission&&(Notification.requestPermissioning||(Notification.requestPermissioning=!0,Notification.requestPermission(function(a){Notification.requestPermissioning=!1,"permission"in Notification||(Notification.permission=a),"granted"===Notification.permission?d.resolve(new Notification(b,c)):d.reject("权限不足")}))),d.promise}}}];b.service("notificationService",c)});

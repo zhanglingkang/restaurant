@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-05 3:57:11 PM */
+/*! ppz_website 2015-02-10 10:45:23 AM */
 "use strict";define("public/local/confirmation-modal-controller",["app"],function(a){var b=a("app"),c=function(a,b,c){a.unit=c,a.ok=function(){b.close()},a.cancel=function(){b.dismiss("cancel")}};b.controller("confirmationModalController",c)});

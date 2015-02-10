@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-05 3:57:11 PM */
+/*! ppz_website 2015-02-10 10:45:23 AM */
 function MenuProvider(a){function b(){}return a("$mdMenu").setDefaults({methods:["placement"],options:b})}angular.module("material.components.menu",[]).factory("$mdMenu",MenuProvider),MenuProvider.$inject=["$$interimElementProvider"];

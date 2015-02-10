@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-05 3:57:11 PM */
+/*! ppz_website 2015-02-10 10:45:23 AM */
 "use strict";define("public/general/directive/set-file",["app","public/general/util","public/local/system"],function(a){{var b=a("app"),c=a("public/general/util");a("public/local/system")}b.directive("setFile",function(){return{restrict:"A",link:function(a,b,d){var e=$(b);e.bind("change",function(){c.setPropertyValue(a,d.setFile,e[0].files)})}}})});

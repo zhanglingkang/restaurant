@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-05 3:57:11 PM */
+/*! ppz_website 2015-02-10 10:45:23 AM */
 "use strict";define("public/general/directive/file-model",["app"],function(a){var b=a("app");b.directive("fileModel",function(){return{restrict:"A",link:function(a,b,c){var d=$(b);d.bind("change",function(){a.$apply(function(){a[c.fileModel]=d[0].files})})}}})});

@@ -11,7 +11,8 @@ define(function (require) {
                         initData(data)
                         break
                     case "call":
-                        $scope.lastCalledNumbers[data.unitIdPrefix] = data.unit.unitId
+                        debugger;
+                        $scope.lastCalledNumbers[data.unitIdPrefix] = data.unit
                         $scope.panelTypes[data.unitIdPrefix] = "panel-primary animate-flicker"
                         console.time("flicker")
                         $timeout(function () {
