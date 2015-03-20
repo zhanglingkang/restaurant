@@ -280,7 +280,8 @@ define(function (require) {
                 return  {
                     unit: unit,
                     partyTypeDescription: printPartyTypeDescription,
-                    printTime: new ChineseData
+                    printTime: new ChineseData,
+                    restaurant: $scope.restaurant
                 }
             }
 

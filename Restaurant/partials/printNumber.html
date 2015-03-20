@@ -47,6 +47,7 @@
 
 </div>
 <script type="text/template" id="template">
+    <p class="title">{{restaurant.name}}</p>
     <p class="title">{{partyTypeDescription}}排号单</p>
     <hr/>
     <div>
@@ -61,10 +62,14 @@
         <strong class="unitId">{{unit.unitId}}</strong>
 
         <p>你前面还有<strong>{{unit.position}}</strong>名客人在等待</p>
+
+        <div style="display: flex;justify-content: center;align-items: center">
+            <img src="../img/weixin.jpg" style="max-width: 5cm;"/>
+        </div>
     </div>
     <hr/>
     <footer>
-        <!--<p>*打印时间：{{printTime.format("hh:mm:ss")}}</p>-->
+        <p>*排队系统由排排坐提供</p>
 
         <p>*注意叫号</p>
     </footer>
@@ -85,7 +90,8 @@
                 setTimeout(function () {
                     requestPrint.successful = true
                     print()
-                    close()
+
+//                    close()
                 })
             } catch (e) {
                 console.log(e)
