@@ -1,2 +1,2 @@
-/*! ppz_website 2015-02-10 10:45:23 AM */
+/*! ppz_website 2015-03-20 5:16:00 PM */
 "use strict";define("public/general/directive/trigger-click",["app"],function(a){var b=a("app");b.directive("triggerClick",function(){return{restrict:"A",link:function(a,b,c){var d=$(b);d.bind("click",function(){$(c.triggerClick).click()})}}})});
